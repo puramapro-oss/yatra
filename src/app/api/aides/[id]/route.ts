@@ -11,10 +11,11 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
     const { data: aide } = await supabase
       .from('aides')
       .select('*')
-      .or(`id.eq.${id},slug.eq.${id}`)
+      .eq(isUuid ? 'id' : 'slug', id)
       .eq('active', true)
       .maybeSingle()
 

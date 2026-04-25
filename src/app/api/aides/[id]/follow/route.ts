@@ -21,7 +21,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const { data: aide } = await supabase
       .from('aides')
       .select('id, nom')
-      .or(`id.eq.${id},slug.eq.${id}`)
+      .eq(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) ? 'id' : 'slug', id)
       .eq('active', true)
       .maybeSingle()
 
@@ -85,7 +85,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     const { data: aide } = await supabase
       .from('aides')
       .select('id')
-      .or(`id.eq.${id},slug.eq.${id}`)
+      .eq(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) ? 'id' : 'slug', id)
       .maybeSingle()
 
     if (!aide) return NextResponse.json({ error: 'Aide introuvable' }, { status: 404 })
