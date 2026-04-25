@@ -10,7 +10,7 @@
 | **P6 — Radar Gratuit + Achat Groupé** | ✅ | 12 events FR seedés · RPC group_join_v1 atomique · matching ville Haversine |
 | **P7 — Cashback + Voyages Humanitaires (VIDA Assoc)** | ✅ | 8 partenaires éthiques + 6 missions FR · RPC credit_cashback_v1 · webhook HMAC · cron UAT hebdo Resend |
 | **P8 — 6 Modes Ambiance + Three.js + Web Audio** | ✅ | 6 modes seedés (forest 432Hz, ocean 174Hz Schumann, mountain 396Hz, desert 528Hz, aurora 639Hz, cosmos 963Hz) · BinauralEngine StereoPanner crossfade · scenes R3F lazy chunks · sendBeacon telemetry |
-| P9 — IA Aria Conscience + 7 Modes Spéciaux |  | Anthropic key OK |
+| **P9 — IA Aria Conscience + 7 Modes Spéciaux** | ✅ | 7 system prompts identité stricte · 30 questions FR seedées · stream SSE Claude Sonnet 4.6 · rate limit 50/jour gratuit · auto-summary Haiku · TTS browser SpeechSynthesis · streak quotidien |
 | P10 — RA Sensorielle + Hors Réseau + Famille |  |  |
 | P11 — Sécurité Vivante + Challenges + 4 Rangs |  |  |
 | P12 — Influenceurs + Pub interne + Jeux Concours |  |  |
@@ -114,3 +114,13 @@
 - [x] P8.7 UI : `/dashboard/ambiance` (gallery glass cards gradient primary/secondary + recommended hero selon time-of-day) + `/[slug]` (canvas plein écran + UI overlay backdrop-blur + play/pause + volume slider + binaural toggle + temps écoulé live + sendBeacon end-session sur unmount)
 - [x] P8.8 Dashboard : 1 nouvelle card "Modes Ambiance" — total **8 actions**
 - [x] P8.9 Build/tsc OK + grep 0 + commit `52bef57` + push + deploy + smoke 7 routes (307×3 dashboard + 401×3 API + 405 GET session)
+
+## P9 — Détail (terminé 2026-04-25)
+
+- [x] P9.1 Migration `p9_aria.sql` : `aria_conversations` (mode + sentiment + summary + message_count + total_tokens) + `aria_messages` (role check user/assistant/system + input/output_tokens + model) + `aria_daily_questions` (30 seed FR : présence, vérité, intuition, gratitude, lien, transformation) + `aria_user_state` (current_mood + current_intention + daily_streak + last_seen_question_id + last_active_date) + RLS toutes tables + index conversation_id+created_at
+- [x] P9.2 `lib/aria.ts` : 7 system prompts (coach_trajet, meditation, journal, cri_du_coeur, boussole, gratitude, question_profonde) avec IDENTITÉ ABSOLUE (jamais Claude/Anthropic → "Je suis Aria, ta présence YATRA") + tone strict (tutoiement, douce, jamais juge, 1-2 emojis max, pas de listes) + ce-que-tu-ne-fais-jamais (pas conseil médical/juridique/financier, 3114 si détresse vitale) + maxTokens par mode (méditation 1500, boussole 800, journal 500) + truncateMessages keepLast 12 + pickDailyQuestionIndex (rotation déterministe `dayOfYear % count`)
+- [x] P9.3 5 API : POST `/api/aria/start` (Zod mode + create conv + bump daily_streak J0/J+1 reset si gap >1j + total_conversations) + POST `/api/aria/message` (rate limit 50 user msg/24h pour plan free, illimité Premium/lifetime · stream SSE Claude Sonnet 4.6 · persist user msg pre-stream + assistant msg post-stream avec input/output_tokens · update conversation message_count + total_tokens) + GET `/api/aria/daily-question` (rotation `pickDailyQuestionIndex` + upsert last_seen_question_id+at) + GET `/api/aria/conversations/[id]` (full thread filter ≠ system) + PATCH (end + auto-summary via askClaudeJSON Haiku model fast → {summary, sentiment} avec validation isValidSentiment) + GET `/api/aria/state` (state + last_conv + messages_today count)
+- [x] P9.4 UI : `/dashboard/aria` (hero salutation firstName + streak + total_conversations · question du jour gradient violet card · 7 mode buttons grid 2-cols emoji+tagline+loader · dernière conv avec sentiment emoji 🍃⚡✨🌀🦋 + summary italic + lien) + `/[id]` (chat full-height flex-col · header backdrop-blur emoji+title+TTS toggle Volume2/X+Clôturer · bubbles user droite glass + assistant gauche avec avatar ✨ + tail-pulse streaming · textarea Cmd+Enter · footer disclaimer 3114 + ⌘+Enter)
+- [x] P9.5 Browser SpeechSynthesis fr-FR : detect voix Amelie/Audrey/Julie féminine, fallback toute fr · cancel sur unmount · rate 0.95 + pitch 1.05
+- [x] P9.6 Dashboard : 1 nouvelle card "Aria · ta présence" — total **9 actions**
+- [x] P9.7 Build/tsc OK + grep 0 + commit `e264b3f` + push + deploy + smoke 7 routes (307×2 dashboard + 401×5 API)

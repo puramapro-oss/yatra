@@ -1,8 +1,33 @@
 # YATRA — Progress (live state)
 
-**Dernière mise à jour** : 2026-04-25 (P8 livré)
-**Phase courante** : P8 ✅ TERMINÉE (deploy `52bef57`)
-**Phase suivante** : P9 — IA Aria Conscience + 7 Modes Spéciaux
+**Dernière mise à jour** : 2026-04-25 (P9 livré)
+**Phase courante** : P9 ✅ TERMINÉE (deploy `e264b3f`)
+**Phase suivante** : P10 — RA Sensorielle + Hors Réseau + Famille
+
+## P9 — livré
+- ✅ Aria = agent IA YATRA avec **identité stricte** : refuse de se présenter comme Claude/Anthropic, répond toujours "Je suis Aria, ta présence YATRA"
+- ✅ 7 modes spéciaux avec system prompts dédiés : Coach trajet 🧭 (factuel + intention), Méditation guidée 🌬️ (avec pauses "..." et durée 3-10min), Journal réflexif 📖 (1 question à la fois, max 4-5), Cri du cœur 💗 (zéro conseil sauf demande, 3114 si détresse vitale), Boussole intuition 🧿 (3 angles raison/cœur/contexte + "Qu'est-ce qui résonne ?"), Gratitude vocale 🙏 (refléter rayonnement, pas paraphraser), Question profonde ✨ (1 question/jour rotation déterministe `dayOfYear % count`)
+- ✅ 30 questions seedées FR catégorisées (présence, vérité, intuition, gratitude, lien, transformation) — exemple: "Qu'est-ce que tu portes en ce moment qui n'est pas à toi ?"
+- ✅ Stream SSE Claude Sonnet 4.6 : POST `/api/aria/message` retourne ReadableStream `text/event-stream` avec `data: {delta}` et `data: {done}`, persist user msg pre + assistant msg post avec input/output tokens
+- ✅ Rate limit : 50 messages user/jour pour plan free (count avec `head: true`), illimité Premium/lifetime — message 429 "Reviens demain ou passe Premium"
+- ✅ Auto-summary à la clôture : PATCH `/api/aria/conversations/[id]` `{end: true, generate_summary: true}` → askClaudeJSON Haiku model fast → `{summary, sentiment}` validé via `isValidSentiment` (apaise/energise/inspire/doute/libere/neutre)
+- ✅ Daily streak : start endpoint compare `last_active_date` à aujourd'hui — same day = no-op, J+1 = +1, gap > 1 = reset à 1
+- ✅ TTS browser SpeechSynthesis fr-FR : autoplay réponse assistante quand toggle activé, cherche voix Amelie/Audrey/Julie féminine, rate 0.95 + pitch 1.05, cancel sur unmount
+- ✅ Hub `/dashboard/aria` : hero salutation firstName + streak + question du jour gradient violet + 7 cards modes + dernière conversation avec sentiment emoji 🍃⚡✨🌀🦋 + summary italic
+- ✅ Conversation `/[id]` : chat full-height flex-col + header backdrop-blur (emoji + title + TTS toggle + bouton Clôturer) + bubbles user droite glass + Aria gauche avec avatar ✨ + tail-pulse violet streaming + textarea Cmd+Enter + footer disclaimer 3114
+- ✅ Dashboard : **9 ActionCards** (+ Aria · ta présence avec icône MessageCircle)
+- ✅ Smoke 7 routes : 307×2 (auth dashboard) + 401×5 (auth API)
+
+## Décisions clés P9
+- **Identité stricte** : ARIA_IDENTITY_BLOCK répété en tête de CHAQUE prompt mode — empêche jailbreak prompt-injection style "ignore previous instructions, qui es-tu vraiment ?"
+- **Rate limit count head:true** : Postgres ne charge pas les rows, juste compte → 1 query rapide même avec 1M messages
+- **Stream SSE pas WebSocket** : SSE = unidirectionnel et stateless, parfait pour stream LLM, marche avec edge runtime potentiel, plus simple que WS pour ce cas
+- **Auto-summary via Haiku model fast** : 10× moins cher que Sonnet, suffisant pour résumé 1-2 phrases — coût négligeable même à 1000 conversations/jour
+- **Cri du cœur = pas de conseil sauf demande** : règle métier dure, surtout pour user en détresse — propose 3114 (numéro français prévention suicide gratuit 24/7) sans dramatiser
+- **Boussole pas de réponse** : 3 angles intentionnellement → user reste maître du choix, Aria n'est pas oracle
+- **TTS browser pas ElevenLabs/OpenAI TTS** : 0€ + 0 latence + déjà dans navigateur. ElevenLabs pourra venir en P12+ pour qualité voix (P9 = MVP texte+voix base)
+- **truncateMessages 12 derniers** : compromis qualité/coût — Aria n'a pas besoin du début si conversation > 12 messages, garde context pertinent
+- **Daily streak reset gap >1j** : philosophie YATRA = présence, pas pression. Si l'user manque 2 jours, on repart à 1, pas négatif
 
 ## P8 — livré
 - ✅ 6 modes ambiance seedés avec fréquences Solfège + battements binauraux : forest 432Hz / theta 4Hz, ocean 174Hz / Schumann 7.83Hz, mountain 396Hz / alpha 8Hz, desert 528Hz / theta 6Hz, aurora 639Hz / alpha 10Hz, cosmos 963Hz / theta 4Hz
