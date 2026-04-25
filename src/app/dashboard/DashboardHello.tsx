@@ -135,7 +135,7 @@ export function DashboardHello({
           </section>
 
           {/* Next steps */}
-          <section className="grid sm:grid-cols-2 gap-4">
+          <section className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <ActionCard
               title="Démarrer mon premier trajet"
               description="On calcule la combinaison la moins chère + la plus propre + la plus apaisante en 3 sec."
@@ -147,6 +147,12 @@ export function DashboardHello({
               description="Historique, gains cumulés, CO₂ évité. Toute ta progression mobilité propre."
               icon={<MapPin size={22} />}
               onClick={() => router.push('/dashboard/trajets')}
+            />
+            <ActionCard
+              title="Mes droits & aides"
+              description="Radar permanent : aides transport, énergie, logement matchées sur ton profil."
+              icon={<Sparkles size={22} />}
+              onClick={() => router.push('/dashboard/aides')}
             />
           </section>
 
