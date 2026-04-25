@@ -7,7 +7,7 @@
 | **P3 — Moteur Zéro-Coût + GPS Tracking + Anti-fraude** | ✅ | OSRM gratuit · Mapbox auto-upgrade · 5 partenaires FR seed |
 | **P4 — Wallet sub-PURAMA + Retraits IBAN + Cap 12m** | ✅ | RPC atomiques · IBAN mod-97 · Treezor en P11+ post-SASU |
 | **P5 — Radar Aides & Droits Auto + Tavily 24/7** | ✅ | 30 aides FR seedées · CRON quotidien 6h via vercel.json · Score 0-100 multi-signaux |
-| P6 — Radar Gratuit + Achat Groupé |  |  |
+| **P6 — Radar Gratuit + Achat Groupé** | ✅ | 12 events FR seedés · RPC group_join_v1 atomique · matching ville Haversine |
 | P7 — Cashback + Voyages Humanitaires (VIDA Assoc) |  |  |
 | P8 — 6 Modes Ambiance + Three.js + Web Audio |  |  |
 | P9 — IA Aria Conscience + 7 Modes Spéciaux |  | Anthropic key OK |
@@ -65,3 +65,21 @@
 - [x] P5.5 UI `/dashboard/aides` (hero KPI potentiel + filtres 7 catégories scroll horizontal + cards score badge + reasons top 3) + `/dashboard/aides/[id]` (hero + bouton "Faire ma demande officielle" + follow/applied/dismissed avec confirmation modal)
 - [x] P5.6 Dashboard : 3ème card "Mes droits & aides" actif (P5 → page liste)
 - [x] P5.7 Build/tsc OK + grep 0 + commit + push + deploy + smoke 6 routes
+
+## UAT P1→P5 — exécuté 2026-04-25 — 23/23 ✅
+
+- [x] Suite Playwright `tests/uat/full.spec.ts` : 23 tests serial (3 P1 + 2 P2 + 5 P3 + 5 P4 + 7 P5 + 1 final)
+- [x] User UAT créé/supprimé via globalSetup/globalTeardown
+- [x] GPS data réaliste vélo + voiture pour tests fraud detection
+- [x] Tavily fetch en réel via Bearer CRON_SECRET → 200 + total_inserted
+- [x] Bugs trouvés et fix : RLS `score_humanite_history` INSERT manquant, `.or` aides API plante sur slug non-UUID, hydration mismatch `getGreeting()`
+- [x] 14 screenshots capturés (`tests/uat/output/`)
+
+## P6 — Détail (terminé 2026-04-25)
+
+- [x] P6.1 Migration : `gratuit_events` (12 FR seed officiels : Louvre/Orsay/Beaubourg 1er dimanche, Petit Palais, MAC Lyon, MUCEM, Croix-Rouge, Restos du Cœur, Halles Civiques, Tête d'Or, Fête de la Musique, Patrimoine) + `group_purchases` (savings_percent generated column) + `group_purchase_members` + RPC `group_join_v1` atomique (FOR UPDATE + ON CONFLICT) + RLS
+- [x] P6.2 `lib/gratuit-matcher.ts` : ranking ville exact (60pts) + région (25) + national (10) + distance Haversine (15/8/3)
+- [x] P6.3 4 API : GET `/api/gratuit` (events ranked), GET `/api/groups` (pools open + memberships), POST `/api/groups/create` (creator + auto-join), POST `/api/groups/[id]/join` (RPC atomique avec auto-unlock_code)
+- [x] P6.4 UI : `/dashboard/gratuit` (cards events + bouton "M'y rendre" → /trajet), `/dashboard/groupes` (liste + progress bars), `/dashboard/groupes/[id]` (hero + join + UnlockBanner avec code copy), `/dashboard/groupes/create` (form 5/10/25 participants)
+- [x] P6.5 Dashboard : 2 nouvelles cards (Radar gratuit, Achats groupés) — total 5 actions
+- [x] P6.6 Build/tsc OK + grep 0 + commit + push + deploy + smoke 7 routes

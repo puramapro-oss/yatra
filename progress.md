@@ -1,8 +1,31 @@
 # YATRA — Progress (live state)
 
-**Dernière mise à jour** : 2026-04-25 (P5 livré)
-**Phase courante** : P5 ✅ TERMINÉE (deploy `2199dd2`)
-**Phase suivante** : P6 — Radar Gratuit + Achat Groupé
+**Dernière mise à jour** : 2026-04-25 (P6 livré + UAT P1-P5 23/23)
+**Phase courante** : P6 ✅ TERMINÉE (deploy `d9b7727`)
+**Phase suivante** : P7 — Cashback + Voyages Humanitaires (VIDA Assoc)
+
+## P6 — livré
+- ✅ 12 événements gratuits FR seedés (Louvre/Orsay/Beaubourg 1er dimanche, Petit Palais permanent, MAC Lyon, MUCEM Marseille, Croix-Rouge, Restos du Cœur, Halles Civiques, Parc Tête d'Or, Fête de la Musique, Patrimoine)
+- ✅ Achat groupé : `group_purchases` (savings_percent generated column) + `group_purchase_members` + RPC `group_join_v1` (FOR UPDATE lock + auto-unlock_code à threshold)
+- ✅ Matching events : ville exact (60) + région (25) + FR (10) + distance < 5km (15) / < 20 (8) / < 100 (3)
+- ✅ 4 API : `/api/gratuit`, `/api/groups`, `/api/groups/create`, `/api/groups/[id]/join`
+- ✅ 4 pages UI : `/dashboard/gratuit` (events cards), `/dashboard/groupes` (liste pools), `/[id]` (détail + UnlockBanner), `/create` (form pool)
+- ✅ Dashboard : 5 actions (trajet · trajets · aides · gratuit · groupes)
+- ✅ Smoke 7 routes : 200 / 200 / 307×2 / 401×2 / 405
+
+## Décisions clés P6
+- **savings_percent generated column** : auto-calculé à l'insert/update, pas de divergence possible
+- **Pool min 2 participants, max 1000** : on commence raisonnable, P11 ajoutera étapes 5/10/25/50
+- **unlock_code généré côté Postgres** au moment du `reached` : `YATRA-` + 8 hex chars random
+- **Auto-join creator** dans la même transaction que la création
+- **Source events `official` only** : pas d'auto-import Tavily P6 (Tavily concentré sur aides P5), curation manuelle pour fiabilité
+
+## UAT P1→P5 — 23/23 ✅
+- 3 tests Auth + 2 VIDA CORE + 5 Trajet/GPS/anti-fraude + 5 Wallet + 7 Aides/Tavily + 1 console errors
+- Test user auto créé/supprimé via globalSetup/globalTeardown
+- GPS data réaliste vélo @ 18 km/h vs voiture @ 95 km/h pour fraud detection
+- Tavily fetch live avec Bearer CRON_SECRET
+- 4 bugs trouvés et fix : RLS INSERT manquant `score_humanite_history`, `.or` plante sur slug non-UUID dans `/api/aides/[id]`, hydration mismatch `getGreeting()`, Zod min(15) IBAN
 
 ## P5 — livré
 - ✅ 30 aides FR officielles seedées (service-public.fr, gouv.fr, ameli.fr, francetravail.fr, iledefrance.fr, sncf-connect, actionlogement)
