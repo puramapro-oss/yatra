@@ -1,8 +1,28 @@
 # YATRA — Progress (live state)
 
-**Dernière mise à jour** : 2026-04-25 (P7 livré + UAT cron hebdo activé)
-**Phase courante** : P7 ✅ TERMINÉE (deploy `1102a57`)
-**Phase suivante** : P8 — 6 Modes Ambiance + Three.js + Web Audio
+**Dernière mise à jour** : 2026-04-25 (P8 livré)
+**Phase courante** : P8 ✅ TERMINÉE (deploy `52bef57`)
+**Phase suivante** : P9 — IA Aria Conscience + 7 Modes Spéciaux
+
+## P8 — livré
+- ✅ 6 modes ambiance seedés avec fréquences Solfège + battements binauraux : forest 432Hz / theta 4Hz, ocean 174Hz / Schumann 7.83Hz, mountain 396Hz / alpha 8Hz, desert 528Hz / theta 6Hz, aurora 639Hz / alpha 10Hz, cosmos 963Hz / theta 4Hz
+- ✅ BinauralEngine : 2 OscillatorNode sine via StereoPanner pan -1/+1 (cerveau perçoit le battement comme différence freq), masterGain crossfade 600ms quand on change de mode, dispose cleanup proprement
+- ✅ 6 scenes R3F (Three.js) en lazy chunks séparés : Forest (particles fall + Stars + fog vert), Ocean (PlaneGeometry 96² wave shader sin/cos sur Z), Mountain (4 cones flat-shaded + 800 snow particles), Desert (sun pulse + heat shimmer plane), Aurora (3 ribbons multi-color additive blend), Cosmos (Stars 4000 + galaxy rotation + nebula BackSide pulsante)
+- ✅ AmbientCanvas wrapper : `document.visibilitychange` pause si tab cachée (économie batterie/CPU), `Math.min(devicePixelRatio, 1.5)` cap mobile, Suspense fallback null
+- ✅ Recommandation auto selon time-of-day (trip_mode 60pts + tod 40pts) → matin=forêt, midi=océan, après-midi=montagne, soir=désert/aurore, nuit=cosmos
+- ✅ 3 API : GET `/api/ambient` (modes + prefs Promise.all en 1 round-trip) + POST `/preferences` (upsert Zod partial onConflict user_id) + POST `/session` start + PATCH end avec cumul `total_minutes_listened`
+- ✅ UI immersion : canvas plein écran derrière + voile gradient primary/secondary + UI overlay backdrop-blur (play, volume slider, binaural toggle Volume2/VolumeX, timer live), sendBeacon sur unmount pour finir la session même si user ferme l'onglet
+- ✅ Dashboard : **8 ActionCards** (+ Modes Ambiance avec icône Headphones)
+- ✅ Smoke 7 routes : 307×3 dashboard auth + 401×3 API auth + 405 session GET (POST/PATCH only)
+
+## Décisions clés P8
+- **Binaural via StereoPanner pas merger** : permet le crossfade par oreille indépendamment, contrôle précis du gain stéréo
+- **AudioContext lazy-init** : créé seulement au premier user gesture (browser policy iOS/Safari sinon `AudioContext.state === 'suspended'`)
+- **6 scenes en lazy chunks** : initial load `/ambiance` ne charge AUCUN three.js, seulement le slug visité tire son chunk → bundle gallery <80KB
+- **visibilitychange pause** : standard pour tabs en arrière-plan (mobile lock screen, swipe app), évite drain batterie sur Three.js qui tourne en idle
+- **sendBeacon pour end-session** : garantit l'envoi telemetry même si user ferme l'onglet brutalement (vs fetch qui peut être annulé)
+- **Schumann 7.83 Hz pour Ocean** : résonance fondamentale de la Terre, choix non arbitraire — alignement physique-spirituel
+- **Recommendation pas IA** : règles déterministes 60+40 testables en pur JS, IA viendra en P9 pour personnalisation comportementale
 
 ## P7 — livré
 - ✅ 8 partenaires cashback éthiques FR seedés : Greenweez (4%), La Fourche (6%), BlaBlaCar Daily (8%), Citiz (5%), Enercoop (3%), ilek (4.5%), Fairphone (2.5%), Veja (5%) — user_share_pct 70-80% selon partenaire

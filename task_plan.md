@@ -9,7 +9,7 @@
 | **P5 — Radar Aides & Droits Auto + Tavily 24/7** | ✅ | 30 aides FR seedées · CRON quotidien 6h via vercel.json · Score 0-100 multi-signaux |
 | **P6 — Radar Gratuit + Achat Groupé** | ✅ | 12 events FR seedés · RPC group_join_v1 atomique · matching ville Haversine |
 | **P7 — Cashback + Voyages Humanitaires (VIDA Assoc)** | ✅ | 8 partenaires éthiques + 6 missions FR · RPC credit_cashback_v1 · webhook HMAC · cron UAT hebdo Resend |
-| P8 — 6 Modes Ambiance + Three.js + Web Audio |  |  |
+| **P8 — 6 Modes Ambiance + Three.js + Web Audio** | ✅ | 6 modes seedés (forest 432Hz, ocean 174Hz Schumann, mountain 396Hz, desert 528Hz, aurora 639Hz, cosmos 963Hz) · BinauralEngine StereoPanner crossfade · scenes R3F lazy chunks · sendBeacon telemetry |
 | P9 — IA Aria Conscience + 7 Modes Spéciaux |  | Anthropic key OK |
 | P10 — RA Sensorielle + Hors Réseau + Famille |  |  |
 | P11 — Sécurité Vivante + Challenges + 4 Rangs |  |  |
@@ -102,3 +102,15 @@
 - [x] P7.7 Dashboard : 2 nouvelles cards (Cashback éthique, Voyages humanitaires) — total **7 actions**
 - [x] P7.8 Env var `CASHBACK_WEBHOOK_SECRET` ajoutée prod via Vercel CLI + redeploy
 - [x] P7.9 Build/tsc OK + grep 0 + commit `1102a57` + push + deploy + smoke 7 routes (307/307/401/401/405/401/401)
+
+## P8 — Détail (terminé 2026-04-25)
+
+- [x] P8.1 Migration `p8_ambient.sql` : `ambient_modes` (6 seed : forest 432Hz/4Hz theta, ocean 174Hz/7.83Hz Schumann theta, mountain 396Hz/8Hz alpha, desert 528Hz/6Hz theta, aurora 639Hz/10Hz alpha, cosmos 963Hz/4Hz theta) + `user_ambient_preferences` (last_mode + default_volume + binaural_enabled + total_minutes_listened) + `ambient_sessions` (telemetry trip_id + duration + binaural_played) + RLS toutes tables
+- [x] P8.2 `lib/ambient.ts` : timeOfDayNow + recommendMode (trip_mode 60pts + tod 40pts) avec catalogue typed
+- [x] P8.3 `lib/binaural.ts` : BinauralEngine class — AudioContext lazy + 2 OscillatorNode sine + StereoPanner pan -1/+1 + masterGain crossfade 600ms + dispose cleanup proper
+- [x] P8.4 6 scenes R3F + drei : ForestScene (Stars + 600 particles fall), OceanScene (PlaneGeometry 96×96 wave shader sin/cos), MountainScene (4 cones + 800 snow particles), DesertScene (sun pulse + heat shimmer plane), AuroraScene (3 ribbons additive blend planes), CosmosScene (Stars 4000 + galaxy rotation + nebula sphere BackSide)
+- [x] P8.5 `AmbientCanvas` wrapper : 6 lazy imports (chunks séparés) + visibilitychange pause + pixelRatio cap min(devicePixelRatio, 1.5) + suspense fallback null
+- [x] P8.6 3 API : GET `/api/ambient` (modes + prefs Promise.all) + POST `/api/ambient/preferences` (Zod partial upsert onConflict user_id) + POST `/api/ambient/session` (start) + PATCH (end avec sendBeacon-friendly + cumul total_minutes_listened)
+- [x] P8.7 UI : `/dashboard/ambiance` (gallery glass cards gradient primary/secondary + recommended hero selon time-of-day) + `/[slug]` (canvas plein écran + UI overlay backdrop-blur + play/pause + volume slider + binaural toggle + temps écoulé live + sendBeacon end-session sur unmount)
+- [x] P8.8 Dashboard : 1 nouvelle card "Modes Ambiance" — total **8 actions**
+- [x] P8.9 Build/tsc OK + grep 0 + commit `52bef57` + push + deploy + smoke 7 routes (307×3 dashboard + 401×3 API + 405 GET session)
