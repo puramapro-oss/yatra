@@ -1,0 +1,73 @@
+{
+  "expo": {
+    "name": "YATRA",
+    "slug": "yatra",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "yatra",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0A0F"
+    },
+    "ios": {
+      "bundleIdentifier": "dev.purama.yatra",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "YATRA utilise ta position pour calculer tes trajets propres et créditer ton wallet.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "YATRA utilise ta position pour calculer tes trajets propres et créditer ton wallet.",
+        "NSCameraUsageDescription": "YATRA utilise la caméra pour le mode Radar AR.",
+        "NSMotionUsageDescription": "YATRA utilise les capteurs de mouvement pour la boussole AR."
+      },
+      "associatedDomains": ["applinks:yatra.purama.dev"]
+    },
+    "android": {
+      "package": "dev.purama.yatra",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0A0A0F"
+      },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [{ "scheme": "https", "host": "yatra.purama.dev" }],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0A0A0F",
+          "resizeMode": "contain",
+          "image": "./assets/splash.png"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "___à_remplir_lors_du_premier_eas_init___"
+      }
+    },
+    "owner": "puramapro-oss",
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/___PROJECT_ID___"
+    }
+  }
+}
