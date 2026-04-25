@@ -14,7 +14,7 @@
 | **P10 — RA Sensorielle + Hors Réseau + Famille** | ✅ | Camera + boussole DeviceOrientationEvent + bearing-FOV pins · families RPC join_family_v1 atomique · SW v2 stale-while-revalidate API · cron RGPD weekly cleanup-aria 180j (validé live) |
 | **P11 — Sécurité Vivante + Challenges Stake + 4 Rangs avantages** | ✅ | Trust Score 0-100 · 6 challenge templates (no-car/walk/velo/transport/gratitude/meditation) · 4 rangs ×1/×1.2/×1.5/×2 · safety reports communautaires GPS clusters 50m · 8 API + 3 UI + profile enrichi |
 | **P12 — Programme Ambassadeur + Pub interne + Jeux Concours** | ✅ | 8 paliers tier (Bronze→Éternel 10%→25%) · /go/[slug] tracking 30j HttpOnly · 11 API + 3 UI + CrossPromoBanner · CRONs auto contests-weekly dim 23:59 + monthly 28-31 23:59 · 5 pools + 6 cross-promos seed · 16 ActionCards |
-| P13 — Espace Pilote + Tests + Mobile EAS + Stores |  |  |
+| **P13 — Espace Pilote + UAT P6-P12 + Mobile Expo scaffold** | ✅ | /admin (KPIs globaux + 5 pools + 5 derniers concours) + /admin/users + /admin/contests (trigger Bearer) + /admin/pools (ledger 30 tx) · 19 tests Playwright UAT P6-P12 lecture seule · Mobile Expo bundle dev.purama.yatra (login + 3 tabs dashboard/wallet/profile + adapter SecureStore) + eas.json + deep links Universal Links · tsconfig exclude mobile/ |
 
 ## P1 — Détail (terminé 2026-04-25)
 

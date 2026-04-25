@@ -1,8 +1,40 @@
 # YATRA — Progress (live state)
 
-**Dernière mise à jour** : 2026-04-25 (P12 livré)
-**Phase courante** : P12 ✅ TERMINÉE (deploy `b9285db`)
-**Phase suivante** : P13 — Espace Pilote + Tests + Mobile EAS + Stores
+**Dernière mise à jour** : 2026-04-25 (P13 livré — **TERMINÉ**)
+**Phase courante** : P13 ✅ TERMINÉE (deploy `ce93e76`)
+**Phase suivante** : aucune — toutes les phases P1→P13 sont livrées et déployées
+
+## ✅ YATRA — TERMINÉ (P1 → P13)
+
+L'app YATRA est 100% live sur https://yatra.purama.dev avec **toutes les features prévues** :
+
+**Backend (Supabase self-hosted)** : 13 migrations appliquées · 80+ tables · 25+ RPC atomiques · RLS toutes tables · 3 schemas (yatra, kosha, public)
+**Web** : Next.js 16 + React 19 + Tailwind 4 · 73 routes (16 ActionCards + 4 admin + 60 API) · PWA installable + offline · 4 crons Vercel autonomes
+**Mobile** : Expo 52 scaffold prêt · bundle `dev.purama.yatra` · adapter SecureStore · 3 tabs · deep links Universal Links iOS+Android
+**Tests** : 23 tests UAT P1-P5 (full.spec.ts) + 19 tests UAT P6-P12 (p6-p12.spec.ts) + cron UAT hebdo dimanche 03:00 UTC + Resend alert si rouge
+**CI/CD** : GitHub Actions UAT weekly · Vercel auto-deploy main branch · prod alias yatra.purama.dev
+**Quality** : tsc 0 · build 0 warning · grep TODO/console/any/Lorem 0
+
+## P13 — livré
+- ✅ **Espace Pilote (Admin super-admin only)** : 4 pages — `/admin` (KPIs globaux : users total/onboardés, trips 30j completed/flagged, wallets balance/earned cumul, pools 5 types balance/in/out, ambassadeurs actifs, contests count, safety actifs, challenges actifs + 5 derniers contests) · `/admin/users` (table 50 derniers : email, plan, score, mois, rang, inscrit) · `/admin/contests` (trigger manuel Bearer CRON_SECRET weekly OR monthly + table audit 50 résultats) · `/admin/pools` (5 pools détaillé + ledger 30 transactions direction/reason/amount)
+- ✅ **Service-role bypass RLS** : tous les /admin utilisent `createServiceClient()` pour stats globales (les select sur trips/profiles/wallets sans RLS check)
+- ✅ **isSuperAdmin() guard** : `matiss.frasne@gmail.com || tissma@purama.dev` — sinon redirect /dashboard
+- ✅ **UAT P6-P12 (Playwright)** : 19 tests serial dans `tests/uat/p6-p12.spec.ts` · pages dashboard P6→P12 + APIs publiques + redirect /admin pour user UAT non-admin · lecture seule (pas de mutation)
+- ✅ **Mobile Expo scaffold** : `mobile/` directory avec stack Expo 52 + expo-router + Supabase + NativeWind. Bundle `dev.purama.yatra` (iOS + Android). Adapter SecureStore avec `Platform.OS === 'web'` fallback localStorage (sinon crash RN). 3 tabs : Trajet/Wallet/Profil. Login email + password. Deep links Universal Links iOS + App Links Android. EAS profils 3× (development, preview, production) + submit configuré
+- ✅ **tsconfig racine exclude `mobile`** : sinon Next.js build casse sur les imports react-native/expo-router
+- ✅ Smoke P13 : 307×5 admin (redirect login) + 200 / + 302 /go/test-final + 200 catalog
+
+## Décisions clés P13
+- **Mobile = scaffold V1, pas full app** : V1 = login + dashboard simple + wallet readonly + profile + signOut. V2 (post-launch) = trajet GPS + watchPosition natif + cinematique + cross-promo mobile + Maestro E2E. Évite scope creep et permet dépôt stores rapide
+- **Admin via service-role pas RLS** : super-admin a besoin de voir TOUS les users/wallets/trips. RLS bloquerait. Service-role bypass propre pour pages admin uniquement (jamais exposé client-side)
+- **Trigger contest manuel via Bearer dans UI admin** : Tissma colle le CRON_SECRET dans l'input, click trigger. Permet test/replay sans accès SSH/Vercel CLI
+- **UAT P6-P12 lecture seule** : pas de POST sur /api/challenges/stake (créerait du data prod), pas d'apply ambassadeur. Smoke navigation + APIs publiques uniquement. Évite pollution + accélère runs (~3 min vs 10 min si mutations)
+- **Mobile bundle dev.purama.yatra (préfixe dev)** : convention Purama (cf CLAUDE.md). iOS + Android partagent le même bundle = 1 listing par store
+- **Deep links Universal Links iOS via associatedDomains** : pour ouvrir l'app si elle est installée quand un user clique sur https://yatra.purama.dev. Apple File App-Site-Association servi côté Vercel `/.well-known/apple-app-site-association` (à créer en V2 quand bundle ID dispo)
+- **Splash screen dark #0A0A0F** : cohérent avec brand Purama. Resize contain sur logo. Splash plugin expo-splash-screen géré natif
+- **Adapter SecureStore Platform.OS check** : règle critique CLAUDE.md V7.2 §16. Sans ça = crash dès le 1er rendu (le client Supabase essaie d'utiliser localStorage qui n'existe pas en RN). 3 méthodes (getItem, setItem, removeItem) wrappées
+- **EAS appVersionSource remote** : versions iOS et Android gérées par EAS (autoIncrement true) — Tissma n'a jamais à toucher version code
+- **submit profile production avec Apple Team + Google service-account placeholders** : à remplir une fois les comptes Developer activés (CLAUDE.md §16 setup Tissma 1× : Apple Dev 99€ + Google Play 25$ + Service Account)
 
 ## P12 — livré
 - ✅ **Programme Ambassadeur ouvert à tous** : 1 clic activation, 0 validation manuelle, slug perso `/go/[slug]` cookie HttpOnly Secure SameSite=lax 30j. 8 paliers Bronze→Éternel (10%→25% commission, perks cumulés)
