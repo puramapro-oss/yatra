@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User } from 'lucide-react'
+import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { getGreeting, formatPrice } from '@/lib/utils'
@@ -170,6 +170,18 @@ export function DashboardHello({
               description="Plus on est nombreux, moins c'est cher. Yoga, transport partagé, soins solidaires."
               icon={<Compass size={22} />}
               onClick={() => router.push('/dashboard/groupes')}
+            />
+            <ActionCard
+              title="Cashback éthique"
+              description="Achète chez nos partenaires bio, mobilité douce, énergie verte → cashback crédité sur ton wallet."
+              icon={<ShoppingBag size={22} />}
+              onClick={() => router.push('/dashboard/cashback')}
+            />
+            <ActionCard
+              title="Voyages humanitaires"
+              description="Missions VIDA Assoc partout en France. Train réduit, hébergement inclus, sens retrouvé."
+              icon={<Globe size={22} />}
+              onClick={() => router.push('/dashboard/humanitaire')}
             />
           </section>
 
