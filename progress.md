@@ -1,8 +1,25 @@
 # YATRA — Progress (live state)
 
-**Dernière mise à jour** : 2026-04-25 17:11 CEST
-**Phase courante** : P1 ✅ TERMINÉE
-**Phase suivante** : P2 — VIDA CORE + ADN Mobilité + Onboarding 30s
+**Dernière mise à jour** : 2026-04-25 17:24 CEST
+**Phase courante** : P2 ✅ TERMINÉE (deploy `0ef16ab`)
+**Phase suivante** : P3 — Moteur Zéro-Coût + GPS Tracking + ML anti-fraude
+
+## P2 — livré
+- ✅ Onboarding 5 écrans (30 s)
+- ✅ Moment WOW : gain mensuel + CO₂ + aides + première action 30 s
+- ✅ /dashboard/profile : rang, Score breakdown, ADN radar Recharts, multiplicateur ancienneté, Fil de Vie, Univers Personnel cross-apps
+- ✅ 4 API routes /api/vida/* (onboarding, wow-moment, fil-de-vie, score)
+- ✅ Dashboard guard : redirect /onboarding si !onboarding_completed
+- ✅ Quality gates : tsc 0 + build 0 + grep TODO/console.log/any/Lorem = 0
+- ✅ Smoke test routes : / 200 + /onboarding 307→/login + /dashboard/profile 307→/login + /api/vida/* 401 (auth)
+
+## Décisions clés P2
+- Barème Vida Credits : marche 0,10€ · vélo 0,15€ · trottinette 0,10€ · transport public 0,05€ · covoit 0,20€ · train 0,05€ par km
+- CO₂ évité : ADEME 2024 (vélo 0,193 kg/km vs voiture solo)
+- Score d'Humanité : 5 axes pondérés sur 10 (trajets 3 + missions 2 + entraide 2 + régularité 1.5 + ancienneté 1.5)
+- Rangs : Explorateur (<3) → Gardien (3-5.5) → Régénérateur (5.5-8) → Légende (≥8)
+- Estimation aides P2 : conservative 8 (FR) + 4 (grande ville) ou 2 (autres). P5 fera vraie veille Tavily.
+
 
 ## Live URLs
 

@@ -3,7 +3,7 @@
 | Phase | Statut | Notes |
 |-------|:------:|-------|
 | **P1 — Setup + Auth + Background multisensoriel** | ✅ | Live `yatra.purama.dev` |
-| P2 — VIDA CORE + ADN Mobilité + Onboarding 30s |  |  |
+| **P2 — VIDA CORE + ADN Mobilité + Onboarding 30s** | ✅ | Onboarding 5 écrans + Moment WOW |
 | P3 — Moteur Zéro-Coût + GPS Tracking + ML anti-fraude |  | Mapbox token à fournir |
 | P4 — Vida Credits + Treezor sandbox + Cap 12m |  | TREEZOR_API_KEY à fournir |
 | P5 — Radar Aides & Droits Auto + Tavily 24/7 |  | Tavily key OK |
@@ -27,3 +27,12 @@
 - [x] P1.7 API routes (/api/status + /api/og Satori)
 - [x] P1.8 Build/tsc OK + grep TODO/console/any/Lorem = 0
 - [x] P1.9 GitHub repo (puramapro-oss/yatra) + Vercel deploy + domain
+
+## P2 — Détail (terminé 2026-04-25)
+
+- [x] P2.1 Types `vida.ts` + `lib/wow.ts` (barème YATRA + CO₂ ADEME) + `lib/score-humanite.ts`
+- [x] P2.2 API `/api/vida/onboarding` (Zod), `/api/vida/wow-moment`, `/api/vida/fil-de-vie` (GET/POST), `/api/vida/score`
+- [x] P2.3 Onboarding 5 écrans (Name → Habitudes → Préférences → Permissions → Moment WOW + Confetti + AnimatedCounter)
+- [x] P2.4 Page `/dashboard/profile` (rang, Score breakdown, ADN radar Recharts, ancienneté ×, Fil de Vie, Univers Personnel cross-apps)
+- [x] P2.5 Dashboard guard onboarding + rang badge header + lien profil
+- [x] P2.6 Build/tsc OK + grep 0 + commit + push + deploy + smoke test
