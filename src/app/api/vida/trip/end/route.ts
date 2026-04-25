@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { analyzeTrip } from '@/lib/anti-fraud'
 import { VIDA_CREDITS_PER_KM, CO2_AVOIDED_PER_KM, isCleanMode } from '@/lib/wow'
+import { ancienneteMultiplier } from '@/lib/utils'
+import { creditWallet } from '@/lib/wallet'
 import type { GpsPoint, RouteGeometry } from '@/types/trip'
 import type { CleanMobilityMode } from '@/types/vida'
 
@@ -60,12 +62,23 @@ export async function POST(request: Request) {
     const lastT = points[points.length - 1].t
     const duration_min = Math.max(0, Math.round(((lastT - startedAtMs) / 1000 / 60) * 10) / 10)
 
+    // Multiplicateur ancienneté ×1 → ×2 (cap 12 mois)
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('anciennete_months')
+      .eq('id', user.id)
+      .maybeSingle()
+    const anciennete_months = Math.min(profile?.anciennete_months ?? 0, 12)
+    const multiplier = ancienneteMultiplier(anciennete_months)
+
     // Crédits + CO₂ — uniquement si non flagged ET mode propre
     let gain_credits_eur = 0
+    let gain_base_eur = 0
     let co2_avoided_kg = 0
     if (!isFlagged && isCleanMode(declared_mode)) {
-      gain_credits_eur =
+      gain_base_eur =
         Math.round(distance_km * VIDA_CREDITS_PER_KM[declared_mode as CleanMobilityMode] * 100) / 100
+      gain_credits_eur = Math.round(gain_base_eur * multiplier * 100) / 100
       co2_avoided_kg = Math.round(distance_km * CO2_AVOIDED_PER_KM[declared_mode] * 100) / 100
     }
 
@@ -120,20 +133,27 @@ export async function POST(request: Request) {
       max_speed_kmh,
     })
 
-    // Crédit wallet (vida_credits) si gains
+    // Crédit wallet via RPC atomique (event-sourcing wallet_transactions + UPDATE wallets)
     if (gain_credits_eur > 0) {
-      const { data: w } = await supabase
-        .from('wallets')
-        .select('vida_credits, total_earned')
-        .eq('user_id', user.id)
-        .maybeSingle()
-      await supabase
-        .from('wallets')
-        .update({
-          vida_credits: Number(w?.vida_credits ?? 0) + gain_credits_eur,
-          total_earned: Number(w?.total_earned ?? 0) + gain_credits_eur,
+      try {
+        await creditWallet({
+          userId: user.id,
+          amount: gain_credits_eur,
+          source: 'trip_clean',
+          description: `Trajet ${declared_mode} ${distance_km} km${multiplier > 1 ? ` (×${multiplier.toFixed(2)})` : ''}`,
+          sourceId: trip_id,
         })
-        .eq('user_id', user.id)
+      } catch (creditErr) {
+        // Si le crédit échoue, on log mais on n'invalide pas le trip déjà sauvegardé
+        // L'admin peut crédit manuellement depuis la table wallet_transactions
+        const reason = creditErr instanceof Error ? creditErr.message : 'unknown'
+        await supabase.from('admin_logs').insert({
+          action: 'credit_wallet_failed',
+          target_type: 'wallets',
+          target_id: user.id,
+          details: { trip_id, amount: gain_credits_eur, reason },
+        })
+      }
     }
 
     // Fil de Vie — append-only
@@ -157,6 +177,8 @@ export async function POST(request: Request) {
       distance_km,
       duration_min,
       gain_credits_eur,
+      gain_base_eur,
+      multiplier_anciennete: multiplier,
       co2_avoided_kg,
       fraud_score: result.fraud_score,
       reasons: result.reasons,

@@ -115,6 +115,7 @@ export function DashboardHello({
               value={formatPrice(wallet?.balance ?? 0)}
               hint={`${formatPrice(wallet?.total_earned ?? 0)} gagnés au total`}
               color="emerald"
+              href="/dashboard/wallet"
             />
             <KpiCard
               icon={<Sparkles size={20} />}
@@ -129,6 +130,7 @@ export function DashboardHello({
               value={`${(profile?.score_humanite ?? 0).toFixed(1)} / 10`}
               hint={`Niveau d'éveil ${profile?.awakening_level ?? 1}`}
               color="violet"
+              href="/dashboard/profile"
             />
           </section>
 
@@ -184,20 +186,22 @@ function KpiCard({
   value,
   hint,
   color,
+  href,
 }: {
   icon: React.ReactNode
   label: string
   value: string
   hint: string
   color: 'emerald' | 'cyan' | 'violet'
+  href?: string
 }) {
   const colorClass = {
     emerald: 'text-emerald-400 bg-emerald-500/10',
     cyan: 'text-cyan-400 bg-cyan-500/10',
     violet: 'text-violet-400 bg-violet-500/10',
   }[color]
-  return (
-    <div className="glass rounded-2xl p-5 space-y-3">
+  const inner = (
+    <>
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colorClass}`}>{icon}</div>
       <div>
         <p className="text-xs text-white/45 uppercase tracking-wider">{label}</p>
@@ -206,8 +210,19 @@ function KpiCard({
         </p>
         <p className="text-xs text-white/45 mt-1">{hint}</p>
       </div>
-    </div>
+    </>
   )
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className="glass rounded-2xl p-5 space-y-3 hover:border-white/20 hover:bg-white/3 transition block"
+      >
+        {inner}
+      </Link>
+    )
+  }
+  return <div className="glass rounded-2xl p-5 space-y-3">{inner}</div>
 }
 
 function ActionCard({
