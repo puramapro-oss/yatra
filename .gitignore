@@ -67,3 +67,5 @@ supabase/*.bak
 CLAUDE-2.md
 BRIEF.md
 
+tests/uat/report/
+tests/uat/output/
