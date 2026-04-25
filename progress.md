@@ -1,8 +1,36 @@
 # YATRA — Progress (live state)
 
-**Dernière mise à jour** : 2026-04-25 (P6 livré + UAT P1-P5 23/23)
-**Phase courante** : P6 ✅ TERMINÉE (deploy `d9b7727`)
-**Phase suivante** : P7 — Cashback + Voyages Humanitaires (VIDA Assoc)
+**Dernière mise à jour** : 2026-04-25 (P7 livré + UAT cron hebdo activé)
+**Phase courante** : P7 ✅ TERMINÉE (deploy `1102a57`)
+**Phase suivante** : P8 — 6 Modes Ambiance + Three.js + Web Audio
+
+## P7 — livré
+- ✅ 8 partenaires cashback éthiques FR seedés : Greenweez (4%), La Fourche (6%), BlaBlaCar Daily (8%), Citiz (5%), Enercoop (3%), ilek (4.5%), Fairphone (2.5%), Veja (5%) — user_share_pct 70-80% selon partenaire
+- ✅ 6 missions VIDA Assoc seedées : Reforestation Cévennes (12 places, train -100%), Maraude Paris hiver (20), Jardins Marseille (15), Alpha Lyon (8 — 90j récurrent), Vendanges Bordeaux bio (25), Classes vertes Pyrénées (6, 200€ — seul payant)
+- ✅ RPC `credit_cashback_v1` atomique : FOR UPDATE lock + INSERT wallet_transactions + UPSERT wallets agrégat — confirmable une seule fois (status check)
+- ✅ Webhook HMAC SHA-256 timing-safe : `x-yatra-signature` header obligatoire + body raw + idempotency `cashback_clicks.converted`
+- ✅ Matching missions 0-100 : cause/intérêts (35) + accessibilité ville/région (20) + âge (15) + timing 30/90j (15) + spots restants 50%/20% (15)
+- ✅ 5 API : `/api/cashback` + `/click/[partnerId]` (tracking_id auto + ip_hash SHA-256 + UA truncated 200) + `/webhook` (signature mandatoire) + `/api/humanitarian` + `/[id]` + `/[id]/apply` (POST motivation 50-2000 chars + DELETE retrait)
+- ✅ 3 pages UI : `/dashboard/cashback` (KPI hero gradient earned + filtres catégorie + cards éthique score 0-100 + ledger 10 transactions), `/dashboard/humanitaire` (cards filter cause + reasons top 2 + status candidature), `/[id]` (détail + form motivation + retrait pending only)
+- ✅ Dashboard : **7 actions** (+ Cashback éthique + Voyages humanitaires)
+- ✅ Env `CASHBACK_WEBHOOK_SECRET` (32 bytes hex) ajoutée prod via Vercel CLI + redeploy
+- ✅ Smoke 7 routes : 307×2 (auth dashboard) / 401×2 (auth API) / 405 (webhook GET) / 401 (webhook POST sans sig) / 401 (mission [slug] no auth)
+
+## CI — Cron UAT hebdo activé
+- ✅ `.github/workflows/uat-weekly.yml` : Sunday 03:00 UTC + workflow_dispatch
+- ✅ 6 secrets GH poussés : SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_SUPABASE_ANON_KEY, NEXT_PUBLIC_SUPABASE_URL, CRON_SECRET, RESEND_API_KEY, ALERT_EMAIL
+- ✅ Steps : checkout → npm ci → playwright install chromium → run UAT → upload report+output (retention 14j) → Resend alert si rouge → exit 1
+- ✅ Run de validation manuel `24936142818` lancé via `gh workflow run` — workflow registered + actif
+
+## Décisions clés P7
+- **70-80% user share** : Greenweez/Veja/BlaBlaCar/Citiz/Enercoop = 70%, Fairphone = 80%, ilek = 70% — calibré pour économies réelles user en gardant marge SASU
+- **Webhook signature obligatoire** : zéro confiance partenaire externe, HMAC SHA-256 timing-safe avec secret 32 bytes hex distinct
+- **Idempotency click.converted** : garde anti double-crédit même si partenaire retry webhook
+- **Mission seed FR uniquement P7** : 6 missions VIDA Assoc curées manuellement (sourcées sites NGO réels) — international viendra avec partenariats UNICEF/MSF en P11+
+- **Train -100% sur reforestation Cévennes** : maximum incitatif puisque destination rurale + cause biodiversité = match parfait avec ADN YATRA
+- **Application motivation min 50 chars** : friction minimale pour filtrer candidatures sérieuses sans bloquer
+
+## P6 — livré
 
 ## P6 — livré
 - ✅ 12 événements gratuits FR seedés (Louvre/Orsay/Beaubourg 1er dimanche, Petit Palais permanent, MAC Lyon, MUCEM Marseille, Croix-Rouge, Restos du Cœur, Halles Civiques, Parc Tête d'Or, Fête de la Musique, Patrimoine)

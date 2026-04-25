@@ -8,7 +8,7 @@
 | **P4 — Wallet sub-PURAMA + Retraits IBAN + Cap 12m** | ✅ | RPC atomiques · IBAN mod-97 · Treezor en P11+ post-SASU |
 | **P5 — Radar Aides & Droits Auto + Tavily 24/7** | ✅ | 30 aides FR seedées · CRON quotidien 6h via vercel.json · Score 0-100 multi-signaux |
 | **P6 — Radar Gratuit + Achat Groupé** | ✅ | 12 events FR seedés · RPC group_join_v1 atomique · matching ville Haversine |
-| P7 — Cashback + Voyages Humanitaires (VIDA Assoc) |  |  |
+| **P7 — Cashback + Voyages Humanitaires (VIDA Assoc)** | ✅ | 8 partenaires éthiques + 6 missions FR · RPC credit_cashback_v1 · webhook HMAC · cron UAT hebdo Resend |
 | P8 — 6 Modes Ambiance + Three.js + Web Audio |  |  |
 | P9 — IA Aria Conscience + 7 Modes Spéciaux |  | Anthropic key OK |
 | P10 — RA Sensorielle + Hors Réseau + Famille |  |  |
@@ -83,3 +83,22 @@
 - [x] P6.4 UI : `/dashboard/gratuit` (cards events + bouton "M'y rendre" → /trajet), `/dashboard/groupes` (liste + progress bars), `/dashboard/groupes/[id]` (hero + join + UnlockBanner avec code copy), `/dashboard/groupes/create` (form 5/10/25 participants)
 - [x] P6.5 Dashboard : 2 nouvelles cards (Radar gratuit, Achats groupés) — total 5 actions
 - [x] P6.6 Build/tsc OK + grep 0 + commit + push + deploy + smoke 7 routes
+
+## CI — Cron UAT hebdo (activé 2026-04-25)
+
+- [x] `.github/workflows/uat-weekly.yml` : Sunday 03:00 UTC + workflow_dispatch
+- [x] 6 secrets GH poussés : SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_SUPABASE_ANON_KEY, NEXT_PUBLIC_SUPABASE_URL, CRON_SECRET, RESEND_API_KEY, ALERT_EMAIL=matiss.frasne@gmail.com
+- [x] Steps : checkout → npm ci → playwright install → run UAT → upload report+output (14j) → Resend alert si rouge → exit 1
+- [x] Run de validation manuel `24936142818` — workflow registered + actif
+
+## P7 — Détail (terminé 2026-04-25)
+
+- [x] P7.1 Migration `p7_cashback_humanitaire.sql` : `cashback_partners` (8 seed FR éthiques : Greenweez, La Fourche, BlaBlaCar Daily, Citiz, Enercoop, ilek, Fairphone, Veja) + `cashback_clicks` (tracking_id unique + ip_hash SHA-256) + `cashback_transactions` (event-source immuable) + `humanitarian_missions` (6 seed VIDA Assoc : reforestation Cévennes, maraude Paris hiver, jardins Marseille, alpha Lyon, vendanges Bordeaux, classes vertes Pyrénées) + `humanitarian_applications` + RLS toutes tables
+- [x] P7.2 RPC `credit_cashback_v1` (SECURITY DEFINER, FOR UPDATE lock, INSERT wallet_transactions + UPDATE wallets agrégat)
+- [x] P7.3 `lib/cashback.ts` : creditCashback wrapper RPC + verifyWebhookSignature HMAC SHA-256 timingSafeEqual + computeUserShare avec cap max_cashback_eur
+- [x] P7.4 `lib/humanitarian-matcher.ts` : score 0-100 (cause/intérêts 35 + accessibilité 20 + âge 15 + timing 15 + spots 15) avec mapping situations→causes
+- [x] P7.5 5 API : GET `/api/cashback` (top partners + filter category) + POST `/api/cashback/click/[partnerId]` (tracking + redirect URL signée) + POST `/api/cashback/webhook` (HMAC verify + idempotency converted + crédit atomique) + GET `/api/humanitarian` (matchées) + GET `/api/humanitarian/[id]` + POST/DELETE `/api/humanitarian/[id]/apply` (motivation min 50 chars + UNIQUE user/mission)
+- [x] P7.6 UI : `/dashboard/cashback` (KPI hero earned + filtres catégorie + cards éthique score + ledger 10 derniers + état 4 statuts pending/confirmed/paid/cancelled), `/dashboard/humanitaire` (cards score + filter cause + reasons top 2), `/dashboard/humanitaire/[id]` (hero + form motivation + status badge + DELETE retrait)
+- [x] P7.7 Dashboard : 2 nouvelles cards (Cashback éthique, Voyages humanitaires) — total **7 actions**
+- [x] P7.8 Env var `CASHBACK_WEBHOOK_SECRET` ajoutée prod via Vercel CLI + redeploy
+- [x] P7.9 Build/tsc OK + grep 0 + commit `1102a57` + push + deploy + smoke 7 routes (307/307/401/401/405/401/401)
