@@ -4,6 +4,10 @@
     {
       "path": "/api/cron/aides-research",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/cleanup-aria",
+      "schedule": "0 4 * * 0"
     }
   ]
 }

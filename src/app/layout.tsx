@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/shared/ThemeProvider'
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary'
 import { CookieBanner } from '@/components/shared/CookieBanner'
 import { InstallBanner } from '@/components/shared/InstallBanner'
+import { OfflineBanner } from '@/components/shared/OfflineBanner'
 import './globals.css'
 
 const sora = Sora({
@@ -76,6 +77,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
           <ErrorBoundary>
+            <OfflineBanner />
             {children}
             <Toaster position="top-right" theme="dark" richColors closeButton />
             <CookieBanner />

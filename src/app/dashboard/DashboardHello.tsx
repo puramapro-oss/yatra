@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag, Headphones, MessageCircle } from 'lucide-react'
+import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag, Headphones, MessageCircle, Users, Radar } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { getGreeting, formatPrice } from '@/lib/utils'
@@ -194,6 +194,18 @@ export function DashboardHello({
               description="7 modes de conversation : coach trajet, méditation, journal, cri du cœur, boussole, gratitude, question profonde."
               icon={<MessageCircle size={22} />}
               onClick={() => router.push('/dashboard/aria')}
+            />
+            <ActionCard
+              title="Famille"
+              description="Voyagez ensemble. 2 à 6 personnes, partage des km clean et du Score d'Humanité."
+              icon={<Users size={22} />}
+              onClick={() => router.push('/dashboard/famille')}
+            />
+            <ActionCard
+              title="Radar AR"
+              description="Caméra + boussole. Vois les points YATRA proches projetés en réalité augmentée."
+              icon={<Radar size={22} />}
+              onClick={() => router.push('/dashboard/radar')}
             />
           </section>
 
