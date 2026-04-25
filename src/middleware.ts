@@ -25,11 +25,12 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next()
   const { pathname } = request.nextUrl
 
-  // Bypass static assets, API, OAuth callback & ressources Next
+  // Bypass static assets, API, OAuth callback, /go/[slug] tracking & ressources Next
   if (
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/api/') ||
     pathname.startsWith('/auth/') ||
+    pathname.startsWith('/go/') ||
     pathname === '/callback' ||
     pathname.includes('.') /* assets statiques */
   ) {
