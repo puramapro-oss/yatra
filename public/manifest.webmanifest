@@ -1,0 +1,47 @@
+{
+  "name": "YATRA — voyage propre, payé, conscient",
+  "short_name": "YATRA",
+  "description": "Mobilité propre rémunérée, droits activés automatiquement, voyage conscient.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0F",
+  "theme_color": "#0A0A0F",
+  "orientation": "portrait",
+  "lang": "fr",
+  "dir": "ltr",
+  "categories": ["lifestyle", "travel", "navigation", "productivity"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Démarrer un trajet",
+      "short_name": "Trajet",
+      "url": "/dashboard/trajet",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mon wallet",
+      "short_name": "Wallet",
+      "url": "/dashboard/wallet",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
