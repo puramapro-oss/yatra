@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag } from 'lucide-react'
+import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag, Headphones } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { getGreeting, formatPrice } from '@/lib/utils'
@@ -182,6 +182,12 @@ export function DashboardHello({
               description="Missions VIDA Assoc partout en France. Train réduit, hébergement inclus, sens retrouvé."
               icon={<Globe size={22} />}
               onClick={() => router.push('/dashboard/humanitaire')}
+            />
+            <ActionCard
+              title="Modes Ambiance"
+              description="6 mondes immersifs Three.js + sons binauraux. Forêt, océan, montagne, désert, aurore, cosmos."
+              icon={<Headphones size={22} />}
+              onClick={() => router.push('/dashboard/ambiance')}
             />
           </section>
 
