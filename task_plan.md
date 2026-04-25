@@ -4,7 +4,7 @@
 |-------|:------:|-------|
 | **P1 — Setup + Auth + Background multisensoriel** | ✅ | Live `yatra.purama.dev` |
 | **P2 — VIDA CORE + ADN Mobilité + Onboarding 30s** | ✅ | Onboarding 5 écrans + Moment WOW |
-| P3 — Moteur Zéro-Coût + GPS Tracking + ML anti-fraude |  | Mapbox token à fournir |
+| **P3 — Moteur Zéro-Coût + GPS Tracking + Anti-fraude** | ✅ | OSRM gratuit · Mapbox auto-upgrade · 5 partenaires FR seed |
 | P4 — Vida Credits + Treezor sandbox + Cap 12m |  | TREEZOR_API_KEY à fournir |
 | P5 — Radar Aides & Droits Auto + Tavily 24/7 |  | Tavily key OK |
 | P6 — Radar Gratuit + Achat Groupé |  |  |
@@ -36,3 +36,12 @@
 - [x] P2.4 Page `/dashboard/profile` (rang, Score breakdown, ADN radar Recharts, ancienneté ×, Fil de Vie, Univers Personnel cross-apps)
 - [x] P2.5 Dashboard guard onboarding + rang badge header + lien profil
 - [x] P2.6 Build/tsc OK + grep 0 + commit + push + deploy + smoke test
+
+## P3 — Détail (terminé 2026-04-25)
+
+- [x] P3.1 Migration SQL `transport_partners` + `trips` + `gps_tracks` + `route_cache` + RLS + 5 partenaires FR seed (SNCF, RATP, BlaBlaCar, Vélib, Vélo'v)
+- [x] P3.2 `lib/geo.ts` (haversineKm isomorphe) + `lib/routing.ts` server-only (OSRM demo + Mapbox auto-upgrade + cache 7j) + `lib/zero-cost.ts` (combinator multi-modal) + `lib/anti-fraud.ts` (heuristique vitesse/téléportation/accélération) + `lib/geocoding.ts` (Nominatim)
+- [x] P3.3 6 API routes : `/api/vida/trip/route` (calcul combinaisons), `/start` (créer trip), `/end` (analyse fraude + crédit wallet + fil_de_vie), `/[id]` (détail), `/api/vida/trips` (liste), `/api/vida/geocode` (Nominatim)
+- [x] P3.4 Pages UI : `/dashboard/trajet` (recherche from/to + 3-5 cards combinaisons), `/trajet/active` (live GPS watchPosition + KPI live), `/trajet/[id]` (récap + flagged banner), `/trajets` (historique avec totaux)
+- [x] P3.5 Dashboard : bouton "Démarrer mon trajet" actif (ex-disabled P3) + carte Mes trajets
+- [x] P3.6 Build/tsc OK + grep 0 + commit + push + deploy + smoke 9 routes

@@ -1,8 +1,29 @@
 # YATRA — Progress (live state)
 
-**Dernière mise à jour** : 2026-04-25 17:24 CEST
-**Phase courante** : P2 ✅ TERMINÉE (deploy `0ef16ab`)
-**Phase suivante** : P3 — Moteur Zéro-Coût + GPS Tracking + ML anti-fraude
+**Dernière mise à jour** : 2026-04-25 (P3 livré)
+**Phase courante** : P3 ✅ TERMINÉE (deploy `6a4483b`)
+**Phase suivante** : P4 — Vida Credits + Treezor sandbox + Cap 12m
+
+## P3 — livré
+- ✅ Moteur Zéro-Coût : combinator multi-modal (cheapest / cleanest / apaisant / fastest)
+- ✅ Routing : OSRM demo gratuit + Mapbox auto-upgrade (token optionnel)
+- ✅ Cache routes 7j table `route_cache` (sha256 from-to-profile)
+- ✅ GPS live : `navigator.geolocation.watchPosition` + KPI temps réel + anti-bruit < 3m/1s
+- ✅ Anti-fraude heuristique : vitesse moyenne/max + téléportation + accélérations brutales + désaccord détecté/déclaré → score 0-100, flag à 60+
+- ✅ 6 API routes `/api/vida/trip/*` + `/api/vida/geocode` Nominatim
+- ✅ 4 pages UI : /trajet (suggestions), /trajet/active (live), /trajet/[id] (récap), /trajets (historique)
+- ✅ Crédit wallet automatique (vida_credits) si non flagged + clean mode
+- ✅ Fil de Vie événements `first_clean_trip` / `trip_flagged` (irreversible)
+- ✅ 5 partenaires FR seed (SNCF Connect, RATP, BlaBlaCar, Vélib, Vélo'v) status='planned'
+- ✅ Smoke 9 routes : 200 / 200 status / 307→login dashboard / 401 trip APIs (auth required)
+
+## Décisions clés P3
+- OSRM public demo (router.project-osrm.org) par défaut — gratuit, sans token, suffisant MVP
+- Mapbox upgrade transparent si `NEXT_PUBLIC_MAPBOX_TOKEN` ajouté (cache fait gagner 95% des appels)
+- Geocoding Nominatim OSM (User-Agent obligatoire conforme Usage Policy)
+- ML TF.js anti-fraude → P7 mobile (sensors natifs accéléromètre/gyroscope), heuristique web suffisante
+- Trip flagged ≥ 60 → 0 crédit wallet, mais trip enregistré (transparence)
+- Géométrie GeoJSON LineString décimée à 200 points max (poids JSONB)
 
 ## P2 — livré
 - ✅ Onboarding 5 écrans (30 s)
