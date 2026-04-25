@@ -1,8 +1,28 @@
 # YATRA — Progress (live state)
 
-**Dernière mise à jour** : 2026-04-25 (P9 livré)
-**Phase courante** : P9 ✅ TERMINÉE (deploy `e264b3f`)
-**Phase suivante** : P10 — RA Sensorielle + Hors Réseau + Famille
+**Dernière mise à jour** : 2026-04-25 (P10 livré)
+**Phase courante** : P10 ✅ TERMINÉE (deploy `b89cfb6`)
+**Phase suivante** : P11 — Sécurité Vivante + Challenges + 4 Rangs
+
+## P10 — livré
+- ✅ **Famille** : 2-6 personnes, code d'invitation 6 chars sans ambiguïté visuelle (sans I/O/0/1, ALPHABET 32 chars), RPC `join_family_v1` atomique avec FOR UPDATE + checks (not_found/expired/already/full), auto-owner trigger SQL post-insert, dissolution auto si owner quitte seul
+- ✅ **Radar AR** : géolocalisation watchPosition + DeviceOrientationEvent compass (avec fallback webkitCompassHeading Safari iOS) + caméra facingMode 'environment' getUserMedia + 2 tabs (Liste avec bearing-rotated Navigation icons + Caméra avec pins FOV ±60°)
+- ✅ **Cumul famille** : km clean cumulés (vélo+marche flagged_fraud=false) + score humanité moyen, calculé serveur-side avec membre IDs `.in()` query
+- ✅ **Hors-réseau** : Service Worker v2 avec 3 stratégies (Network-First HTML pages, Stale-While-Revalidate API safe TTL 1h via header `sw-cached-at`, Cache-First static) + OfflineBanner global navigator.onLine
+- ✅ **API cron RGPD** : POST `/api/cron/cleanup-aria` avec auth dual (Bearer CRON_SECRET ou header `x-vercel-cron`), RPC `cleanup_aria_old_v1` SECURITY DEFINER → DELETE conversations ended_at < now()-180d cascade messages
+- ✅ **Cron Vercel weekly** : ajouté à `vercel.json` schedule `0 4 * * 0` (dimanche 04:00 UTC) — **testé en prod**: Bearer auth → 200 + result {threshold: 2025-10-27, conversations_deleted: 0, messages_cascade_deleted: 0}
+- ✅ Dashboard : **11 ActionCards** (+ Famille + Radar AR)
+- ✅ Smoke 8 routes : 307×2 dashboard + 401×6 API (sans auth) + 200 cleanup-aria avec Bearer CRON_SECRET
+
+## Décisions clés P10
+- **Pas de WebXR** : compatibilité cross-browser trop fragile (Safari iOS limited, Firefox limited). Solution AR-lite = camera + boussole + bearing-positioned overlays = marche partout sans flag, fonctionnel en prod
+- **UNIQUE user_id sur family_members MVP** : 1 user = max 1 famille pour P10. Permet UI simple. Multi-famille viendra en P11+ avec changement schéma vers UNIQUE composite (family_id, user_id) seul
+- **Code 6 chars sans I/O/0/1** : ALPHABET 32 = ABCDEFGHJKLMNPQRSTUVWXYZ23456789. ~10^9 combos = collision improbable + retry 3x défensif. Mémorisable par tel/SMS/oral
+- **Cron auth duale** : Bearer CRON_SECRET pour test manuel/CI + `x-vercel-cron: 1` pour les triggers internes Vercel — robuste sans secret leak
+- **SW Stale-While-Revalidate sur API safe uniquement** : whitelist explicite (aides/cashback/humanitarian/gratuit/groups/ambient/family). Le reste bypass = pas de risque de stale data sur trips/wallet/aria (mutateurs sensibles)
+- **TTL 1h via header `sw-cached-at`** : la response cachée porte son timestamp en custom header, on compare au fetch — mécanisme isomorphe sans IndexedDB
+- **DeviceOrientationEvent fallback ladder** : webkitCompassHeading (Safari iOS = true heading) → 360-alpha (Android Chrome = computed). Pas d'install de permission iOS sauf si on touche à `requestPermission()` — qu'on appelle après le user gesture caméra
+- **Dissolution famille si owner seul** : si owner quitte alors qu'il est seul → `DELETE FROM families` cascade. Si owner quitte avec autres membres → 409 (transfert manuel requis, P11+ pour automatique)
 
 ## P9 — livré
 - ✅ Aria = agent IA YATRA avec **identité stricte** : refuse de se présenter comme Claude/Anthropic, répond toujours "Je suis Aria, ta présence YATRA"

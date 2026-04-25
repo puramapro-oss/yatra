@@ -11,7 +11,7 @@
 | **P7 — Cashback + Voyages Humanitaires (VIDA Assoc)** | ✅ | 8 partenaires éthiques + 6 missions FR · RPC credit_cashback_v1 · webhook HMAC · cron UAT hebdo Resend |
 | **P8 — 6 Modes Ambiance + Three.js + Web Audio** | ✅ | 6 modes seedés (forest 432Hz, ocean 174Hz Schumann, mountain 396Hz, desert 528Hz, aurora 639Hz, cosmos 963Hz) · BinauralEngine StereoPanner crossfade · scenes R3F lazy chunks · sendBeacon telemetry |
 | **P9 — IA Aria Conscience + 7 Modes Spéciaux** | ✅ | 7 system prompts identité stricte · 30 questions FR seedées · stream SSE Claude Sonnet 4.6 · rate limit 50/jour gratuit · auto-summary Haiku · TTS browser SpeechSynthesis · streak quotidien |
-| P10 — RA Sensorielle + Hors Réseau + Famille |  |  |
+| **P10 — RA Sensorielle + Hors Réseau + Famille** | ✅ | Camera + boussole DeviceOrientationEvent + bearing-FOV pins · families RPC join_family_v1 atomique · SW v2 stale-while-revalidate API · cron RGPD weekly cleanup-aria 180j (validé live) |
 | P11 — Sécurité Vivante + Challenges + 4 Rangs |  |  |
 | P12 — Influenceurs + Pub interne + Jeux Concours |  |  |
 | P13 — Espace Pilote + Tests + Mobile EAS + Stores |  |  |
@@ -124,3 +124,17 @@
 - [x] P9.5 Browser SpeechSynthesis fr-FR : detect voix Amelie/Audrey/Julie féminine, fallback toute fr · cancel sur unmount · rate 0.95 + pitch 1.05
 - [x] P9.6 Dashboard : 1 nouvelle card "Aria · ta présence" — total **9 actions**
 - [x] P9.7 Build/tsc OK + grep 0 + commit `e264b3f` + push + deploy + smoke 7 routes (307×2 dashboard + 401×5 API)
+
+## P10 — Détail (terminé 2026-04-25)
+
+- [x] P10.1 Migration `p10_family_radar.sql` : `families` (owner_id, invite_code 6 chars UNIQUE, max_members 6, invite_expires_at) + `family_members` (UNIQUE family+user + UNIQUE user_id MVP = max 1 famille par user) + RPC `join_family_v1` atomique (FOR UPDATE families + checks family_not_found/invite_expired/already_in_family/family_full + insert) + RPC `cleanup_aria_old_v1` (DELETE conversations.ended_at < now()-180d cascade messages, retourne counts) + RLS (member-read families, owner-update/delete, self-leave family_members) + auto-add owner trigger AFTER INSERT
+- [x] P10.2 `lib/geo.ts` : ajout `computeBearing` (formule trigonométrique standard atan2 sin/cos lat/lon) + `cardinalDirection` (8-points N/NE/E/SE/S/SO/O/NO) + `angleDiff` signé [-180..+180] (utile AR projection)
+- [x] P10.3 `lib/family.ts` : `generateInviteCode` 6 chars depuis ALPHABET 32 sans I/O/0/1 (anti-ambiguïté visuelle, ~10^9 combos) + `isValidInviteCode` regex + `formatFamilyName` trim/dedup/cap 80
+- [x] P10.4 8 API : GET/POST `/api/family` (POST retry 3x sur collision invite_code · GET cumul km clean Haversine + score moyen membres) + POST `/api/family/join` (RPC + erreurs typées 404/410/409) + POST `/api/family/leave` (dissout famille si owner unique seul, refuse si owner avec autres membres) + GET `/api/radar/nearest?lat&lon&radius_km` (Haversine filter + bearing + cardinal, max 20 pins, sources gratuit_events + transport_partners) + GET/POST `/api/cron/cleanup-aria` (auth Bearer CRON_SECRET OU header x-vercel-cron='1', RPC service_role, retourne counts)
+- [x] P10.5 UI `/dashboard/famille` : split état "no family" (créer + rejoindre par code) vs "in family" (hero gradient avec cumul km + score moyen + invite code mono 0.3em + bouton copy navigator.clipboard + members list owner badge 👑)
+- [x] P10.6 UI `/dashboard/radar` : dual-tab Liste/Caméra · `geolocation.watchPosition` enableHighAccuracy + maximumAge 5s · `DeviceOrientationEvent` avec fallback `webkitCompassHeading` (Safari iOS) ou `360 - alpha` · `getUserMedia({video: facingMode: 'environment'})` cleanup tracks sur unmount · cards bearing-positioned avec FOV ±60° (pins hors champ filtrés en mode caméra) · Navigation icon rotated par `angleDiff` en mode liste
+- [x] P10.7 `OfflineBanner` global dans layout.tsx : `navigator.onLine` watch + listeners online/offline · fixed top z-200 amber/15 backdrop-blur · WifiOff icon
+- [x] P10.8 Service Worker v2 (`public/sw.js`) : Network-First HTML (navigation requests) + Stale-While-Revalidate API safe (whitelist 7 endpoints `/api/aides|cashback|humanitarian|gratuit|groups|ambient|family` TTL 1h via header `sw-cached-at`) + Cache-First static (Next.js _next/static + assets) + offline fallback `/offline` page + skipWaiting + clients.claim · 3 caches versionnés `yatra-v2-pages|api|static`
+- [x] P10.9 vercel.json : ajout cron weekly `/api/cron/cleanup-aria` schedule `0 4 * * 0` (dimanche 04:00 UTC) — **validé live** : Bearer CRON_SECRET → 200 + threshold ISO + counts (0 conversations à supprimer car aucune n'a >180j encore)
+- [x] P10.10 Dashboard : 2 nouvelles cards (Famille + Radar AR) — total **11 actions**
+- [x] P10.11 Build/tsc OK + grep 0 + commit `b89cfb6` + push + deploy + smoke 8 routes (307×2 dashboard + 401×6 API + 200 cleanup-aria avec Bearer)
