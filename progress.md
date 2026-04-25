@@ -1,8 +1,42 @@
 # YATRA — Progress (live state)
 
-**Dernière mise à jour** : 2026-04-25 (P11 livré)
-**Phase courante** : P11 ✅ TERMINÉE (deploy `b8c6281`)
-**Phase suivante** : P12 — Influenceurs + Pub interne + Jeux Concours
+**Dernière mise à jour** : 2026-04-25 (P12 livré)
+**Phase courante** : P12 ✅ TERMINÉE (deploy `b9285db`)
+**Phase suivante** : P13 — Espace Pilote + Tests + Mobile EAS + Stores
+
+## P12 — livré
+- ✅ **Programme Ambassadeur ouvert à tous** : 1 clic activation, 0 validation manuelle, slug perso `/go/[slug]` cookie HttpOnly Secure SameSite=lax 30j. 8 paliers Bronze→Éternel (10%→25% commission, perks cumulés)
+- ✅ **Tier upgrade auto** : `tierFromEarnings()` lazy-update à chaque GET stats — pas de cron requis
+- ✅ **Tracking click GPS-anonyme** : SHA-256 IP+UA, UTM en JSONB, RPC atomique `track_ambassador_click_v1` qui bump compteur ambassador. 1 click = 1 row en DB (validé live `test-slug` → 1 row)
+- ✅ **Concours auto autonomes** :
+  - `weekly_performance` dimanche 23:59 UTC : top 10 score (parrainages × 10 + trips clean × 5 + jours actifs × 5) → 6% CA distribué (2/1/0.7/0.5/0.4/0.3/1.1×4%)
+  - `monthly_lottery` 28-31 23:59 (Vercel cron tolérance dernier jour mois) : 10 random pondéré tickets → 4% CA distribué (1.2/0.8/0.6/0.4/1×6%)
+  - `quarterly_special` table prête (jury IA P13+)
+  - Idempotency via UNIQUE (type, period_start, period_end)
+  - Auth duale : Bearer CRON_SECRET ou x-vercel-cron header
+- ✅ **Pool Balances ledger** : 5 pools (reward, asso, partner, jackpot_lottery, jackpot_special) seedés. RPC atomiques `pool_credit_v1` / `pool_debit_v1` avec FOR UPDATE + ledger pool_transactions append-only
+- ✅ **Cross-promo Purama natif** : 6 promos seedées (KAIA santé, KASH finance, JurisPurama juridique, VIDA Aide social, PRANA santé, EXODUS santé). Composant `CrossPromoBanner` React (max 2 cards, sendBeacon view+click async). Affiché sur dashboard sous les actions
+- ✅ **Lottery picker pondéré tickets** : alias method approximé via cumulatif. Pas de duplication, déterministe avec rng injectable (testable)
+- ✅ 11 API : `/api/ambassadeur/{apply,stats}` + `/api/contests/{leaderboard,results}` + `/api/cron/{contests-weekly,contests-monthly}` + `/api/cross-promo` + `/track` + `/go/[slug]`
+- ✅ 3 UI : `/dashboard/ambassadeur` (apply OR dashboard tier hero + lien copy + 8 paliers grid + conversions list) + `/dashboard/classement` (top 100 hebdo + ma position + reward live + comment monter) + `/dashboard/concours` (résultats 20 derniers + jackpots actuels + winners grid)
+- ✅ Dashboard : **16 ActionCards** (+ Ambassadeur + Classement + Concours)
+- ✅ Migration fix appliquée (legacy P1 schema diff → DROP + recreate vide, 0 données perdues)
+- ✅ vercel.json : 4 crons total (aides 6h + cleanup-aria dim 4h + contests-weekly dim 23:59 + contests-monthly 28-31 23:59)
+- ✅ Smoke 12 routes : 307×3 dashboard + 401×7 API + 405×2 GET POST-only + 302 /go/test-slug avec set-cookie HttpOnly
+
+## Décisions clés P12
+- **Slug réservé list** : 30+ slugs interdits (admin, api, app, login, settings, dashboard, yatra, purama, kaia, kash, midas, sutra, aria, matiss, tissma…) — anti-impersonation
+- **Lazy tier upgrade pas cron** : à chaque GET /api/ambassadeur/stats on recompute tier via `tierFromEarnings(total_earnings_eur)` puis UPDATE si désync. Évite cron dédié, toujours en sync au moment où le user regarde
+- **/go/[slug] BYPASS middleware** : ajout `pathname.startsWith('/go/')` dans middleware skip (avec /api, /auth, /callback). Sinon middleware redirige vers /login alors que c'est une page de tracking publique. Cookie set + 302 vers /signup?ref= en 200ms
+- **Cookie ref HttpOnly Secure SameSite=lax** : HttpOnly = inaccessible JS donc sûr · Secure = HTTPS only · SameSite=lax = OK pour signup post-redirect mais bloque CSRF
+- **Cron weekly 59 23 dim UTC pas 0 0 lun** : on want runlate dimanche pas tôt lundi (sinon pic minuit + risque double-run sur DST)
+- **Cron monthly 28-31** : Vercel cron ne supporte pas L (last day) → on cron sur 28-31 et l'idempotency UNIQUE (type, period_start, period_end) garantit qu'on ne process qu'une fois la période précédente
+- **Insert wallet_transactions direct dans cron** : pas de RPC nested call à credit_wallet_v1 dans la boucle (overhead transaction par user). On fait INSERT + UPSERT wallets directement, et on logge admin_logs si échec — best effort acceptable pour distribution batch
+- **Safety cap 10K€/contest** : pré-Treezor on cap distributable même si pool >10K. Évite sur-distribution avant intégration EME ACPR
+- **Lottery winners pondéré tickets** : alias method approximé pour avoir distribution équitable selon nombre de tickets. Différent du draw uniforme (qui ignorerait l'engagement)
+- **Cross-promo priorité descendante puis random top 6** : empêche affichage répétitif. Priority entry du DB seed = 80 KAIA / 75 JurisPurama / 70 KASH / 65 VIDA Aide / 60 PRANA / 55 EXODUS
+- **sendBeacon pour view+click metrics** : non-bloquant, survit au unmount/navigation. Si beacon échoue, on perd le metric — acceptable
+- **Drop+recreate legacy tables** : P1 scaffolding avait créé ambassadeur_profiles avec champs (display_name, platform, channel_url, custom_link_slug, niveau) totalement différent du schéma P12. Tables vides → DROP CASCADE safe + recreate
 
 ## P11 — livré
 - ✅ **Trust Score 0-100** : nouvelle dimension réputation distincte du Score d'Humanité. Default 50. 4 paliers (verifie<40, fiable 40-65, reconnu 65-85, pilier ≥85). Gates : ≥30 stake / ≥20 report / ≥40 cash withdrawal. 11 event types ledger append-only avec deltas typés (proof_ok +1, proof_failed -3, audit_pass +3, audit_fail -10, suspect_speed -5, multi_account -15, safety_credible +2, challenge_completed +5, etc.)

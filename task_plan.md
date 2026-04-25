@@ -13,7 +13,7 @@
 | **P9 — IA Aria Conscience + 7 Modes Spéciaux** | ✅ | 7 system prompts identité stricte · 30 questions FR seedées · stream SSE Claude Sonnet 4.6 · rate limit 50/jour gratuit · auto-summary Haiku · TTS browser SpeechSynthesis · streak quotidien |
 | **P10 — RA Sensorielle + Hors Réseau + Famille** | ✅ | Camera + boussole DeviceOrientationEvent + bearing-FOV pins · families RPC join_family_v1 atomique · SW v2 stale-while-revalidate API · cron RGPD weekly cleanup-aria 180j (validé live) |
 | **P11 — Sécurité Vivante + Challenges Stake + 4 Rangs avantages** | ✅ | Trust Score 0-100 · 6 challenge templates (no-car/walk/velo/transport/gratitude/meditation) · 4 rangs ×1/×1.2/×1.5/×2 · safety reports communautaires GPS clusters 50m · 8 API + 3 UI + profile enrichi |
-| P12 — Influenceurs + Pub interne + Jeux Concours |  |  |
+| **P12 — Programme Ambassadeur + Pub interne + Jeux Concours** | ✅ | 8 paliers tier (Bronze→Éternel 10%→25%) · /go/[slug] tracking 30j HttpOnly · 11 API + 3 UI + CrossPromoBanner · CRONs auto contests-weekly dim 23:59 + monthly 28-31 23:59 · 5 pools + 6 cross-promos seed · 16 ActionCards |
 | P13 — Espace Pilote + Tests + Mobile EAS + Stores |  |  |
 
 ## P1 — Détail (terminé 2026-04-25)
