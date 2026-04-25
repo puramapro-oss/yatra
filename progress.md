@@ -1,8 +1,34 @@
 # YATRA — Progress (live state)
 
-**Dernière mise à jour** : 2026-04-25 (P10 livré)
-**Phase courante** : P10 ✅ TERMINÉE (deploy `b89cfb6`)
-**Phase suivante** : P11 — Sécurité Vivante + Challenges + 4 Rangs
+**Dernière mise à jour** : 2026-04-25 (P11 livré)
+**Phase courante** : P11 ✅ TERMINÉE (deploy `b8c6281`)
+**Phase suivante** : P12 — Influenceurs + Pub interne + Jeux Concours
+
+## P11 — livré
+- ✅ **Trust Score 0-100** : nouvelle dimension réputation distincte du Score d'Humanité. Default 50. 4 paliers (verifie<40, fiable 40-65, reconnu 65-85, pilier ≥85). Gates : ≥30 stake / ≥20 report / ≥40 cash withdrawal. 11 event types ledger append-only avec deltas typés (proof_ok +1, proof_failed -3, audit_pass +3, audit_fail -10, suspect_speed -5, multi_account -15, safety_credible +2, challenge_completed +5, etc.)
+- ✅ **Challenges Stake** : 6 templates curés (no-car-7d, walk-30d, velo-90d, transport-public-30d, gratitude-7d, meditation-30d). 3 RPC atomiques avec FOR UPDATE locks (`start_challenge_stake_v1` + `submit_challenge_proof_v1` + `complete_challenge_v1`). 1 challenge actif max simultané. Cap mise selon rang (Explo 25€ / Gardien 50€ / Régé 100€ / Légende 200€). Récompense bonifiée × multiplicateur rang (×1 à ×2). Outcomes : won = stake retour + reward + Trust +5 ; lost = mise redistribuée + Trust -3
+- ✅ **4 Rangs avantages** : RANG_AVANTAGES + RANG_MULTIPLIERS exportés. Multiplicateur appliqué sur trip/end (composé avec ancienneté). Features par rang (cashback dès Gardien, famille dès Régé, Beta dès Légende). Profile UI : Trust Score card + Avantages rang card avec prochain rang restants
+- ✅ **Sécurité Vivante** : carte communautaire signalements GPS user-fed. 7 catégories (travaux/éclairage/voirie/agression/vol/circulation/autre) × 3 sévérités (info/warning/danger). RPC `report_safety_v1` anti-spam (5 max/h) + Trust gate 20. Clustering 50m côté lib (barycentre + max severity + dedupe categories) pour éviter pin spam. Expires auto 30j (info fraîche)
+- ✅ **Multiplicateur trip/end composé** : `gain = base × multi_anciennete × multi_rang`. Response API étend `multiplier_anciennete` + `multiplier_rang` + `multiplier_total` + `rang`. recordTrustEvent automatique sur chaque trip (proof_ok ou proof_failed selon flag)
+- ✅ **Withdraw Trust gate** : nouveau check Trust >=40 retourne 403 avec score actuel + threshold (anti-multi-account renforcé pré-Treezor)
+- ✅ 8 API : `/api/challenges/catalog` (static) + `/stake` (GET+POST) + `/[id]` + `/[id]/proof` + `/[id]/complete` + `/api/safety/report` + `/api/safety/zones` + `/api/trust`
+- ✅ 3 UI : `/dashboard/challenges` (catalogue + actif + payouts) + `/[id]` (timeline + soumettre preuve + clôturer) + `/dashboard/safety` (zones autour clustérées + form signalement)
+- ✅ Profile enrichi : Trust Score card + Avantages rang card + Multiplicateur total combiné
+- ✅ Dashboard : **13 ActionCards** (+ Challenges Stake + Sécurité Vivante)
+- ✅ Smoke 10 routes : 307×4 dashboard + 200 catalog + 401×3 API + 405×2 GET sur POST-only
+
+## Décisions clés P11
+- **Trust Score séparé du Score d'Humanité** : score humanité = engagement positif (gain Vida Credits, parrainages, missions). Trust Score = fiabilité technique (anti-fraude, qualité preuves, vote crédibilité). Deux signaux distincts pour deux usages distincts
+- **Default Trust 50/100 pas 100/100** : nouveau user n'est ni trusté ni suspect, neutre. Doit prouver via trips clean. Évite que multi-account ait dès le départ le max
+- **Cap mise par rang** : empêche un user Explorateur de staker 200€ (risque scam massif) tout en récompensant les rangs supérieurs avec capacité de stake plus élevée
+- **fraud_score auto sur trip_clean** : si le trip a fraud_score >=60, la preuve est rejetée (RPC raise_exception) ET un trust_event proof_failed est enregistré. Double pénalité = anti-fraude rigide
+- **clusterReports radius 50m** : empêche affichage de 30 pins au même endroit en cas de signalements dupliqués (ex : zone travaux longue durée). Cluster = 1 pin avec count badge + max severity + categories agrégées
+- **Expiration safety_reports 30j** : info fraîche only. Si le souci persiste, signaler à nouveau. Évite carte saturée de zones obsolètes
+- **Anti-spam safety RPC** : 5 reports max/h hard limit + Trust >=20 gate. Multi-account spam coûte un Trust event négatif rapide
+- **Multiplicateur composé** : ancienneté × rang. Légende +12 mois = ×4 max. Délibérément accessible mais long à atteindre (Score d'Humanité ≥8 = legende = comportement vertueux soutenu)
+- **safety_reports authenticated read** : pour voir la carte il faut être logué. Public read = risque géo-mining hors-app
+- **Pre-créer challenge_days** : à start, on insert N rows (1 par jour). Permet UNIQUE check sur (challenge_id, day_date) qui empêche double-preuve même via race-condition. Aussi simplifie UI timeline (pas de "trous")
+- **Wallet credit dans complete_challenge_v1** : pas de RPC nested call à credit_wallet_v1, on fait l'insert wallet_transactions + UPSERT wallets directement dans la même transaction RPC. Évite les locks imbriqués
 
 ## P10 — livré
 - ✅ **Famille** : 2-6 personnes, code d'invitation 6 chars sans ambiguïté visuelle (sans I/O/0/1, ALPHABET 32 chars), RPC `join_family_v1` atomique avec FOR UPDATE + checks (not_found/expired/already/full), auto-owner trigger SQL post-insert, dissolution auto si owner quitte seul
