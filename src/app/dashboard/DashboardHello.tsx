@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag, Headphones, MessageCircle, Users, Radar } from 'lucide-react'
+import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag, Headphones, MessageCircle, Users, Radar, Shield, ShieldAlert } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { getGreeting, formatPrice } from '@/lib/utils'
@@ -206,6 +206,18 @@ export function DashboardHello({
               description="Caméra + boussole. Vois les points YATRA proches projetés en réalité augmentée."
               icon={<Radar size={22} />}
               onClick={() => router.push('/dashboard/radar')}
+            />
+            <ActionCard
+              title="Challenges Stake"
+              description="Mise sur toi-même. 7, 30 ou 90 jours. Réussis = récup mise + récompense. Anti-fraude Trust Score."
+              icon={<Shield size={22} />}
+              onClick={() => router.push('/dashboard/challenges')}
+            />
+            <ActionCard
+              title="Sécurité Vivante"
+              description="Carte communautaire. Signale travaux, danger, voirie. Évite les zones flagués pendant tes trajets."
+              icon={<ShieldAlert size={22} />}
+              onClick={() => router.push('/dashboard/safety')}
             />
           </section>
 

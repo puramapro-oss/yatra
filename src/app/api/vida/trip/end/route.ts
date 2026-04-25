@@ -5,8 +5,10 @@ import { analyzeTrip } from '@/lib/anti-fraud'
 import { VIDA_CREDITS_PER_KM, CO2_AVOIDED_PER_KM, isCleanMode } from '@/lib/wow'
 import { ancienneteMultiplier } from '@/lib/utils'
 import { creditWallet } from '@/lib/wallet'
+import { rangMultiplier } from '@/lib/rangs'
+import { recordTrustEvent } from '@/lib/trust'
 import type { GpsPoint, RouteGeometry } from '@/types/trip'
-import type { CleanMobilityMode } from '@/types/vida'
+import type { CleanMobilityMode, RangIdentity } from '@/types/vida'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -62,14 +64,17 @@ export async function POST(request: Request) {
     const lastT = points[points.length - 1].t
     const duration_min = Math.max(0, Math.round(((lastT - startedAtMs) / 1000 / 60) * 10) / 10)
 
-    // Multiplicateur ancienneté ×1 → ×2 (cap 12 mois)
+    // Multiplicateur ancienneté ×1 → ×2 (cap 12 mois) + multiplicateur rang ×1 à ×2
     const { data: profile } = await supabase
       .from('profiles')
-      .select('anciennete_months')
+      .select('anciennete_months, rang')
       .eq('id', user.id)
       .maybeSingle()
     const anciennete_months = Math.min(profile?.anciennete_months ?? 0, 12)
-    const multiplier = ancienneteMultiplier(anciennete_months)
+    const multiplier_anc = ancienneteMultiplier(anciennete_months)
+    const rang = (profile?.rang ?? 'explorateur') as RangIdentity
+    const multiplier_rang = rangMultiplier(rang)
+    const multiplier = Math.round(multiplier_anc * multiplier_rang * 100) / 100
 
     // Crédits + CO₂ — uniquement si non flagged ET mode propre
     let gain_credits_eur = 0
@@ -156,6 +161,16 @@ export async function POST(request: Request) {
       }
     }
 
+    // Trust event — proof_ok si trip clean validé, proof_failed si flagged
+    await recordTrustEvent({
+      userId: user.id,
+      type: isFlagged ? 'proof_failed' : 'proof_ok',
+      reason: isFlagged
+        ? `Trajet flagged · score ${result.fraud_score}`
+        : `Trajet ${declared_mode} validé · ${distance_km} km`,
+      sourceId: trip_id,
+    })
+
     // Fil de Vie — append-only
     await supabase.from('fil_de_vie').insert({
       user_id: user.id,
@@ -178,7 +193,10 @@ export async function POST(request: Request) {
       duration_min,
       gain_credits_eur,
       gain_base_eur,
-      multiplier_anciennete: multiplier,
+      multiplier_anciennete: multiplier_anc,
+      multiplier_rang,
+      multiplier_total: multiplier,
+      rang,
       co2_avoided_kg,
       fraud_score: result.fraud_score,
       reasons: result.reasons,

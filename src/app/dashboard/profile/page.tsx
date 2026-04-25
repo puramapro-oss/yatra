@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Shield } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { computeScoreHumanite, rangFromScore, RANG_LABELS, RANG_EMOJI } from '@/lib/score-humanite'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
@@ -8,6 +8,8 @@ import { ADNMobiliteRadar } from '@/components/profile/ADNMobiliteRadar'
 import { FilDeVieTimeline } from '@/components/profile/FilDeVieTimeline'
 import { ANCIENNETE_CAP_MONTHS, AMBIANCE_LABELS, PURAMA_ECOSYSTEM } from '@/lib/constants'
 import { ancienneteMultiplier } from '@/lib/utils'
+import { RANG_AVANTAGES, nextRang, rangMultiplier } from '@/lib/rangs'
+import { trustLevel } from '@/lib/trust'
 import type { AmbianceMode } from '@/lib/constants'
 
 export const dynamic = 'force-dynamic'
@@ -35,6 +37,12 @@ export default async function ProfilePage() {
     .eq('referrer_id', user.id)
     .eq('status', 'active')
 
+  const { data: trustRow } = await supabase
+    .from('trust_scores')
+    .select('score, proofs_ok, proofs_failed')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
   // Recompute breakdown live (placeholder pour P3+ : trajets/missions encore 0)
   const score = computeScoreHumanite({
     trajets_propres_30j: 0,
@@ -49,6 +57,12 @@ export default async function ProfilePage() {
   const multiplier = ancienneteMultiplier(profile?.anciennete_months ?? 0)
   const ambiance = (profile?.ambiance_preferee ?? 'foret') as AmbianceMode
   const firstName = profile?.full_name?.split(' ')[0] ?? null
+
+  const trustScore = trustRow?.score ?? 50
+  const trust = trustLevel(trustScore)
+  const avantages = RANG_AVANTAGES[rang]
+  const next = nextRang(rang)
+  const totalMultiplier = Math.round(multiplier * rangMultiplier(rang) * 100) / 100
 
   return (
     <>
@@ -105,20 +119,65 @@ export default async function ProfilePage() {
             </div>
           </section>
 
-          {/* Ancienneté + multiplicateur */}
+          {/* Trust Score + Rang avantages */}
+          <section className="grid md:grid-cols-2 gap-4">
+            <div className="glass rounded-2xl p-6 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs uppercase tracking-[0.18em] text-white/45 flex items-center gap-1.5">
+                  <Shield size={12} /> Trust Score
+                </p>
+                <span className="text-xs text-white/45">{trust.label}</span>
+              </div>
+              <p className="text-5xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
+                <span className="gradient-text-aurora">{trustScore}</span>
+                <span className="text-lg text-white/40 ml-1">/ 100</span>
+              </p>
+              <div className="h-2 rounded-full bg-white/8 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-emerald-400 to-violet-400 transition-all"
+                  style={{ width: `${trustScore}%` }}
+                />
+              </div>
+              <p className="text-xs text-white/40">
+                {trustRow?.proofs_ok ?? 0} preuves OK · {trustRow?.proofs_failed ?? 0} rejets. Stake dès 30 · retrait dès 40.
+              </p>
+            </div>
+
+            <div className="glass rounded-2xl p-6 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs uppercase tracking-[0.18em] text-white/45">Avantages rang {RANG_LABELS[rang]}</p>
+                <span className="text-xs gradient-text-aurora font-semibold">{avantages.multiplier_label}</span>
+              </div>
+              <ul className="text-xs text-white/65 space-y-1">
+                {avantages.features.slice(0, 4).map((f, i) => (
+                  <li key={i} className="flex items-start gap-1.5">
+                    <span className="text-emerald-300">✓</span>
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+              {next.next && next.thresholdScore && (
+                <p className="text-xs text-white/45 pt-1 border-t border-white/5">
+                  Prochain rang : <span className="text-white/75">{RANG_LABELS[next.next]}</span> à {next.thresholdScore}/10 ({(next.thresholdScore - score.total).toFixed(2)} restants)
+                </p>
+              )}
+            </div>
+          </section>
+
+          {/* Ancienneté + multiplicateur (combiné rang) */}
           <section className="glass rounded-2xl p-6 space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs uppercase tracking-[0.18em] text-white/45">Multiplicateur ancienneté</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-white/45">Multiplicateur total · ancienneté × rang</p>
               <span className="text-xs text-white/45">
                 cap {ANCIENNETE_CAP_MONTHS} mois
               </span>
             </div>
-            <div className="flex items-baseline gap-3">
+            <div className="flex items-baseline gap-3 flex-wrap">
               <p className="text-4xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-                ×{multiplier.toFixed(2)}
+                ×{totalMultiplier.toFixed(2)}
               </p>
               <p className="text-sm text-white/55">
-                {profile?.anciennete_months ?? 0} mois d&apos;ancienneté
+                ×{multiplier.toFixed(2)} ancienneté ({profile?.anciennete_months ?? 0} mois) · ×{rangMultiplier(rang).toFixed(1)} rang
               </p>
             </div>
             <div className="h-2 rounded-full bg-white/8 overflow-hidden">
@@ -130,7 +189,7 @@ export default async function ProfilePage() {
               />
             </div>
             <p className="text-xs text-white/40">
-              Plus tu restes, plus tes Vida Credits sont valorisés. Multiplicateur max ×2 à 12 mois.
+              S&apos;applique sur tes gains Vida Credits. Plus tu restes + plus tu montes en rang = plus tes trajets propres rapportent.
             </p>
           </section>
 

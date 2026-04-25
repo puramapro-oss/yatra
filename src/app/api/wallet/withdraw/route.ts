@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { validateIban } from '@/lib/iban'
 import { requestWithdrawal } from '@/lib/wallet'
+import { TRUST_THRESHOLD_CASH } from '@/lib/trust'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -45,6 +46,24 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: `Tu dois avoir validé au moins ${MIN_CLEAN_TRIPS} trajets propres avant ton premier retrait. Tu en as ${cleanTripsCount ?? 0}.`,
+        },
+        { status: 403 },
+      )
+    }
+
+    // 2bis. Trust Score gate : ≥ 40 pour passer en cash withdrawal sans audit additionnel
+    const { data: trust } = await supabase
+      .from('trust_scores')
+      .select('score')
+      .eq('user_id', user.id)
+      .maybeSingle()
+    const trustScore = trust?.score ?? 50
+    if (trustScore < TRUST_THRESHOLD_CASH) {
+      return NextResponse.json(
+        {
+          error: `Ton Trust Score est trop bas (${trustScore}/100). Seuil retrait : ${TRUST_THRESHOLD_CASH}. Continue à valider des trajets propres pour le faire monter.`,
+          trust_score: trustScore,
+          threshold: TRUST_THRESHOLD_CASH,
         },
         { status: 403 },
       )
