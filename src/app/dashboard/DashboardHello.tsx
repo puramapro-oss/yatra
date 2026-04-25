@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User } from 'lucide-react'
@@ -40,8 +40,13 @@ export function DashboardHello({
   const { signOut } = useAuth()
   const router = useRouter()
   const [signingOut, setSigningOut] = useState(false)
+  const [greeting, setGreeting] = useState('')
 
   const firstName = profile?.full_name?.split(' ')[0] ?? null
+
+  useEffect(() => {
+    setGreeting(getGreeting(firstName))
+  }, [firstName])
 
   async function handleSignOut() {
     setSigningOut(true)
@@ -89,7 +94,7 @@ export function DashboardHello({
         <div className="px-6 py-8 max-w-5xl mx-auto space-y-8">
           {/* Greeting */}
           <div className="space-y-2">
-            <p className="text-sm text-white/50">{getGreeting(firstName)}</p>
+            <p className="text-sm text-white/50 min-h-5" suppressHydrationWarning>{greeting}</p>
             <h1
               className="text-3xl md:text-4xl font-bold tracking-tight"
               style={{ fontFamily: 'var(--font-display)' }}
