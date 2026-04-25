@@ -8,6 +8,14 @@
     {
       "path": "/api/cron/cleanup-aria",
       "schedule": "0 4 * * 0"
+    },
+    {
+      "path": "/api/cron/contests-weekly",
+      "schedule": "59 23 * * 0"
+    },
+    {
+      "path": "/api/cron/contests-monthly",
+      "schedule": "59 23 28-31 * *"
     }
   ]
 }

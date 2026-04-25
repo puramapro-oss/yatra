@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag, Headphones, MessageCircle, Users, Radar, Shield, ShieldAlert } from 'lucide-react'
+import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag, Headphones, MessageCircle, Users, Radar, Shield, ShieldAlert, Megaphone, Award } from 'lucide-react'
+import { CrossPromoBanner } from '@/components/promo/CrossPromoBanner'
 import { useAuth } from '@/hooks/useAuth'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { getGreeting, formatPrice } from '@/lib/utils'
@@ -219,7 +220,28 @@ export function DashboardHello({
               icon={<ShieldAlert size={22} />}
               onClick={() => router.push('/dashboard/safety')}
             />
+            <ActionCard
+              title="Programme ambassadeur"
+              description="Lien personnel /go/[slug]. 10% à 25% commission. Plan offert dès Bronze."
+              icon={<Megaphone size={22} />}
+              onClick={() => router.push('/dashboard/ambassadeur')}
+            />
+            <ActionCard
+              title="Classement hebdo"
+              description="Top 10 = 6% du CA. Score = parrainages × 10 + trajets × 5 + jours actifs × 5. Reset dimanche 23:59 UTC."
+              icon={<Award size={22} />}
+              onClick={() => router.push('/dashboard/classement')}
+            />
+            <ActionCard
+              title="Concours · résultats"
+              description="20% du CA redistribué. Hebdo + tirage mensuel + concours spéciaux. Animations en live."
+              icon={<Trophy size={22} />}
+              onClick={() => router.push('/dashboard/concours')}
+            />
           </section>
+
+          {/* Cross-promo Purama */}
+          <CrossPromoBanner />
 
           {/* Account info */}
           <section className="glass rounded-2xl p-6 space-y-3 text-sm">
