@@ -159,6 +159,18 @@ export function DashboardHello({
               icon={<Sparkles size={22} />}
               onClick={() => router.push('/dashboard/aides')}
             />
+            <ActionCard
+              title="Radar gratuit"
+              description="Musées, ateliers, repas solidaires, concerts gratuits accessibles en mobilité douce."
+              icon={<Sparkles size={22} />}
+              onClick={() => router.push('/dashboard/gratuit')}
+            />
+            <ActionCard
+              title="Achats groupés"
+              description="Plus on est nombreux, moins c'est cher. Yoga, transport partagé, soins solidaires."
+              icon={<Compass size={22} />}
+              onClick={() => router.push('/dashboard/groupes')}
+            />
           </section>
 
           {/* Account info */}
