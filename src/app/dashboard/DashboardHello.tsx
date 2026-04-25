@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag, Headphones } from 'lucide-react'
+import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag, Headphones, MessageCircle } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { getGreeting, formatPrice } from '@/lib/utils'
@@ -188,6 +188,12 @@ export function DashboardHello({
               description="6 mondes immersifs Three.js + sons binauraux. Forêt, océan, montagne, désert, aurore, cosmos."
               icon={<Headphones size={22} />}
               onClick={() => router.push('/dashboard/ambiance')}
+            />
+            <ActionCard
+              title="Aria · ta présence"
+              description="7 modes de conversation : coach trajet, méditation, journal, cri du cœur, boussole, gratitude, question profonde."
+              icon={<MessageCircle size={22} />}
+              onClick={() => router.push('/dashboard/aria')}
             />
           </section>
 
