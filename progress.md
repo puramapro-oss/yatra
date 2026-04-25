@@ -1,8 +1,26 @@
 # YATRA — Progress (live state)
 
-**Dernière mise à jour** : 2026-04-25 (P3 livré)
-**Phase courante** : P3 ✅ TERMINÉE (deploy `6a4483b`)
-**Phase suivante** : P4 — Vida Credits + Treezor sandbox + Cap 12m
+**Dernière mise à jour** : 2026-04-25 (P4 livré)
+**Phase courante** : P4 ✅ TERMINÉE (deploy `4dc673c`)
+**Phase suivante** : P5 — Radar Aides & Droits Auto + Tavily 24/7
+
+## P4 — livré
+- ✅ Wallet sub-PURAMA event-sourcing : RPC atomiques `credit_wallet_v1` (FOR UPDATE lock + INSERT wallet_transactions + UPDATE wallets agrégat) et `request_withdrawal_v1` (vérif solde + 3 inserts en 1 transaction)
+- ✅ Validation IBAN mod-97 ISO 13616 100% locale (FR + 30+ pays : DE, ES, BE, IT, NL, PT, …)
+- ✅ Multiplicateur ancienneté ×1 → ×2 (cap 12 mois) appliqué automatiquement sur le gain Vida Credits dans `/api/vida/trip/end`
+- ✅ 4 API wallet : balance + ledger paginé + demande retrait + historique retraits
+- ✅ Anti-fraude retraits : ≥ 5 € + ≥ 3 trips clean validés + 1 seul retrait pending à la fois
+- ✅ UI `/dashboard/wallet` : hero balance gradient aurora + multiplicateur ancienneté visible + 3 sources de gains (trajets/parrainages/concours) + ledger 30 derniers mouvements + retraits avec status
+- ✅ `WithdrawModal` : validation IBAN live (mod-97) + presets montants + display 4 derniers chiffres + storage sécurisé (jamais l'IBAN complet, juste last4)
+- ✅ Dashboard KPI Wallet → cliquable → `/dashboard/wallet`, KPI Score → `/dashboard/profile`
+- ✅ Smoke 7 routes wallet : 200 status, 307 dashboard wallet→login, 401 APIs sans auth
+
+## Décisions clés P4
+- Sub-wallet interne (pas Treezor) : Treezor sera activé en P11 post-SASU. Architecture event-sourcing compatible plug-and-play.
+- RPC atomiques Postgres > triggers : zéro risque de récursion + atomicité garantie + rollback automatique
+- IBAN stocké : seuls les 4 derniers chiffres (`bank_iban_last4`). Conformité RGPD + bon UX.
+- Anti-multi-account light pré-Treezor : ≥ 3 trips `completed` + 1 retrait pending max. Trust Score complet en P11.
+- Retraits status `pending_admin` (validation manuelle 48 h) jusqu'à intégration EME Treezor automatisée.
 
 ## P3 — livré
 - ✅ Moteur Zéro-Coût : combinator multi-modal (cheapest / cleanest / apaisant / fastest)

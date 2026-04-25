@@ -5,7 +5,7 @@
 | **P1 — Setup + Auth + Background multisensoriel** | ✅ | Live `yatra.purama.dev` |
 | **P2 — VIDA CORE + ADN Mobilité + Onboarding 30s** | ✅ | Onboarding 5 écrans + Moment WOW |
 | **P3 — Moteur Zéro-Coût + GPS Tracking + Anti-fraude** | ✅ | OSRM gratuit · Mapbox auto-upgrade · 5 partenaires FR seed |
-| P4 — Vida Credits + Treezor sandbox + Cap 12m |  | TREEZOR_API_KEY à fournir |
+| **P4 — Wallet sub-PURAMA + Retraits IBAN + Cap 12m** | ✅ | RPC atomiques · IBAN mod-97 · Treezor en P11+ post-SASU |
 | P5 — Radar Aides & Droits Auto + Tavily 24/7 |  | Tavily key OK |
 | P6 — Radar Gratuit + Achat Groupé |  |  |
 | P7 — Cashback + Voyages Humanitaires (VIDA Assoc) |  |  |
@@ -45,3 +45,13 @@
 - [x] P3.4 Pages UI : `/dashboard/trajet` (recherche from/to + 3-5 cards combinaisons), `/trajet/active` (live GPS watchPosition + KPI live), `/trajet/[id]` (récap + flagged banner), `/trajets` (historique avec totaux)
 - [x] P3.5 Dashboard : bouton "Démarrer mon trajet" actif (ex-disabled P3) + carte Mes trajets
 - [x] P3.6 Build/tsc OK + grep 0 + commit + push + deploy + smoke 9 routes
+
+## P4 — Détail (terminé 2026-04-25)
+
+- [x] P4.1 Migration SQL `credit_wallet_v1` + `request_withdrawal_v1` (RPC atomiques avec FOR UPDATE lock + GRANT EXECUTE authenticated) + index perfs
+- [x] P4.2 `lib/wallet.ts` (wrappers RPC creditWallet/requestWithdrawal) + `lib/iban.ts` (validation mod-97 ISO 13616, 30+ pays supportés)
+- [x] P4.3 `/api/vida/trip/end` mis à jour : applique multiplicateur ancienneté (×1→×2 cap 12m) sur gain + RPC atomique au lieu d'UPDATE direct + log admin si crédit échoue
+- [x] P4.4 4 API wallet : GET `/api/wallet` (balance + 10 dernières + retraits pending), `/transactions` (paginé), `/withdrawals` (liste), POST `/withdraw` (validation IBAN + 3 trips clean min + 1 retrait pending max)
+- [x] P4.5 UI `/dashboard/wallet` (balance hero gradient + multiplicateur + 3 sources gains + ledger 30 + retraits) + `WithdrawModal` (validation IBAN live + presets + anti-fraude visuel)
+- [x] P4.6 Dashboard : KPI Wallet et Score d'Humanité cliquables (Link)
+- [x] P4.7 Build/tsc OK + grep 0 + commit + push + deploy + smoke 7 routes wallet
