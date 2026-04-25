@@ -6,7 +6,7 @@
 | **P2 — VIDA CORE + ADN Mobilité + Onboarding 30s** | ✅ | Onboarding 5 écrans + Moment WOW |
 | **P3 — Moteur Zéro-Coût + GPS Tracking + Anti-fraude** | ✅ | OSRM gratuit · Mapbox auto-upgrade · 5 partenaires FR seed |
 | **P4 — Wallet sub-PURAMA + Retraits IBAN + Cap 12m** | ✅ | RPC atomiques · IBAN mod-97 · Treezor en P11+ post-SASU |
-| P5 — Radar Aides & Droits Auto + Tavily 24/7 |  | Tavily key OK |
+| **P5 — Radar Aides & Droits Auto + Tavily 24/7** | ✅ | 30 aides FR seedées · CRON quotidien 6h via vercel.json · Score 0-100 multi-signaux |
 | P6 — Radar Gratuit + Achat Groupé |  |  |
 | P7 — Cashback + Voyages Humanitaires (VIDA Assoc) |  |  |
 | P8 — 6 Modes Ambiance + Three.js + Web Audio |  |  |
@@ -55,3 +55,13 @@
 - [x] P4.5 UI `/dashboard/wallet` (balance hero gradient + multiplicateur + 3 sources gains + ledger 30 + retraits) + `WithdrawModal` (validation IBAN live + presets + anti-fraude visuel)
 - [x] P4.6 Dashboard : KPI Wallet et Score d'Humanité cliquables (Link)
 - [x] P4.7 Build/tsc OK + grep 0 + commit + push + deploy + smoke 7 routes wallet
+
+## P5 — Détail (terminé 2026-04-25)
+
+- [x] P5.1 Migration SQL : étend `aides` (slug unique full constraint, category, transport_modes_eligible, source_type, source_url, body_jsonb, popularity_score) + tables `aides_subscriptions` + `aides_user_match` + RLS + 30 aides FR seedées (sources officielles uniquement service-public.fr/gouv.fr/ameli.fr)
+- [x] P5.2 `lib/tavily.ts` (search + extract) + `lib/aides-matcher.ts` (score 0-100 : région 24pts + situation 28pts + transport 24pts + âge 12pts + profil 12pts)
+- [x] P5.3 5 API : GET `/api/aides` (top match selon profil user), GET `/api/aides/[id]`, POST `/api/aides/[id]/follow` + DELETE, POST `/api/admin/aides-research` (super-admin trigger), GET+POST `/api/cron/aides-research` (Bearer CRON_SECRET)
+- [x] P5.4 Vercel Cron via `vercel.json` (`0 6 * * *` quotidien) + génération CRON_SECRET random + ajout via Vercel CLI prod (no leading/trailing whitespace)
+- [x] P5.5 UI `/dashboard/aides` (hero KPI potentiel + filtres 7 catégories scroll horizontal + cards score badge + reasons top 3) + `/dashboard/aides/[id]` (hero + bouton "Faire ma demande officielle" + follow/applied/dismissed avec confirmation modal)
+- [x] P5.6 Dashboard : 3ème card "Mes droits & aides" actif (P5 → page liste)
+- [x] P5.7 Build/tsc OK + grep 0 + commit + push + deploy + smoke 6 routes

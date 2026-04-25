@@ -1,8 +1,27 @@
 # YATRA — Progress (live state)
 
-**Dernière mise à jour** : 2026-04-25 (P4 livré)
-**Phase courante** : P4 ✅ TERMINÉE (deploy `4dc673c`)
-**Phase suivante** : P5 — Radar Aides & Droits Auto + Tavily 24/7
+**Dernière mise à jour** : 2026-04-25 (P5 livré)
+**Phase courante** : P5 ✅ TERMINÉE (deploy `2199dd2`)
+**Phase suivante** : P6 — Radar Gratuit + Achat Groupé
+
+## P5 — livré
+- ✅ 30 aides FR officielles seedées (service-public.fr, gouv.fr, ameli.fr, francetravail.fr, iledefrance.fr, sncf-connect, actionlogement)
+- ✅ Catégories : transport (18), social (4), logement (4), handicap (2), énergie (1), santé (1)
+- ✅ Score matching 0-100 multi-signaux : région (24) + situation (28) + transport (24) + âge (12) + profil (12)
+- ✅ Tavily veille permanente : `lib/tavily.ts` (search + extract) avec domaines trustés (.gouv.fr only)
+- ✅ CRON quotidien 6h via `vercel.json` schedule (`/api/cron/aides-research`) + Bearer CRON_SECRET (32 bytes hex)
+- ✅ Trigger admin manuel `/api/admin/aides-research` (super-admin only)
+- ✅ 5 API : `/api/aides` (top matches), `/[id]` (détail), `/[id]/follow` (POST+DELETE), `/admin/aides-research`, `/cron/aides-research`
+- ✅ UI `/dashboard/aides` (hero KPI gradient + 7 filtres catégories + cards score) + `/dashboard/aides/[id]` (détail + bouton officiel + follow/applied/dismissed)
+- ✅ Dashboard : 3ème card "Mes droits & aides" active
+- ✅ Smoke 6 routes : 200 / 200 status / 307 dashboard auth / 401 APIs auth / 405 admin GET (POST only) / 401 cron sans Bearer
+
+## Décisions clés P5
+- **Tavily uniquement domaines .gouv.fr / .fr trustés** : zero risque pubs/scams. CRON skip auto-publish, admin valide lots flagged.
+- **Score deterministe pur (pas d'IA matching)** : explicable via `_reasons[]`, audit-friendly, aucune hallucination
+- **Aides Tavily isolées via `source_type='tavily'`** : badge "Veille" UI distinct du badge "Source officielle"
+- **CRON_SECRET random 32 bytes** : généré localement openssl, jamais commit, ajouté via Vercel CLI sans whitespace
+- **Régions devinées via mapping ville** : 8 régions FR principales (IDF/AURA/OCC/PACA/NAQ/PDL/HDF/GE), fallback FR. P11 = mapping INSEE Code Officiel.
 
 ## P4 — livré
 - ✅ Wallet sub-PURAMA event-sourcing : RPC atomiques `credit_wallet_v1` (FOR UPDATE lock + INSERT wallet_transactions + UPDATE wallets agrégat) et `request_withdrawal_v1` (vérif solde + 3 inserts en 1 transaction)
