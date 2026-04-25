@@ -139,16 +139,12 @@ export function DashboardHello({
               description="On calcule la combinaison la moins chère + la plus propre + la plus apaisante en 3 sec."
               icon={<Compass size={22} />}
               onClick={() => router.push('/dashboard/trajet')}
-              disabled
-              soonLabel="P3"
             />
             <ActionCard
-              title="Voir mes droits & aides"
-              description="On scanne ce à quoi tu as droit (transport, énergie, ZFRR, naturopathie)."
+              title="Mes trajets"
+              description="Historique, gains cumulés, CO₂ évité. Toute ta progression mobilité propre."
               icon={<MapPin size={22} />}
-              onClick={() => router.push('/dashboard/aides')}
-              disabled
-              soonLabel="P5"
+              onClick={() => router.push('/dashboard/trajets')}
             />
           </section>
 
