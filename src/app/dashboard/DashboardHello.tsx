@@ -2,10 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin } from 'lucide-react'
+import Link from 'next/link'
+import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { getGreeting, formatPrice } from '@/lib/utils'
+import { RANG_LABELS, RANG_EMOJI } from '@/lib/score-humanite'
+import type { RangIdentity } from '@/types/vida'
 
 type ProfileLite = {
   full_name: string | null
@@ -16,6 +19,7 @@ type ProfileLite = {
   awakening_level: number
   intro_seen: boolean
   onboarding_completed: boolean
+  rang: RangIdentity
 } | null
 
 type WalletLite = {
@@ -61,14 +65,25 @@ export function DashboardHello({
               YATRA
             </span>
           </div>
-          <button
-            onClick={handleSignOut}
-            disabled={signingOut}
-            aria-label="Se déconnecter"
-            className="text-sm text-white/55 hover:text-white transition flex items-center gap-1.5"
-          >
-            <LogOut size={16} /> {signingOut ? '…' : 'Déconnexion'}
-          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard/profile"
+              aria-label="Mon profil"
+              className="flex items-center gap-1.5 text-sm text-white/55 hover:text-white transition"
+            >
+              <span className="text-base">{profile?.rang ? RANG_EMOJI[profile.rang] : '🌱'}</span>
+              <span className="hidden sm:inline">{profile?.rang ? RANG_LABELS[profile.rang] : 'Profil'}</span>
+              <User size={16} className="sm:hidden" />
+            </Link>
+            <button
+              onClick={handleSignOut}
+              disabled={signingOut}
+              aria-label="Se déconnecter"
+              className="text-sm text-white/55 hover:text-white transition flex items-center gap-1.5"
+            >
+              <LogOut size={16} /> <span className="hidden sm:inline">{signingOut ? '…' : 'Déconnexion'}</span>
+            </button>
+          </div>
         </header>
 
         <div className="px-6 py-8 max-w-5xl mx-auto space-y-8">
