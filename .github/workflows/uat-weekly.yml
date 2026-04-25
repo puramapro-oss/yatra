@@ -1,0 +1,69 @@
+name: UAT Weekly
+
+on:
+  schedule:
+    # Sunday 03:00 UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+jobs:
+  uat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      UAT_BASE_URL: https://yatra.purama.dev
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run UAT suite
+        id: uat
+        run: npx playwright test --config=playwright.uat.config.ts --reporter=list
+        continue-on-error: true
+
+      - name: Upload report on failure
+        if: steps.uat.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: uat-report-${{ github.run_id }}
+          path: |
+            tests/uat/report
+            tests/uat/output
+          retention-days: 14
+
+      - name: Send Resend alert if red
+        if: steps.uat.outcome == 'failure'
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
+        run: |
+          curl -sS -X POST https://api.resend.com/emails \
+            -H "Authorization: Bearer $RESEND_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "$(cat <<JSON
+          {
+            "from": "YATRA UAT <alerts@purama.dev>",
+            "to": ["${ALERT_EMAIL}"],
+            "subject": "🔴 UAT YATRA — échec hebdo (run ${GITHUB_RUN_ID})",
+            "html": "<h2>UAT hebdo a échoué</h2><p>Run : <a href='https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}'>${GITHUB_RUN_ID}</a></p><p>Cible : <code>https://yatra.purama.dev</code></p><p>Artifact rapport HTML attaché au run (uat-report-${GITHUB_RUN_ID}).</p>"
+          }
+          JSON
+          )"
+
+      - name: Fail workflow if UAT red
+        if: steps.uat.outcome == 'failure'
+        run: exit 1
