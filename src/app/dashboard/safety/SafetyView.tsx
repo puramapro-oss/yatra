@@ -50,10 +50,10 @@ export function SafetyView({
 
   useEffect(() => {
     if (!('geolocation' in navigator)) {
-      setPermission('denied')
+      queueMicrotask(() => setPermission('denied'))
       return
     }
-    setPermission('asking')
+    queueMicrotask(() => setPermission('asking'))
     navigator.geolocation.getCurrentPosition(
       (p) => {
         setPermission('granted')
@@ -67,7 +67,7 @@ export function SafetyView({
   useEffect(() => {
     if (!pos) return
     let alive = true
-    setLoadingZones(true)
+    queueMicrotask(() => setLoadingZones(true))
     fetch(`/api/safety/zones?lat=${pos.lat}&lon=${pos.lon}&radius_km=5`)
       .then((r) => r.json())
       .then((d) => {

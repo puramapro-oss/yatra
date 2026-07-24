@@ -20,7 +20,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const stored = (typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null) as Theme | null
     if (stored === 'dark' || stored === 'oled' || stored === 'light') {
-      setThemeState(stored)
+      queueMicrotask(() => setThemeState(stored))
     }
   }, [])
 

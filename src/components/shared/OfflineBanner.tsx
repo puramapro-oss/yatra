@@ -8,7 +8,7 @@ export function OfflineBanner() {
 
   useEffect(() => {
     if (typeof navigator === 'undefined') return
-    setOffline(!navigator.onLine)
+    queueMicrotask(() => setOffline(!navigator.onLine))
     const onOnline = () => setOffline(false)
     const onOffline = () => setOffline(true)
     window.addEventListener('online', onOnline)

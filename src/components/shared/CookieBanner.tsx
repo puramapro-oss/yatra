@@ -11,8 +11,10 @@ export function CookieBanner() {
   useEffect(() => {
     if (typeof window === 'undefined') return
     const stored = localStorage.getItem(KEY) as 'accept' | 'decline' | null
-    if (stored) setChoice(stored)
-    else setChoice(null)
+    queueMicrotask(() => {
+      if (stored) setChoice(stored)
+      else setChoice(null)
+    })
   }, [])
 
   if (choice !== null) return null

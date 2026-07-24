@@ -31,10 +31,10 @@ export function InstallBanner() {
     const ios =
       /iPad|iPhone|iPod/.test(ua) ||
       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-    setIsIOS(ios)
+    queueMicrotask(() => setIsIOS(ios))
 
     if (ios) {
-      setShow(true)
+      queueMicrotask(() => setShow(true))
       return
     }
 

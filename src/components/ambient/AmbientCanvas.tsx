@@ -15,7 +15,7 @@ export function AmbientCanvas({ slug }: { slug: string }) {
   const [pixelRatio, setPixelRatio] = useState(1)
 
   useEffect(() => {
-    setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5))
+    queueMicrotask(() => setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5)))
     const onVis = () => setHidden(document.hidden)
     document.addEventListener('visibilitychange', onVis)
     return () => document.removeEventListener('visibilitychange', onVis)

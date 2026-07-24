@@ -27,7 +27,7 @@ export function Confetti({ count = 60 }: { count?: number }) {
       size: 6 + Math.random() * 8,
       rotate: Math.random() * 360,
     }))
-    setPieces(next)
+    queueMicrotask(() => setPieces(next))
   }, [count])
 
   return (

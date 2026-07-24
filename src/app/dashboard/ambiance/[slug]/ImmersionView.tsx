@@ -75,10 +75,8 @@ export function ImmersionView({
       cancelled = true
     }
   }, [mode.slug])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Compteur temps écoulé
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!sessionStartRef.current) return
     const id = setInterval(() => {
@@ -87,10 +85,8 @@ export function ImmersionView({
     }, 1000)
     return () => clearInterval(id)
   }, [bootstrapped])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Cleanup à la sortie
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     return () => {
       const engine = engineRef.current

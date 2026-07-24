@@ -42,7 +42,7 @@ export function RadarView() {
   // Geolocation
   useEffect(() => {
     if (!('geolocation' in navigator)) {
-      setGeoError('Géolocalisation non disponible sur ce navigateur.')
+      queueMicrotask(() => setGeoError('Géolocalisation non disponible sur ce navigateur.'))
       return
     }
     const id = navigator.geolocation.watchPosition(
@@ -76,7 +76,7 @@ export function RadarView() {
   useEffect(() => {
     if (!coords) return
     const ctrl = new AbortController()
-    setLoading(true)
+    queueMicrotask(() => setLoading(true))
     fetch(`/api/radar/nearest?lat=${coords.latitude}&lon=${coords.longitude}&radius_km=20`, {
       signal: ctrl.signal,
     })
@@ -96,7 +96,7 @@ export function RadarView() {
       // stop stream si on quitte la vue camera
       streamRef.current?.getTracks().forEach((t) => t.stop())
       streamRef.current = null
-      setCameraReady(false)
+      queueMicrotask(() => setCameraReady(false))
       return
     }
     let cancelled = false

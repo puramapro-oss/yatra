@@ -16,7 +16,7 @@ export function CinematicIntro() {
     if (typeof window === 'undefined') return
     const seen = localStorage.getItem(STORAGE_KEY)
     if (seen) return
-    setVisible(true)
+    queueMicrotask(() => setVisible(true))
 
     const t1 = setTimeout(() => setStage(1), 60)
     const t2 = setTimeout(() => setStage(2), 1100)
