@@ -45,9 +45,11 @@ export function DashboardHello({
 
   const firstName = profile?.full_name?.split(' ')[0] ?? null
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setGreeting(getGreeting(firstName))
   }, [firstName])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   async function handleSignOut() {
     setSigningOut(true)

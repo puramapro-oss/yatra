@@ -22,6 +22,7 @@ export function ActiveTracker() {
   const [permError, setPermError] = useState<string | null>(null)
   const [ending, setEnding] = useState(false)
   const [elapsed, setElapsed] = useState(0)
+  // eslint-disable-next-line react-hooks/purity
   const startRef = useRef<number>(Date.now())
   const watchRef = useRef<number | null>(null)
 

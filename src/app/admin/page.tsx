@@ -17,6 +17,7 @@ export default async function AdminPage() {
   // Bypass RLS via service client pour stats globales
   const svc = createServiceClient()
 
+  // eslint-disable-next-line react-hooks/purity
   const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
   const [

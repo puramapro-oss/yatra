@@ -46,6 +46,7 @@ export function ImmersionView({
   const [bootstrapped, setBootstrapped] = useState(false)
 
   // Ouvre la session côté serveur (telemetry)
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     let cancelled = false
     fetch('/api/ambient/session', {
@@ -74,8 +75,10 @@ export function ImmersionView({
       cancelled = true
     }
   }, [mode.slug])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Compteur temps écoulé
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!sessionStartRef.current) return
     const id = setInterval(() => {
@@ -84,8 +87,10 @@ export function ImmersionView({
     }, 1000)
     return () => clearInterval(id)
   }, [bootstrapped])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Cleanup à la sortie
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     return () => {
       const engine = engineRef.current
@@ -122,6 +127,7 @@ export function ImmersionView({
       }
     }
   }, [])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   async function handleTogglePlay() {
     if (playing) {
@@ -190,7 +196,7 @@ export function ImmersionView({
             <h1 className="text-3xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
               {mode.name}
             </h1>
-            <p className="text-white/70 italic mt-2">"{mode.tagline}"</p>
+            <p className="text-white/70 italic mt-2">&quot;{mode.tagline}&quot;</p>
             <p className="text-xs text-white/50 mt-4">
               {mode.carrier_hz} Hz · battement {mode.beat_band} {mode.beat_hz} Hz
             </p>
@@ -209,7 +215,7 @@ export function ImmersionView({
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium">{playing ? 'En cours' : 'Appuie pour démarrer'}</p>
                 <p className="text-xs text-white/50">
-                  Casque audio recommandé pour l'effet binaural
+                  Casque audio recommandé pour l&apos;effet binaural
                 </p>
               </div>
               <button

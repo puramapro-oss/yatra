@@ -56,7 +56,7 @@ export function AmbianceGalleryView({
                   6 mondes pour habiter ton trajet
                 </h2>
                 <p className="text-sm text-white/55 mt-1">
-                  Fréquences Solfège + battements binauraux. À écouter au casque pour l'effet complet.
+                  Fréquences Solfège + battements binauraux. À écouter au casque pour l&apos;effet complet.
                 </p>
                 {prefs && prefs.total_minutes_listened > 0 && (
                   <p className="text-xs text-white/45 mt-2">
@@ -84,7 +84,7 @@ export function AmbianceGalleryView({
                   <h3 className="text-lg font-semibold" style={{ fontFamily: 'var(--font-display)' }}>
                     {recommended.name}
                   </h3>
-                  <p className="text-sm text-white/65 italic mt-0.5">"{recommended.tagline}"</p>
+                  <p className="text-sm text-white/65 italic mt-0.5">&quot;{recommended.tagline}&quot;</p>
                 </div>
                 <Sparkles size={20} className="text-violet-300 group-hover:scale-110 transition" />
               </Link>
@@ -111,7 +111,7 @@ export function AmbianceGalleryView({
                     <h3 className="font-semibold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
                       {m.name}
                     </h3>
-                    <p className="text-xs text-white/55 mt-0.5 italic line-clamp-1">"{m.tagline}"</p>
+                    <p className="text-xs text-white/55 mt-0.5 italic line-clamp-1">&quot;{m.tagline}&quot;</p>
                   </div>
                 </div>
                 <p className="relative text-sm text-white/65 leading-snug line-clamp-3">{m.description}</p>

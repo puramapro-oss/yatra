@@ -226,7 +226,7 @@ export function CashbackView({
                         <p className="font-medium">{partner?.name ?? '—'}</p>
                         <p className="text-xs text-white/40">
                           {new Date(t.created_at).toLocaleDateString('fr-FR')} ·{' '}
-                          {formatPrice(Number(t.purchase_amount_eur))} d'achat
+                          {formatPrice(Number(t.purchase_amount_eur))} d&apos;achat
                         </p>
                       </div>
                       <div className="text-right">

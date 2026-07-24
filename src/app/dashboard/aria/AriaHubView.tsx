@@ -181,7 +181,7 @@ export function AriaHubView({ firstName, dailyQuestion, lastConversation, state 
                     )}
                   </p>
                   {lastConversation.summary && (
-                    <p className="text-sm text-white/65 mt-1 line-clamp-2 italic">"{lastConversation.summary}"</p>
+                    <p className="text-sm text-white/65 mt-1 line-clamp-2 italic">&quot;{lastConversation.summary}&quot;</p>
                   )}
                 </div>
               </Link>

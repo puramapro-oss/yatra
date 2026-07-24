@@ -213,7 +213,7 @@ export function MissionDetailView({
                   {application.status}
                 </span>
               </div>
-              <p className="text-sm text-white/65 italic">"{application.motivation}"</p>
+              <p className="text-sm text-white/65 italic">&quot;{application.motivation}&quot;</p>
               <p className="text-xs text-white/40">
                 Envoyée le {new Date(application.applied_at).toLocaleDateString('fr-FR')}
               </p>

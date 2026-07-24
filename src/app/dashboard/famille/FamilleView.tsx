@@ -145,7 +145,7 @@ export function FamilleView({
                       Voyager ensemble
                     </h2>
                     <p className="text-sm text-white/65 mt-1">
-                      Crée ou rejoins une famille (2 à 6 personnes) pour partager les km clean, le Score d'Humanité et les missions communes.
+                      Crée ou rejoins une famille (2 à 6 personnes) pour partager les km clean, le Score d&apos;Humanité et les missions communes.
                     </p>
                   </div>
                 </div>
@@ -235,7 +235,7 @@ export function FamilleView({
               <section className="glass rounded-2xl p-5 space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-xs uppercase tracking-wider text-white/45">Code d'invitation</p>
+                    <p className="text-xs uppercase tracking-wider text-white/45">Code d&apos;invitation</p>
                     <p className="text-3xl font-bold tracking-[0.3em] mt-1 font-mono" style={{ fontFamily: 'var(--font-mono, monospace)' }}>
                       {family.invite_code}
                     </p>

@@ -90,7 +90,7 @@ export function HumanitaireView({
                 </h2>
                 <p className="text-sm text-white/55 mt-1">
                   {matches.length} mission{matches.length > 1 ? 's' : ''} sélectionnée{matches.length > 1 ? 's' : ''} pour toi.
-                  Train réduit jusqu'à -100%, hébergement souvent inclus.
+                  Train réduit jusqu&apos;à -100%, hébergement souvent inclus.
                 </p>
               </div>
             </div>
