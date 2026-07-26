@@ -16,6 +16,10 @@
     {
       "path": "/api/cron/contests-monthly",
       "schedule": "59 23 28-31 * *"
+    },
+    {
+      "path": "/api/cron/vacances-alertes",
+      "schedule": "0 7 * * *"
     }
   ]
 }
