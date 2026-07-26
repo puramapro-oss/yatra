@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag, Headphones, MessageCircle, Users, Radar, Shield, ShieldAlert, Megaphone, Award } from 'lucide-react'
+import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag, Headphones, MessageCircle, Users, Radar, Shield, ShieldAlert, Megaphone, Award, Plane } from 'lucide-react'
 import { CrossPromoBanner } from '@/components/promo/CrossPromoBanner'
 import { useAuth } from '@/hooks/useAuth'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
@@ -155,6 +155,12 @@ export function DashboardHello({
               description="Historique, gains cumulés, CO₂ évité. Toute ta progression mobilité propre."
               icon={<MapPin size={22} />}
               onClick={() => router.push('/dashboard/trajets')}
+            />
+            <ActionCard
+              title="Vacances"
+              description="Budget inversé, vrai prix total, argent récupéré (EU261, cashback) et bien plus. Le prix le plus bas, honnêtement."
+              icon={<Plane size={22} />}
+              onClick={() => router.push('/dashboard/vacances')}
             />
             <ActionCard
               title="Mes droits & aides"
