@@ -1,6 +1,6 @@
 /**
  * Constantes YATRA.
- * BRIEF §4 + §6 + §11 — pricing 1 plan, split 50/10/10/30, EME ACPR Treezor.
+ * BRIEF §4 + §6 + §11 — pricing 1 plan, split 50/10/40, EME ACPR Treezor.
  */
 
 export const SUPER_ADMIN_EMAILS = ['matiss.frasne@gmail.com', 'tissma@purama.dev'] as const
@@ -9,13 +9,24 @@ export const APP_SLUG = 'yatra'
 export const APP_SCHEMA = 'yatra'
 export const APP_DOMAIN = 'yatra.purama.dev'
 
-/** BRIEF §6 — split CA mensuel via Treezor (ACPR EME). */
+/**
+ * BRIEF §6 — split CA mensuel via Treezor (ACPR EME).
+ * CLAUDE.md §9.1 : 50/10/40 fait autorité, 50/10/10/30 est obsolète (ADYA_RESERVE fusionné dans SASU_PURAMA).
+ */
 export const REVENUE_SPLIT = {
   USERS_REDISTRIBUTION: 0.5, // 50 % redistribution users (Score d'Humanité)
   ASSO_PURAMA: 0.1, // 10 % Association PURAMA (don convention)
-  ADYA_RESERVE: 0.1, // 10 % ADYA — réserve technique
-  SASU_PURAMA: 0.3, // 30 % SASU PURAMA (0 % IS ZFRR Frasne)
+  SASU_PURAMA: 0.4, // 40 % SASU PURAMA (0 % IS ZFRR Frasne)
 } as const
+
+/**
+ * VACANCES V2.0 §0 — accès premium unifié écosystème PURAMA.
+ * false tant que WALLET_INTEGRATION.md n'existe pas : le fallback (Stripe propre YATRA,
+ * cf lib/stripe.ts) reste seul juge de l'accès premium. Passer à true seulement quand
+ * le core unifié est branché — ne jamais lire ce flag comme "premium actif", seulement
+ * comme sélecteur de source de vérité entre le système YATRA et le système PURAMA central.
+ */
+export const CORE_READY = false
 
 /** BRIEF §3.3 — cap ancienneté 12 mois pour multiplicateur Vida Credits. */
 export const ANCIENNETE_CAP_MONTHS = 12

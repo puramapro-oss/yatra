@@ -70,3 +70,60 @@ export function formatYatraPrice(plan: YatraPlanKey): string {
   if ('price_eur' in p) return `${p.price_eur.toFixed(2).replace('.', ',')} €`
   return ''
 }
+
+/**
+ * VACANCES V2.0 §0 — migration webhook Stripe partagé (~/purama/WEBHOOK-MIGRATION.md).
+ * Price IDs créés côté Stripe (Products > Prices), 1 par plan payant. Tant que
+ * STRIPE_SECRET_KEY n'est pas valide, ces env vars restent vides — createYatraCheckoutSession
+ * lève une erreur FR explicite plutôt que d'appeler Stripe avec un price_id undefined.
+ */
+const STRIPE_PRICE_IDS: Record<'premium_monthly' | 'premium_annual' | 'lifetime_anti_churn', string | undefined> = {
+  premium_monthly: process.env.STRIPE_PRICE_PREMIUM_MONTHLY,
+  premium_annual: process.env.STRIPE_PRICE_PREMIUM_ANNUAL,
+  lifetime_anti_churn: process.env.STRIPE_PRICE_LIFETIME_ANTI_CHURN,
+}
+
+/** Mappe plan DB (profiles.plan/billing_period) ↔ clé YATRA_PLANS. */
+export const PLAN_TO_DB = {
+  premium_monthly: { plan: 'premium_monthly', billing_period: 'monthly' },
+  premium_annual: { plan: 'premium_annual', billing_period: 'annual' },
+  lifetime_anti_churn: { plan: 'lifetime', billing_period: 'lifetime' },
+} as const
+
+/** Retrouve le plan YATRA à partir d'un Stripe price ID (webhook fulfillment). */
+export function getPlanByPriceId(priceId: string): { key: YatraPlanKey; plan: string; billing_period: string } | null {
+  const entry = (Object.entries(STRIPE_PRICE_IDS) as [keyof typeof STRIPE_PRICE_IDS, string | undefined][])
+    .find(([, id]) => id && id === priceId)
+  if (!entry) return null
+  const [key] = entry
+  return { key, ...PLAN_TO_DB[key] }
+}
+
+/** Crée la Checkout Session — metadata.app_slug='yatra' propagée sur session ET subscription (dispatcher central). */
+export async function createYatraCheckoutSession(params: {
+  userId: string
+  email: string
+  plan: 'premium_monthly' | 'premium_annual' | 'lifetime_anti_churn'
+  successUrl: string
+  cancelUrl: string
+}) {
+  const priceId = STRIPE_PRICE_IDS[params.plan]
+  if (!priceId) {
+    throw new Error(
+      `Plan "${params.plan}" indisponible pour le moment : configuration Stripe incomplète côté serveur. Réessaie plus tard ou contacte le support.`,
+    )
+  }
+
+  return stripe.checkout.sessions.create({
+    mode: 'subscription',
+    customer_email: params.email,
+    line_items: [{ price: priceId, quantity: 1 }],
+    success_url: params.successUrl,
+    cancel_url: params.cancelUrl,
+    metadata: { app_slug: 'yatra', user_id: params.userId, plan: params.plan },
+    subscription_data: {
+      metadata: { app_slug: 'yatra', user_id: params.userId, plan: params.plan },
+    },
+    allow_promotion_codes: true,
+  })
+}
