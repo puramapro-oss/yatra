@@ -14,6 +14,7 @@ export type CreditSource =
   | 'redistribution'
   | 'manual_admin'
   | 'mission'
+  | 'cagnotte_voyage'
 
 export type CreditResult = {
   transaction_id: string

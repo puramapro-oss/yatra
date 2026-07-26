@@ -25,12 +25,13 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next()
   const { pathname } = request.nextUrl
 
-  // Bypass static assets, API, OAuth callback, /go/[slug] tracking & ressources Next
+  // Bypass static assets, API, OAuth callback, /go/[slug] tracking, /cagnotte/[code] public (§8 VACANCES) & ressources Next
   if (
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/api/') ||
     pathname.startsWith('/auth/') ||
     pathname.startsWith('/go/') ||
+    pathname.startsWith('/cagnotte/') ||
     pathname === '/callback' ||
     pathname.includes('.') /* assets statiques */
   ) {
@@ -41,7 +42,7 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      db: { schema: 'yatra' as 'yatra' },
+      db: { schema: 'yatra' as const },
       cookies: {
         getAll() {
           return request.cookies.getAll()
