@@ -30,6 +30,7 @@ const CATEGORIES = [
   { id: 'energie', label: 'Énergie', emoji: '⚡' },
   { id: 'mobilite_handicap', label: 'Handicap', emoji: '♿' },
   { id: 'sante', label: 'Santé', emoji: '🏥' },
+  { id: 'vacances', label: 'Vacances', emoji: '🏖️' },
 ]
 
 export function AidesView({
@@ -215,6 +216,7 @@ function CategoryBadge({ category }: { category: string | null }) {
     energie: { label: '⚡ Énergie', color: 'bg-amber-400/10 text-amber-300 border-amber-400/30' },
     mobilite_handicap: { label: '♿ Handicap', color: 'bg-rose-400/10 text-rose-300 border-rose-400/30' },
     sante: { label: '🏥 Santé', color: 'bg-pink-400/10 text-pink-300 border-pink-400/30' },
+    vacances: { label: '🏖️ Vacances', color: 'bg-cyan-400/10 text-cyan-300 border-cyan-400/30' },
   }
   const c = map[category] ?? { label: category, color: 'bg-white/5 text-white/55 border-white/10' }
   return (
