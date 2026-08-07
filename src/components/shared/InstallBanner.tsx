@@ -91,7 +91,7 @@ export function InstallBanner() {
         <div className="glass border-b border-white/10 px-4 py-3 max-w-2xl mx-auto text-xs text-white/70 space-y-1">
           <p>📱 Sur iPhone/iPad :</p>
           <p>1. Appuie sur <strong className="text-white">Partager ⬆</strong></p>
-          <p>2. <strong className="text-white">"Sur l&apos;écran d&apos;accueil"</strong></p>
+          <p>2. <strong className="text-white">&quot;Sur l&apos;écran d&apos;accueil&quot;</strong></p>
           <p>3. <strong className="text-white">Ajouter</strong></p>
         </div>
       )}

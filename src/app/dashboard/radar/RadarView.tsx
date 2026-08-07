@@ -305,7 +305,7 @@ export function RadarView() {
           )}
 
           <p className="text-xs text-white/40 text-center">
-            La caméra et la boussole nécessitent ton accord. Aucune image n'est envoyée — tout est traité localement.
+            La caméra et la boussole nécessitent ton accord. Aucune image n&apos;est envoyée — tout est traité localement.
           </p>
         </div>
       </main>
