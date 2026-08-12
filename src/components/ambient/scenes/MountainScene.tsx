@@ -12,7 +12,6 @@ export function MountainScene() {
     const count = 800
     const positions = new Float32Array(count * 3)
     // Random generation inside useMemo is intentional for snow positions
-    // @ts-expect-error - React Compiler: Math.random() is safe here (one-time setup)
     for (let i = 0; i < count; i++) {
       positions[i * 3] = (Math.random() - 0.5) * 30
       positions[i * 3 + 1] = Math.random() * 12

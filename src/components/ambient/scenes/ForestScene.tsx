@@ -14,7 +14,6 @@ export function ForestScene() {
     const count = 600
     const positions = new Float32Array(count * 3)
     // Random generation inside useMemo is intentional for particle positions
-    // @ts-expect-error - React Compiler: Math.random() is safe here (one-time setup)
     for (let i = 0; i < count; i++) {
       positions[i * 3] = (Math.random() - 0.5) * 20
       positions[i * 3 + 1] = Math.random() * 8 - 1
