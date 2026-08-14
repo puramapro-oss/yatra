@@ -125,5 +125,7 @@ export async function createYatraCheckoutSession(params: {
       metadata: { app_slug: 'yatra', user_id: params.userId, plan: params.plan },
     },
     allow_promotion_codes: true,
+  }, {
+    idempotencyKey: `checkout:${params.userId}:${params.plan}:${new Date().toISOString().slice(0, 10)}`,
   })
 }
