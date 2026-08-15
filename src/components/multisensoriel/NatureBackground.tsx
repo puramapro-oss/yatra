@@ -15,6 +15,7 @@ export function NatureBackground({ withVideo = false }: { withVideo?: boolean })
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (document.documentElement.hasAttribute('data-silent-mode')) return
 
     let ticking = false
     function onOrientation(e: DeviceOrientationEvent) {

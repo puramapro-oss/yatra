@@ -44,6 +44,7 @@ export function ImmersionView({
   const [binauralOn, setBinauralOn] = useState(defaultBinauralEnabled)
   const [elapsed, setElapsed] = useState(0)
   const [bootstrapped, setBootstrapped] = useState(false)
+  const [silentMode, setSilentMode] = useState(false)
 
   // Ouvre la session côté serveur (telemetry)
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -75,6 +76,16 @@ export function ImmersionView({
       cancelled = true
     }
   }, [mode.slug])
+
+  // Détecte le mode silence
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const check = () => setSilentMode(document.documentElement.hasAttribute('data-silent-mode'))
+    check()
+    const observer = new MutationObserver(check)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-silent-mode'] })
+    return () => observer.disconnect()
+  }, [])
 
   // Compteur temps écoulé
   useEffect(() => {
@@ -126,6 +137,7 @@ export function ImmersionView({
   /* eslint-enable react-hooks/set-state-in-effect */
 
   async function handleTogglePlay() {
+    if (silentMode) return // Mode silence actif → bouton lecture désactivé
     if (playing) {
       const engine = engineRef.current
       if (engine) await engine.stop()
@@ -203,8 +215,9 @@ export function ImmersionView({
             <div className="flex items-center gap-4">
               <button
                 onClick={handleTogglePlay}
-                className="w-14 h-14 rounded-full bg-white text-black hover:scale-105 transition flex items-center justify-center shrink-0"
-                aria-label={playing ? 'Pause' : 'Lecture'}
+                disabled={silentMode}
+                className="w-14 h-14 rounded-full bg-white text-black hover:scale-105 transition flex items-center justify-center shrink-0 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
+                aria-label={silentMode ? 'Désactivé (mode silence actif)' : playing ? 'Pause' : 'Lecture'}
               >
                 {playing ? <Pause size={22} /> : <Play size={22} className="ml-0.5" />}
               </button>

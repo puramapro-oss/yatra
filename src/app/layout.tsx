@@ -6,6 +6,7 @@ import { ErrorBoundary } from '@/components/shared/ErrorBoundary'
 import { CookieBanner } from '@/components/shared/CookieBanner'
 import { InstallBanner } from '@/components/shared/InstallBanner'
 import { OfflineBanner } from '@/components/shared/OfflineBanner'
+import { SilentModeToggle } from '@/components/multisensoriel/SilentModeToggle'
 import './globals.css'
 
 const sora = Sora({
@@ -82,6 +83,7 @@ export default function RootLayout({
             <Toaster position="top-right" theme="dark" richColors closeButton />
             <CookieBanner />
             <InstallBanner />
+            <SilentModeToggle />
           </ErrorBoundary>
         </ThemeProvider>
       </body>

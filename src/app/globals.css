@@ -262,3 +262,11 @@ img, video, canvas {
   }
   .aurora { animation: none; }
 }
+
+/* ─── Silent mode (mode Silence total, V3 §11) ─── */
+[data-silent-mode] *, [data-silent-mode] *::before, [data-silent-mode] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+[data-silent-mode] .aurora { animation: none; }

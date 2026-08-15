@@ -1,0 +1,17 @@
+Fichier placeholder pour vérification domaine Apple Pay.
+
+YATRA — Apple Pay via Stripe (brief V3 §13)
+
+Ce fichier doit être remplacé par le certificat officiel généré par Stripe
+lors de la vérification de domaine Apple Pay dans le dashboard Stripe.
+
+Étapes (à faire manuellement par un humain, non automatisable via CLI) :
+1. Dashboard Stripe → Settings → Payment methods → Apple Pay
+2. Add domain → yatra.purama.dev
+3. Télécharger le fichier de vérification Apple fourni par Stripe
+4. Remplacer le contenu de ce fichier par le fichier téléchargé
+5. Stripe vérifiera automatiquement que le fichier est accessible via
+   https://yatra.purama.dev/.well-known/apple-developer-merchantid-domain-association
+
+Tant que cette vérification n'est pas faite, Apple Pay ne sera PAS proposé
+aux utilisateurs iOS (mais PayPal et Google Pay fonctionneront normalement).

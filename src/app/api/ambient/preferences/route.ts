@@ -11,6 +11,7 @@ const PrefsSchema = z.object({
   binaural_enabled: z.boolean().optional(),
   haptics_enabled: z.boolean().optional(),
   auto_during_trip: z.boolean().optional(),
+  silent_mode: z.boolean().optional(),
 })
 
 export async function POST(request: Request) {

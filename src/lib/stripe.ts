@@ -129,3 +129,61 @@ export async function createYatraCheckoutSession(params: {
     idempotencyKey: `checkout:${params.userId}:${params.plan}:${new Date().toISOString().slice(0, 10)}`,
   })
 }
+
+/**
+ * Crée une session Checkout Stripe pour paiement ponctuel (mode `payment`).
+ * Brief V3 §13 : Apple Pay + PayPal activés pour les achats ponctuels (PAS abonnements).
+ *
+ * Apple Pay : nécessite vérification domaine côté dashboard Stripe (fichier
+ * `.well-known/apple-developer-merchantid-domain-association` présent dans public/
+ * mais la vérification effective doit être faite manuellement par un humain dans le
+ * dashboard Stripe — non automatisable via CLI). Google Pay est automatique dès que
+ * `card` est activé.
+ *
+ * PayPal : supporté nativement par Stripe via `payment_method_types`.
+ *
+ * NOTA : Fonction prête à l'emploi mais NON BRANCHÉE actuellement (V3). YATRA n'a
+ * aucun paiement ponctuel actif pour le moment (contributions cagnotte = virtuelles,
+ * pas de Stripe). Cette fonction sera utilisée quand une feature nécessitant un
+ * paiement one-shot sera développée (backlog V3.1).
+ */
+export async function createYatraPaymentSession(params: {
+  userId: string
+  email: string
+  amountEur: number
+  description: string
+  successUrl: string
+  cancelUrl: string
+  metadata?: Record<string, string>
+}) {
+  if (params.amountEur < 0.5 || params.amountEur > 100000) {
+    throw new Error('Montant invalide (min 0,50 €, max 100 000 €)')
+  }
+
+  return stripe.checkout.sessions.create({
+    mode: 'payment',
+    customer_email: params.email,
+    payment_method_types: ['card', 'paypal'],
+    line_items: [
+      {
+        price_data: {
+          currency: 'eur',
+          unit_amount: Math.round(params.amountEur * 100),
+          product_data: {
+            name: params.description,
+          },
+        },
+        quantity: 1,
+      },
+    ],
+    success_url: params.successUrl,
+    cancel_url: params.cancelUrl,
+    metadata: {
+      app_slug: 'yatra',
+      user_id: params.userId,
+      ...params.metadata,
+    },
+  }, {
+    idempotencyKey: `payment:${params.userId}:${params.amountEur}:${new Date().toISOString().slice(0, 10)}`,
+  })
+}

@@ -16,6 +16,16 @@ export function CinematicIntro() {
     if (typeof window === 'undefined') return
     const seen = localStorage.getItem(STORAGE_KEY)
     if (seen) return
+
+    // Skip auto si prefers-reduced-motion ou mode silence
+    if (
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      document.documentElement.hasAttribute('data-silent-mode')
+    ) {
+      skip()
+      return
+    }
+
     queueMicrotask(() => setVisible(true))
 
     const t1 = setTimeout(() => setStage(1), 60)
