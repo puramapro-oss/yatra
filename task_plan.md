@@ -31,7 +31,7 @@
 | P17 | Moteur zéro-coût hybride étendu (§4) | ✅ |
 | P18 | Surprise parfaite (§10) | ✅ |
 | P19 | Achat groupé étendu (§5) | ✅ |
-| P20 | Naturel & soins — annuaire (§7) | ⏳ |
+| P20 | Naturel & soins — annuaire (§7) | ✅ |
 | P21 | Humanitaire & missions + doc KRIDA backlog (§8) | ⏳ |
 | P22bis | QR codes & pub transports (§9) | ⏳ |
 | P23 | Multisensoriel complément + Accessibilité/i18n + Paiements (§11+§12+§13) | ⏳ |

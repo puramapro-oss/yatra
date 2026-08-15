@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag, Headphones, MessageCircle, Users, Radar, Shield, ShieldAlert, Megaphone, Award, Plane } from 'lucide-react'
+import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag, Headphones, MessageCircle, Users, Radar, Shield, ShieldAlert, Megaphone, Award, Plane, Heart } from 'lucide-react'
 import { CrossPromoBanner } from '@/components/promo/CrossPromoBanner'
 import { NLUSearchBar } from '@/components/search/NLUSearchBar'
 import { useAuth } from '@/hooks/useAuth'
@@ -189,6 +189,12 @@ export function DashboardHello({
               description="Achète chez nos partenaires bio, mobilité douce, énergie verte → cashback crédité sur ton wallet."
               icon={<ShoppingBag size={22} />}
               onClick={() => router.push('/dashboard/cashback')}
+            />
+            <ActionCard
+              title="Soins naturels accessibles"
+              description="Annuaire naturopathie, cures, ateliers respiration/méditation à tarifs solidaires. Bien-être non médical."
+              icon={<Heart size={22} />}
+              onClick={() => router.push('/dashboard/soins-naturels')}
             />
             <ActionCard
               title="Voyages humanitaires"
