@@ -7,7 +7,7 @@
 | §0 Audit + V2 | ✅ V2 terminé | P14→P22 livrés, `YATRA_UPGRADE_DONE.md` 2026-07-26, prod vérifiée |
 | §1 Mise aux normes | ✅ conforme | Webhook dispatcher interne existant, split 50/10/40 appliqué, `CORE_READY=false` + fallback en place |
 | §2 Mobilité propre + anti-fraude | 🟡 existe large, à compléter | GPS+anti-fraude vitesse/téléportation/accél. déjà là (`lib/anti-fraud.ts`) ; **manque** : wake lock, accéléromètre réel (`DeviceMotionEvent`), plafonds jour/mois explicites ×1/×5/×10, réconciliation quotidienne pool, barème → table config |
-| §3 Recherche langage naturel + IA YATRA | 🔴 absent (routeur) | "Aria" = companion coaching/journal (7 modes), PAS un routeur de recherche. Module à créer entièrement. Cf. DECISIONS.md (rename identité Aria→YATRA) |
+| §3 Recherche langage naturel + IA YATRA | ✅ livré P14 | Routeur NLU texte+voix (Claude extraction) → trajet/budget/radar/aides. Identité IA renommée "Aria"→"YATRA" (UI+prompts, 0 technique). Query params trajet+budget. Table search_queries. |
 | §4 Moteur zéro-coût hybride | 🟡 existe, à étendre | `lib/zero-cost.ts` couvre déjà jusqu'à >60km train/covoiturage ; à fusionner avec scanner vacances V2 pour comparatif complet |
 | §5 Achat groupé | 🟡 existe, scope à étendre | Pools génériques + RPC `group_join_v1` (P6) branchés sur events gratuits seulement ; étendre aux billets groupe SNCF / activités partenaires |
 | §6 Radar gratuit & aides | ✅ large couverture | P5/P6 + V2 (VACAF/ANCV/CAF déjà nommés) ; vérifier complétude senior/handicap |
@@ -25,7 +25,7 @@
 
 | Phase | Contenu | Statut |
 |---|---|---|
-| P14 | Recherche langage naturel + IA YATRA (§3) — routeur NLU texte/voix + rename identité Aria→YATRA | ⏳ |
+| P14 | Recherche langage naturel + IA YATRA (§3) — routeur NLU texte/voix + rename identité Aria→YATRA | ✅ |
 | P15 | Mobilité propre + anti-fraude renforcée (§2) | ⏳ |
 | P16 | Radar gratuit & aides — compléments (§6) | ⏳ |
 | P17 | Moteur zéro-coût hybride étendu (§4) | ⏳ |
