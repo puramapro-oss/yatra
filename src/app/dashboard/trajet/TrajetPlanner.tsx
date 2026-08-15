@@ -28,6 +28,7 @@ export function TrajetPlanner({
   const [combinations, setCombinations] = useState<RouteCombination[]>([])
   const [loadingRoute, setLoadingRoute] = useState(false)
   const [starting, setStarting] = useState<string | null>(null)
+  const [sortBy, setSortBy] = useState<'prix' | 'duree' | 'co2' | 'points'>('prix')
 
   // Préremplir destination depuis query params (routeur NLU)
   useEffect(() => {
@@ -136,17 +137,58 @@ export function TrajetPlanner({
 
           {combinations.length > 0 && (
             <section className="space-y-3">
-              <h2 className="text-sm font-semibold text-white/80 px-1">Choisis ton trajet</h2>
+              <div className="flex items-center justify-between gap-4 px-1">
+                <h2 className="text-sm font-semibold text-white/80">Choisis ton trajet</h2>
+                <div className="flex items-center gap-2 text-[10px]">
+                  <span className="text-white/40 uppercase tracking-wider">Trier par</span>
+                  <div className="flex gap-1">
+                    <SortButton
+                      active={sortBy === 'prix'}
+                      onClick={() => setSortBy('prix')}
+                      label="Prix"
+                      icon={<EuroIcon size={11} />}
+                    />
+                    <SortButton
+                      active={sortBy === 'duree'}
+                      onClick={() => setSortBy('duree')}
+                      label="Durée"
+                      icon={<Clock size={11} />}
+                    />
+                    <SortButton
+                      active={sortBy === 'co2'}
+                      onClick={() => setSortBy('co2')}
+                      label="CO₂"
+                      icon={<Leaf size={11} />}
+                    />
+                    <SortButton
+                      active={sortBy === 'points'}
+                      onClick={() => setSortBy('points')}
+                      label="Points"
+                      icon={<Sparkles size={11} />}
+                    />
+                  </div>
+                </div>
+              </div>
               <div className="grid sm:grid-cols-2 gap-3">
-                {combinations.map((c) => (
-                  <CombinationCard
-                    key={c.id}
-                    combo={c}
-                    onStart={() => handleStart(c)}
-                    starting={starting === c.id}
-                    disabled={!!starting && starting !== c.id}
-                  />
-                ))}
+                {[...combinations]
+                  .sort((a, b) => {
+                    if (sortBy === 'prix') return a.cost_eur - b.cost_eur
+                    if (sortBy === 'duree') return a.duration_min - b.duration_min
+                    if (sortBy === 'co2') return b.co2_avoided_kg - a.co2_avoided_kg // desc (plus = mieux)
+                    if (sortBy === 'points') return b.gain_credits_eur - a.gain_credits_eur // desc (plus = mieux)
+                    return 0
+                  })
+                  .map((c, idx) => (
+                    <CombinationCard
+                      key={c.id}
+                      combo={c}
+                      rank={idx + 1}
+                      sortBy={sortBy}
+                      onStart={() => handleStart(c)}
+                      starting={starting === c.id}
+                      disabled={!!starting && starting !== c.id}
+                    />
+                  ))}
               </div>
               <p className="text-[11px] text-white/35 px-1">
                 Anti-fraude actif&nbsp;: la trace GPS est analysée à l&apos;arrivée pour confirmer le mode déclaré.
@@ -285,13 +327,44 @@ function PlaceSearch({
   )
 }
 
+function SortButton({
+  active,
+  onClick,
+  label,
+  icon,
+}: {
+  active: boolean
+  onClick: () => void
+  label: string
+  icon: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex items-center gap-1 px-2 py-1 rounded-lg border transition ${
+        active
+          ? 'bg-violet-400/15 text-violet-300 border-violet-400/40'
+          : 'bg-white/5 text-white/50 border-white/10 hover:bg-white/8'
+      }`}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
+  )
+}
+
 function CombinationCard({
   combo,
+  rank,
+  sortBy,
   onStart,
   starting,
   disabled,
 }: {
   combo: RouteCombination
+  rank: number
+  sortBy: 'prix' | 'duree' | 'co2' | 'points'
   onStart: () => void
   starting: boolean
   disabled: boolean
@@ -300,8 +373,22 @@ function CombinationCard({
   const isCheap = combo.tags.includes('cheapest')
   const isApais = combo.tags.includes('apaisant')
 
+  // Highlight stat selon tri actif
+  const highlightMap = {
+    prix: 0,
+    duree: 1,
+    co2: 2,
+    points: 3,
+  }
+  const highlightIndex = highlightMap[sortBy]
+
   return (
-    <div className="glass rounded-2xl p-4 flex flex-col gap-3 hover:border-emerald-400/30 transition">
+    <div className="glass rounded-2xl p-4 flex flex-col gap-3 hover:border-emerald-400/30 transition relative">
+      {rank === 1 && (
+        <div className="absolute -top-2 -right-2 bg-gradient-to-r from-amber-400 to-amber-500 text-black text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full shadow-lg">
+          ⭐ N°1
+        </div>
+      )}
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
           <span className="text-xl">{MOBILITY_EMOJI[combo.mode_dominant]}</span>
@@ -315,14 +402,29 @@ function CombinationCard({
       </div>
 
       <div className="grid grid-cols-2 gap-2 text-xs">
-        <Stat icon={<EuroIcon size={12} />} label="Coût" value={`${combo.cost_eur.toFixed(2)} €`} />
-        <Stat icon={<Clock size={12} />} label="Durée" value={`${Math.round(combo.duration_min)} min`} />
-        <Stat icon={<Leaf size={12} />} label="CO₂ évité" value={`${combo.co2_avoided_kg.toFixed(2)} kg`} />
+        <Stat
+          icon={<EuroIcon size={12} />}
+          label="Coût"
+          value={`${combo.cost_eur.toFixed(2)} €`}
+          highlight={highlightIndex === 0}
+        />
+        <Stat
+          icon={<Clock size={12} />}
+          label="Durée"
+          value={`${Math.round(combo.duration_min)} min`}
+          highlight={highlightIndex === 1}
+        />
+        <Stat
+          icon={<Leaf size={12} />}
+          label="CO₂ évité"
+          value={`${combo.co2_avoided_kg.toFixed(2)} kg`}
+          highlight={highlightIndex === 2}
+        />
         <Stat
           icon={<Sparkles size={12} />}
           label="Tu gagnes"
           value={combo.gain_credits_eur > 0 ? `+ ${combo.gain_credits_eur.toFixed(2)} €` : '—'}
-          highlight={combo.gain_credits_eur > 0}
+          highlight={highlightIndex === 3 && combo.gain_credits_eur > 0}
         />
       </div>
 

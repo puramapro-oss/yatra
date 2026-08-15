@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { computeCombinations } from '@/lib/zero-cost'
+import { getMobilityRates } from '@/lib/mobility-rates'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -28,9 +29,13 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { from, to } = bodySchema.parse(body)
 
+    // Fetch barème mobilité DB (V3 — table `mobility_rate_config`)
+    const rates = await getMobilityRates()
+
     const combinations = await computeCombinations(
       { lat: from.lat, lon: from.lon },
       { lat: to.lat, lon: to.lon },
+      rates,
     )
 
     return NextResponse.json({

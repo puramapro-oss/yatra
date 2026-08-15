@@ -15,7 +15,8 @@
 import { getRoute, haversineKm, type Coord } from '@/lib/routing'
 import { COST_PER_KM_EUR, type RouteCombination } from '@/types/trip'
 import type { MobilityMode } from '@/types/vida'
-import { VIDA_CREDITS_PER_KM, CO2_AVOIDED_PER_KM, isCleanMode } from '@/lib/wow'
+import { isCleanMode, computeTripMetrics, type MobilityRatesMap } from '@/lib/mobility-rates'
+import { VIDA_CREDITS_PER_KM, CO2_AVOIDED_PER_KM } from '@/lib/wow'
 
 /** Score apaisement 0-10 par mode (subjectif but cohérent). */
 const APAISEMENT_SCORE: Record<MobilityMode, number> = {
@@ -92,6 +93,7 @@ function buildCombination(
   strategy: Strategy,
   totalDistanceKm: number,
   totalDurationMin: number,
+  rates?: MobilityRatesMap,
 ): RouteCombination {
   const steps = strategy.steps.map((s) => {
     const distance_km = Math.round(s.ratio * totalDistanceKm * 100) / 100
@@ -104,20 +106,37 @@ function buildCombination(
   const duration_min = Math.round(steps.reduce((s, x) => s + x.duration_min, 0) * 10) / 10
   const cost_eur = Math.round(steps.reduce((s, x) => s + x.cost_eur, 0) * 100) / 100
 
-  // Gain Vida Credits = somme(km*tarif) sur étapes propres
-  const gain_credits_eur =
-    Math.round(
-      steps
-        .filter((s) => isCleanMode(s.mode))
-        .reduce((s, x) => s + x.distance_km * VIDA_CREDITS_PER_KM[x.mode as keyof typeof VIDA_CREDITS_PER_KM], 0) *
-        100,
-    ) / 100
+  // Gain Vida Credits + CO₂ évité : utilise barème DB si fourni, sinon fallback constantes en dur
+  let gain_credits_eur = 0
+  let co2_avoided_kg = 0
 
-  // CO₂ évité = somme(km*co2_avoided) sur étapes propres ; voiture/avion = 0
-  const co2_avoided_kg =
-    Math.round(
-      steps.reduce((s, x) => s + x.distance_km * CO2_AVOIDED_PER_KM[x.mode], 0) * 100,
-    ) / 100
+  if (rates) {
+    // V3 : barème DB dynamique
+    for (const step of steps) {
+      const { pointsEur, co2AvoidedKg } = computeTripMetrics({
+        mode: step.mode,
+        distanceKm: step.distance_km,
+        rates,
+      })
+      gain_credits_eur += pointsEur
+      co2_avoided_kg += co2AvoidedKg
+    }
+    gain_credits_eur = Math.round(gain_credits_eur * 100) / 100
+    co2_avoided_kg = Math.round(co2_avoided_kg * 100) / 100
+  } else {
+    // Legacy fallback (si rates non fourni — backward compat)
+    gain_credits_eur =
+      Math.round(
+        steps
+          .filter((s) => isCleanMode(s.mode))
+          .reduce((s, x) => s + x.distance_km * VIDA_CREDITS_PER_KM[x.mode as keyof typeof VIDA_CREDITS_PER_KM], 0) *
+          100,
+      ) / 100
+    co2_avoided_kg =
+      Math.round(
+        steps.reduce((s, x) => s + x.distance_km * CO2_AVOIDED_PER_KM[x.mode], 0) * 100,
+      ) / 100
+  }
 
   // Apaisement = moyenne pondérée par km
   const totalKm = steps.reduce((s, x) => s + x.distance_km, 0) || 1
@@ -151,8 +170,14 @@ function buildCombination(
  * cohérente avec la stratégie. Pour précision parfaite, on peut appeler getRoute par mode
  * mais c'est plus coûteux ; l'approximation ratio est acceptable pour l'aperçu utilisateur
  * tant qu'on ne taggue pas la route comme calculée précisément.
+ *
+ * @param rates — Barème mobilité DB (optionnel). Si fourni, utilise barème dynamique au lieu de constantes en dur.
  */
-export async function computeCombinations(from: Coord, to: Coord): Promise<RouteCombination[]> {
+export async function computeCombinations(
+  from: Coord,
+  to: Coord,
+  rates?: MobilityRatesMap,
+): Promise<RouteCombination[]> {
   const haversine = haversineKm(from, to)
   // référence routière (driving) — la plus disponible et la plus représentative
   const base = await getRoute(from, to, 'voiture_perso').catch(() => null)
@@ -176,7 +201,7 @@ export async function computeCombinations(from: Coord, to: Coord): Promise<Route
       (acc, step) => acc + (step.ratio * distanceKm) / speedByMode[step.mode] * 60,
       0,
     )
-    return buildCombination(s, distanceKm, Math.round(totalDurationMin * 10) / 10)
+    return buildCombination(s, distanceKm, Math.round(totalDurationMin * 10) / 10, rates)
   })
 
   // Tagger les meilleurs sur chaque dimension
