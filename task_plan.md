@@ -8,7 +8,7 @@
 | §1 Mise aux normes | ✅ conforme | Webhook dispatcher interne existant, split 50/10/40 appliqué, `CORE_READY=false` + fallback en place |
 | §2 Mobilité propre + anti-fraude | ✅ livré P15 | Wake lock + accéléromètre `DeviceMotionEvent` (iOS requestPermission, échantillon 3s) pendant trajet actif. Anti-fraude renforcée (profil accel marche/vélo vs voiture, +0-20 pts fraud). Tarifs + CO₂ + plafonds → table `mobility_rate_config` (éditable admin). Plafonds journalier/mensuel paliers ×1/×5/×10 (plan Stripe free/premium/lifetime → caps écrêtés trip/end). CRON réconciliation pool `/api/cron/mobilite-reconciliation` 05:00 UTC (ledger daily, alerte si dépassement budget 5000€). Migration p15 appliquée VPS. |
 | §3 Recherche langage naturel + IA YATRA | ✅ livré P14 | Routeur NLU texte+voix (Claude extraction) → trajet/budget/radar/aides. Identité IA renommée "Aria"→"YATRA" (UI+prompts, 0 technique). Query params trajet+budget. Table search_queries. |
-| §4 Moteur zéro-coût hybride | 🟡 existe, à étendre | `lib/zero-cost.ts` couvre déjà jusqu'à >60km train/covoiturage ; à fusionner avec scanner vacances V2 pour comparatif complet |
+| §4 Moteur zéro-coût hybride | ✅ enrichi P17 | Combinator `zero-cost.ts` étendu : barème DB `mobility_rate_config` (remplace constantes en dur) + UI comparateur 4 critères triables (prix/durée/CO₂/points). Zéro nouveau scraper (inexistant V2 — cf DECISIONS.md). |
 | §5 Achat groupé | 🟡 existe, scope à étendre | Pools génériques + RPC `group_join_v1` (P6) branchés sur events gratuits seulement ; étendre aux billets groupe SNCF / activités partenaires |
 | §6 Radar gratuit & aides | ✅ complet P16 | P5/P6 + V2 (VACAF/ANCV/CAF) + P16 : 7 aides seniors ajoutées (3→10 total), radar étendu prix 0€/<5€/<10€ (col prix + filtres UI + 8 events <10€ seedés). Migration p25 appliquée VPS. |
 | §7 Naturel & soins | 🟡 partiel | Cashback partenaires existe (P7, 8 partenaires) ; annuaire "soins naturels accessibles" absent, à créer |
@@ -28,7 +28,7 @@
 | P14 | Recherche langage naturel + IA YATRA (§3) — routeur NLU texte/voix + rename identité Aria→YATRA | ✅ |
 | P15 | Mobilité propre + anti-fraude renforcée (§2) | ✅ |
 | P16 | Radar gratuit & aides — compléments (§6) | ✅ |
-| P17 | Moteur zéro-coût hybride étendu (§4) | ⏳ |
+| P17 | Moteur zéro-coût hybride étendu (§4) | ✅ |
 | P18 | Surprise parfaite (§10) | ⏳ |
 | P19 | Achat groupé étendu (§5) | ⏳ |
 | P20 | Naturel & soins — annuaire (§7) | ⏳ |
