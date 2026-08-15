@@ -14,7 +14,7 @@
 | §7 Naturel & soins | 🟡 partiel | Cashback partenaires existe (P7, 8 partenaires) ; annuaire "soins naturels accessibles" absent, à créer |
 | §8 Humanitaire & missions + KRIDA | 🟡 missions OK, KRIDA bloqué | `lib/humanitarian-matcher.ts` cadre conforme ; moteur contests **local** (P12) — KRIDA écosystème introuvable → garder legacy, cf. DECISIONS.md |
 | §9 QR codes & pub transports | 🔴 absent | `/go/[slug]` = tracking ambassadeur digital, pas QR physique par lieu/partenaire. À créer entièrement |
-| §10 Surprise parfaite | 🔴 absent | À créer |
+| §10 Surprise parfaite | ✅ livré P18 | Page `/dashboard/surprise` (formulaire rayon/budget/durée + bouton "Surprends-moi") + API `/api/yatra/surprise` (combine 1 event gratuit/pas cher via `gratuit-matcher.ts`, 1 trajet minimal via `zero-cost.ts`, 1 micro-défi positif via liste curatée 20 défis). Routeur NLU étendu type `surprise` (extraction rayon/budget/durée) + redirection. Réponse <10s (DB direct, zéro IA lente). |
 | §11 Multisensoriel | 🟡 large base, complète | Parallax gyroscope + glass + 6 modes ambiance (P8) déjà là ; manque mode "Silence total" |
 | §12 Accessibilité & i18n | 🔴 i18n absent total | 0 `next-intl` dans le repo, 100% FR en dur. Accessibilité : pas de tests axe formalisés. WCAG 2.2 AA cible (cf. DECISIONS.md) |
 | §13 Paiements | 🔴 Apple Pay/PayPal absents | `lib/stripe.ts` = Checkout classique carte only |
@@ -29,7 +29,7 @@
 | P15 | Mobilité propre + anti-fraude renforcée (§2) | ✅ |
 | P16 | Radar gratuit & aides — compléments (§6) | ✅ |
 | P17 | Moteur zéro-coût hybride étendu (§4) | ✅ |
-| P18 | Surprise parfaite (§10) | ⏳ |
+| P18 | Surprise parfaite (§10) | ✅ |
 | P19 | Achat groupé étendu (§5) | ⏳ |
 | P20 | Naturel & soins — annuaire (§7) | ⏳ |
 | P21 | Humanitaire & missions + doc KRIDA backlog (§8) | ⏳ |

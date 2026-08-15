@@ -11,10 +11,12 @@ const SearchSchema = z.object({
 })
 
 type SearchResult = {
-  type: 'trajet' | 'budget_inverse' | 'radar_gratuit' | 'aides' | 'ambigu'
+  type: 'trajet' | 'budget_inverse' | 'radar_gratuit' | 'aides' | 'surprise' | 'ambigu'
   destination?: string
   budget_eur?: number
   jours?: number
+  rayon_km?: number
+  duree?: '2h' | 'demi_journee' | 'weekend'
   confidence: number
 }
 
@@ -59,14 +61,17 @@ La personne veut:
 - chercher des VACANCES dans un BUDGET INVERSÉ (ex: 500€ pour 5 jours) → type "budget_inverse" + budget_eur + jours si donnés
 - découvrir des ÉVÉNEMENTS GRATUITS proches (musées gratuits, concerts, repas solidaires) → type "radar_gratuit"
 - trouver des AIDES/DROITS (aides transport, logement, énergie, handicap, senior) → type "aides"
+- être SURPRIS·E avec une sortie improvisée (surprends-moi, je sais pas quoi faire, improvise-moi un truc) → type "surprise" + rayon_km si donné + budget_eur si donné + duree si donnée
 - si tu ne comprends PAS ou que c'est TROP FLOU → type "ambigu"
 
 Réponds UNIQUEMENT en JSON :
 {
-  "type": "trajet"|"budget_inverse"|"radar_gratuit"|"aides"|"ambigu",
+  "type": "trajet"|"budget_inverse"|"radar_gratuit"|"aides"|"surprise"|"ambigu",
   "destination": "string ou null",
   "budget_eur": number ou null,
   "jours": number ou null,
+  "rayon_km": number ou null,
+  "duree": "2h"|"demi_journee"|"weekend" ou null,
   "confidence": 0.0-1.0
 }
 
@@ -75,6 +80,8 @@ Exemples:
 - "J'ai 600€ pour 7 jours de vacances" → {"type":"budget_inverse","budget_eur":600,"jours":7,"confidence":0.90}
 - "Musées gratuits à Paris" → {"type":"radar_gratuit","confidence":0.85}
 - "Aides transport étudiant" → {"type":"aides","confidence":0.85}
+- "Surprends-moi avec un truc gratuit" → {"type":"surprise","budget_eur":0,"confidence":0.90}
+- "Je sais pas quoi faire ce weekend dans 50 km" → {"type":"surprise","rayon_km":50,"duree":"weekend","confidence":0.85}
 - "Je cherche quelque chose" → {"type":"ambigu","confidence":0.20}`
 
     const result = await askClaudeJSON<SearchResult>(
@@ -84,7 +91,7 @@ Exemples:
     )
 
     // Validation basique du JSON retourné
-    const validTypes = ['trajet', 'budget_inverse', 'radar_gratuit', 'aides', 'ambigu']
+    const validTypes = ['trajet', 'budget_inverse', 'radar_gratuit', 'aides', 'surprise', 'ambigu']
     if (!validTypes.includes(result.type)) {
       result.type = 'ambigu'
       result.confidence = 0.3

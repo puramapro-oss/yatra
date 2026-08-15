@@ -24,10 +24,12 @@ declare global {
 }
 
 type SearchResult = {
-  type: 'trajet' | 'budget_inverse' | 'radar_gratuit' | 'aides' | 'ambigu'
+  type: 'trajet' | 'budget_inverse' | 'radar_gratuit' | 'aides' | 'surprise' | 'ambigu'
   destination?: string
   budget_eur?: number
   jours?: number
+  rayon_km?: number
+  duree?: '2h' | 'demi_journee' | 'weekend'
   confidence: number
 }
 
@@ -86,8 +88,14 @@ export function NLUSearchBar() {
         router.push('/dashboard/gratuit')
       } else if (result.type === 'aides') {
         router.push('/dashboard/aides')
+      } else if (result.type === 'surprise') {
+        const params = new URLSearchParams()
+        if (result.rayon_km) params.set('rayon', result.rayon_km.toString())
+        if (result.budget_eur != null) params.set('budget', result.budget_eur.toString())
+        if (result.duree) params.set('duree', result.duree)
+        router.push(`/dashboard/surprise?${params.toString()}`)
       } else {
-        // Ambigu ou confiance faible → affiche les 4 options
+        // Ambigu ou confiance faible → affiche les options
         toast.info('Je n\'ai pas tout compris. Choisis où aller ci-dessous.')
         setSearching(false)
       }
