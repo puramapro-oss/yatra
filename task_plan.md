@@ -13,7 +13,7 @@
 | §6 Radar gratuit & aides | ✅ complet P16 | P5/P6 + V2 (VACAF/ANCV/CAF) + P16 : 7 aides seniors ajoutées (3→10 total), radar étendu prix 0€/<5€/<10€ (col prix + filtres UI + 8 events <10€ seedés). Migration p25 appliquée VPS. |
 | §7 Naturel & soins | 🟡 partiel | Cashback partenaires existe (P7, 8 partenaires) ; annuaire "soins naturels accessibles" absent, à créer |
 | §8 Humanitaire & missions + KRIDA | ✅ livré P21 | Distinction micro-missions (1j) vs voyages solidaires (séjours encadrés) via colonne `duree_type`. 10 missions seed (6 originales P7 + 4 micro-missions P21 : World Cleanup Day, Restos, Banques Alimentaires, Greeters). Récompenses wallet `reward_points` (50-200 pts selon durée) + disclaimer bénévolat strict. Table `humanitarian_completions` + API validation admin/auto. Moteur contests **local** (P12) conservé → backlog KRIDA migration future (cf. section Backlog V3.1). |
-| §9 QR codes & pub transports | 🔴 absent | `/go/[slug]` = tracking ambassadeur digital, pas QR physique par lieu/partenaire. À créer entièrement |
+| §9 QR codes & pub transports | ✅ livré P22bis | Route `/scan/[slug]` (tracking scan IP hash + cookie 30j + redirect signup/dashboard). Tables `qr_campaigns` (partenaire, lieu, type, city, slug unique, commission_pct) + `qr_scans` (événements + conversions). Admin `/admin/qr-campaigns` (création + QR PNG + stats scans/conversions/taux + kit print PDF). API conversion signup. Stats stockées en interne (AGNI inexistant, cf DECISIONS.md L11). Commission % définie mais versement manuel admin (pas moteur auto). Migration p29 créée, appliquée VPS plus tard (connection refused). |
 | §10 Surprise parfaite | ✅ livré P18 | Page `/dashboard/surprise` (formulaire rayon/budget/durée + bouton "Surprends-moi") + API `/api/yatra/surprise` (combine 1 event gratuit/pas cher via `gratuit-matcher.ts`, 1 trajet minimal via `zero-cost.ts`, 1 micro-défi positif via liste curatée 20 défis). Routeur NLU étendu type `surprise` (extraction rayon/budget/durée) + redirection. Réponse <10s (DB direct, zéro IA lente). |
 | §11 Multisensoriel | 🟡 large base, complète | Parallax gyroscope + glass + 6 modes ambiance (P8) déjà là ; manque mode "Silence total" |
 | §12 Accessibilité & i18n | 🔴 i18n absent total | 0 `next-intl` dans le repo, 100% FR en dur. Accessibilité : pas de tests axe formalisés. WCAG 2.2 AA cible (cf. DECISIONS.md) |
@@ -33,7 +33,7 @@
 | P19 | Achat groupé étendu (§5) | ✅ |
 | P20 | Naturel & soins — annuaire (§7) | ✅ |
 | P21 | Humanitaire & missions + doc KRIDA backlog (§8) | ✅ |
-| P22bis | QR codes & pub transports (§9) | ⏳ |
+| P22bis | QR codes & pub transports (§9) | ✅ |
 | P23 | Multisensoriel complément + Accessibilité/i18n + Paiements (§11+§12+§13) | ⏳ |
 | P24 | Boucle Directeur Artistique ≥9 + tests 5 niveaux + `YATRA_V3_DONE.md` | ⏳ |
 
