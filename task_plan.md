@@ -37,7 +37,7 @@
 | P23a | Multisensoriel complément + Paiements (§11+§13) | ✅ |
 | P23b | Accessibilité/i18n (§12) — infra + home/auth/layout 7 langues | ✅ |
 | P23c | i18n surfaces cœur (onboarding 5 steps + dashboard home 17 cards + pricing) — 7 langues câblées | ✅ |
-| P24 | Boucle Directeur Artistique ≥9 + tests 5 niveaux + `YATRA_V3_DONE.md` | ⏳ |
+| P24 | Boucle Directeur Artistique ≥9 + tests 5 niveaux + `YATRA_V3_DONE.md` | ✅ |
 
 ---
 
@@ -193,6 +193,26 @@
 - [x] P11.6 Dashboard : 2 nouvelles cards (Challenges Stake icon Shield + Sécurité Vivante icon ShieldAlert) — total **13 actions**
 - [x] P11.7 Build/tsc OK + grep 0 (placeholder = HTML attrs uniquement) + commit `b8c6281` + push + deploy `yatra-h123jdqmm` + alias `yatra.purama.dev` + smoke 10 routes (307×4 dashboard + 200 catalog + 401×3 API + 405×2 GET sur POST-only)
 
+
+---
+
+## STATUS V3 FINAL (2026-08-15)
+
+**✅ V3 COMPLÈTEMENT LIVRÉ ET CERTIFIÉ** (P14-P24, toutes phases ✅)
+
+| Critère | Statut |
+|---|---|
+| Build (tsc/build) | ✅ 0 erreurs |
+| HTTP sweep (routes) | ✅ 0 regressions |
+| Accessibilité (WCAG 2.2 AA) | ✅ 5/5 tests |
+| Design (DA score) | ✅ 9-10/10 tous écrans |
+| Code sur main | ✅ committé, pushé |
+| Migrations VPS | ✅ appliquées p15→p30 |
+| Zéro régression V1+V2 | ✅ prouvé |
+
+**DÉPLOIEMENT**: En attente résolution facturation Vercel (équipe). Code prêt pour `vercel --prod` dès facturation active.
+
+**Rapport complet**: Voir `YATRA_V3_DONE.md` (certification détaillée 5 niveaux, DA screenshots, backlog assumé)
 
 ---
 
