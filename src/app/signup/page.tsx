@@ -13,6 +13,7 @@ function SignupForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialReferral = searchParams.get('ref') || ''
+  const qrCampaign = searchParams.get('qr_campaign') || ''
   const next = searchParams.get('next') || '/dashboard'
   const { signUpWithEmail, signInWithGoogle, user, loading } = useAuth()
 
@@ -40,6 +41,20 @@ function SignupForm() {
       toast.error(error.message)
       return
     }
+
+    // Marquer conversion QR si présente
+    if (qrCampaign) {
+      try {
+        await fetch('/api/qr/convert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ campaign_slug: qrCampaign }),
+        })
+      } catch {
+        // best effort, ne bloque pas le flow
+      }
+    }
+
     toast.success('Compte créé ! 🌿')
     router.replace(next)
   }

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Activity, Users, Wallet, Trophy, ShieldAlert, MapPin, Megaphone } from 'lucide-react'
+import { Activity, Users, Wallet, Trophy, ShieldAlert, MapPin, Megaphone, QrCode } from 'lucide-react'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { isSuperAdmin } from '@/lib/utils'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
@@ -133,6 +133,13 @@ export default async function AdminPage() {
             <Link href="/admin/pools" className="glass rounded-xl p-4 hover:border-emerald-400/30 transition">
               <p className="font-semibold" style={{ fontFamily: 'var(--font-display)' }}>Pools</p>
               <p className="text-xs text-white/55">Crédit / Débit manuel + ledger</p>
+            </Link>
+            <Link href="/admin/qr-campaigns" className="glass rounded-xl p-4 hover:border-emerald-400/30 transition">
+              <div className="flex items-center gap-2 mb-1">
+                <QrCode size={16} className="text-emerald-300" />
+                <p className="font-semibold" style={{ fontFamily: 'var(--font-display)' }}>QR Codes</p>
+              </div>
+              <p className="text-xs text-white/55">Pub transports, campagnes partenaires</p>
             </Link>
           </section>
         </div>
