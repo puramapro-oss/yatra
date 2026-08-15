@@ -27,12 +27,14 @@ type Mission = {
   destination_country: string
   description: string
   duration_days: number | null
+  duree_type: string // 'micro_mission' | 'voyage_solidaire'
   starts_at: string | null
   ends_at: string | null
   spots_total: number
   spots_taken: number
   cost_eur: number
   transport_discount_pct: number
+  reward_points: number
   required_age_min: number | null
   prerequisites: string | null
   contact_email: string | null
@@ -192,6 +194,33 @@ export function MissionDetailView({
                 </div>
               )}
             </div>
+
+            {/* Type de mission + Récompense */}
+            <div className="pt-2 border-t border-white/5 space-y-2">
+              <div className="flex items-center gap-2 text-xs">
+                <span className="uppercase tracking-wider text-white/45">Type :</span>
+                <span className="px-2 py-1 rounded-full border border-violet-400/20 bg-violet-500/10 text-violet-200">
+                  {mission.duree_type === 'micro_mission' ? '⚡ Micro-mission' : '🌍 Voyage solidaire'}
+                </span>
+              </div>
+              {Number(mission.reward_points) > 0 && (
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="uppercase tracking-wider text-white/45">Récompense :</span>
+                  <span className="px-2 py-1 rounded-full border border-emerald-400/20 bg-emerald-500/10 text-emerald-200 font-medium">
+                    +{mission.reward_points} points YATRA
+                  </span>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Disclaimer bénévolat */}
+          <section className="glass rounded-2xl p-4 bg-amber-500/5 border-amber-400/10">
+            <p className="text-xs text-white/60 leading-relaxed">
+              ⚠️ <span className="font-semibold">Mission bénévole encadrée par {mission.ngo_name}</span>. Zéro rémunération financière.
+              Les points YATRA sont offerts en reconnaissance de ton engagement solidaire et ne constituent pas un salaire.
+              Pour tout problème de santé, consulte un médecin (15 ou 3114 si urgence vitale).
+            </p>
           </section>
 
           {/* Application */}

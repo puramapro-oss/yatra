@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 
     let q = supabase
       .from('humanitarian_missions')
-      .select('id, slug, title, ngo_name, ngo_url, cause, destination_city, destination_country, description, duration_days, starts_at, ends_at, spots_total, spots_taken, cost_eur, transport_discount_pct, required_age_min, prerequisites, contact_email')
+      .select('id, slug, title, ngo_name, ngo_url, cause, destination_city, destination_country, description, duration_days, duree_type, starts_at, ends_at, spots_total, spots_taken, cost_eur, transport_discount_pct, reward_points, required_age_min, prerequisites, contact_email')
       .eq('active', true)
 
     if (cause) q = q.eq('cause', cause)

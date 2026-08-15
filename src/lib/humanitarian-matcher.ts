@@ -20,12 +20,14 @@ export type HumanitarianMission = {
   destination_country: string
   description: string
   duration_days: number | null
+  duree_type: string // 'micro_mission' | 'voyage_solidaire'
   starts_at: string | null
   ends_at?: string | null
   spots_total: number
   spots_taken: number
   cost_eur: number
   transport_discount_pct: number
+  reward_points: number
   required_age_min: number | null
   prerequisites?: string | null
   contact_email?: string | null

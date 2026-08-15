@@ -19,7 +19,7 @@ export default async function MissionDetailPage({
   const isUuid = UUID_RX.test(id)
   const { data: mission } = await supabase
     .from('humanitarian_missions')
-    .select('*')
+    .select('id, slug, title, ngo_name, ngo_url, cause, destination_city, destination_country, description, duration_days, duree_type, starts_at, ends_at, spots_total, spots_taken, cost_eur, transport_discount_pct, reward_points, required_age_min, prerequisites, contact_email')
     .eq(isUuid ? 'id' : 'slug', id)
     .eq('active', true)
     .maybeSingle()

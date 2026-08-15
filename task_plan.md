@@ -12,7 +12,7 @@
 | §5 Achat groupé | 🟡 existe, scope à étendre | Pools génériques + RPC `group_join_v1` (P6) branchés sur events gratuits seulement ; étendre aux billets groupe SNCF / activités partenaires |
 | §6 Radar gratuit & aides | ✅ complet P16 | P5/P6 + V2 (VACAF/ANCV/CAF) + P16 : 7 aides seniors ajoutées (3→10 total), radar étendu prix 0€/<5€/<10€ (col prix + filtres UI + 8 events <10€ seedés). Migration p25 appliquée VPS. |
 | §7 Naturel & soins | 🟡 partiel | Cashback partenaires existe (P7, 8 partenaires) ; annuaire "soins naturels accessibles" absent, à créer |
-| §8 Humanitaire & missions + KRIDA | 🟡 missions OK, KRIDA bloqué | `lib/humanitarian-matcher.ts` cadre conforme ; moteur contests **local** (P12) — KRIDA écosystème introuvable → garder legacy, cf. DECISIONS.md |
+| §8 Humanitaire & missions + KRIDA | ✅ livré P21 | Distinction micro-missions (1j) vs voyages solidaires (séjours encadrés) via colonne `duree_type`. 10 missions seed (6 originales P7 + 4 micro-missions P21 : World Cleanup Day, Restos, Banques Alimentaires, Greeters). Récompenses wallet `reward_points` (50-200 pts selon durée) + disclaimer bénévolat strict. Table `humanitarian_completions` + API validation admin/auto. Moteur contests **local** (P12) conservé → backlog KRIDA migration future (cf. section Backlog V3.1). |
 | §9 QR codes & pub transports | 🔴 absent | `/go/[slug]` = tracking ambassadeur digital, pas QR physique par lieu/partenaire. À créer entièrement |
 | §10 Surprise parfaite | ✅ livré P18 | Page `/dashboard/surprise` (formulaire rayon/budget/durée + bouton "Surprends-moi") + API `/api/yatra/surprise` (combine 1 event gratuit/pas cher via `gratuit-matcher.ts`, 1 trajet minimal via `zero-cost.ts`, 1 micro-défi positif via liste curatée 20 défis). Routeur NLU étendu type `surprise` (extraction rayon/budget/durée) + redirection. Réponse <10s (DB direct, zéro IA lente). |
 | §11 Multisensoriel | 🟡 large base, complète | Parallax gyroscope + glass + 6 modes ambiance (P8) déjà là ; manque mode "Silence total" |
@@ -32,7 +32,7 @@
 | P18 | Surprise parfaite (§10) | ✅ |
 | P19 | Achat groupé étendu (§5) | ✅ |
 | P20 | Naturel & soins — annuaire (§7) | ✅ |
-| P21 | Humanitaire & missions + doc KRIDA backlog (§8) | ⏳ |
+| P21 | Humanitaire & missions + doc KRIDA backlog (§8) | ✅ |
 | P22bis | QR codes & pub transports (§9) | ⏳ |
 | P23 | Multisensoriel complément + Accessibilité/i18n + Paiements (§11+§12+§13) | ⏳ |
 | P24 | Boucle Directeur Artistique ≥9 + tests 5 niveaux + `YATRA_V3_DONE.md` | ⏳ |
@@ -190,3 +190,38 @@
 - [x] P11.5bis Profile enrichi : Trust Score card glass (score /100 + barre progressive emerald→violet + label level + compteurs proofs OK/rejects + hint thresholds 30/40) + Avantages rang card (multiplier_label gradient + 4 features ✓ + prochain rang restants) + Multiplicateur total combiné = ancienneté × rang
 - [x] P11.6 Dashboard : 2 nouvelles cards (Challenges Stake icon Shield + Sécurité Vivante icon ShieldAlert) — total **13 actions**
 - [x] P11.7 Build/tsc OK + grep 0 (placeholder = HTML attrs uniquement) + commit `b8c6281` + push + deploy `yatra-h123jdqmm` + alias `yatra.purama.dev` + smoke 10 routes (307×4 dashboard + 200 catalog + 401×3 API + 405×2 GET sur POST-only)
+
+
+---
+
+# Backlog V3.1 — Post-lancement
+
+## Moteur contests local → KRIDA écosystème
+
+**Contexte** : Le moteur de jeux-concours/défis actuel (P12) est 100% local à YATRA (tables , ,  + RPC + CRON). Il fonctionne correctement et est conforme au split karma 50/10/40.
+
+**Décision (DECISIONS.md L7, 2026-08-14)** : Garder le moteur local tel quel en production. Le brief V3 §8 demande de "brancher sur KRIDA", mais le moteur KRIDA écosystème est introuvable (absent de CLAUDE-2.md, PURAMA_MASTER_UPGRADE.md, docs Karma). Impossible de brancher sur une cible qui n'existe pas.
+
+**Migration future** : Dès que KRIDA écosystème sera livré et documenté ailleurs dans l'écosystème PURAMA, migrer le moteur contests YATRA vers KRIDA. Cela nécessitera :
+1. Migration données existantes (contests + entries + winners) vers les tables KRIDA centralisées
+2. Remplacement des RPC locaux par appels API KRIDA
+3. Tests de régression complets pour garantir zéro changement comportement côté utilisateur
+4. Vérification conformité split karma 50/10/40 dans KRIDA
+
+**Non-bloquant** : L'app YATRA est 100% fonctionnelle en V3 avec le moteur local. Cette migration est un refactoring technique futur, pas une feature manquante.
+
+## Mobile natif Expo — Tracking mobilité en arrière-plan
+
+**Contexte** : Le module mobilité propre (P15, §2 brief V3) fonctionne en web/PWA avec  + wake lock + accéléromètre pendant que l'app est active. Le tracking en arrière-plan est impossible en web pour des raisons de sécurité navigateurs.
+
+**Limitation documentée** : Le brief V3 §2 L31 documente explicitement cette limite : "le tracking en arrière-plan est impossible en web → l'API et le moteur de règles sont conçus pour être réutilisés tels quels par le futur module natif Expo".
+
+**Extension future** : Développer un module natif Expo (iOS + Android) qui :
+1. Réutilise les API  existantes (route, start, end) sans modification
+2. Implémente le tracking GPS en arrière-plan via  (iOS) et  (Android)
+3. Implémente l'accéléromètre continu via 
+4. Synchronise les trajets avec le backend YATRA via les mêmes endpoints
+5. Respecte les mêmes règles anti-fraude (vitesse, cohérence, plafonds)
+
+**Périmètre V3.1** : Développement complet du module natif selon SKILL NATIVE (EAS, HealthKit si santé, stores, etc.). Non inclus dans le périmètre V3 (web/PWA uniquement).
+
