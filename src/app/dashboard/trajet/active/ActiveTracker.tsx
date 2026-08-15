@@ -25,6 +25,9 @@ export function ActiveTracker() {
   // eslint-disable-next-line react-hooks/purity
   const startRef = useRef<number>(Date.now())
   const watchRef = useRef<number | null>(null)
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null)
+  const accelSamplesRef = useRef<number[]>([])
+  const lastAccelSampleRef = useRef<number>(0)
 
   useEffect(() => {
     if (!tripId) {
@@ -37,6 +40,67 @@ export function ActiveTracker() {
     if (!tracking) return
     const t = setInterval(() => setElapsed(Date.now() - startRef.current), 1000)
     return () => clearInterval(t)
+  }, [tracking])
+
+  // Wake lock — garde écran actif pendant tracking
+  useEffect(() => {
+    if (!tracking) return
+    let lock: WakeLockSentinel | null = null
+    ;(async () => {
+      if ('wakeLock' in navigator) {
+        try {
+          lock = await navigator.wakeLock.request('screen')
+          wakeLockRef.current = lock
+        } catch {
+          // Silent fallback si refusé/non supporté
+        }
+      }
+    })()
+    return () => {
+      lock?.release().catch(() => {})
+      wakeLockRef.current = null
+    }
+  }, [tracking])
+
+  // Accéléromètre — profil fraud detection renforcé
+  useEffect(() => {
+    if (!tracking) return
+    accelSamplesRef.current = []
+    lastAccelSampleRef.current = Date.now()
+
+    const handleMotion = (e: DeviceMotionEvent) => {
+      const now = Date.now()
+      // Échantillonnage toutes les 3s (pas chaque frame)
+      if (now - lastAccelSampleRef.current < 3000) return
+      lastAccelSampleRef.current = now
+
+      const accel = e.accelerationIncludingGravity
+      if (!accel || accel.x === null || accel.y === null || accel.z === null) return
+
+      // Magnitude accélération totale (m/s²)
+      const mag = Math.sqrt(accel.x ** 2 + accel.y ** 2 + accel.z ** 2)
+      accelSamplesRef.current.push(mag)
+    }
+
+    // iOS 13+ requiert permission
+    if (typeof DeviceMotionEvent !== 'undefined' && 'requestPermission' in DeviceMotionEvent) {
+      ;(DeviceMotionEvent.requestPermission as () => Promise<PermissionState>)()
+        .then((state) => {
+          if (state === 'granted') {
+            window.addEventListener('devicemotion', handleMotion)
+          }
+        })
+        .catch(() => {
+          // Permission refusée → silent fallback (pas d'accel, pas grave)
+        })
+    } else {
+      // Android / desktop → direct
+      window.addEventListener('devicemotion', handleMotion)
+    }
+
+    return () => {
+      window.removeEventListener('devicemotion', handleMotion)
+    }
   }, [tracking])
 
   function start() {
@@ -94,17 +158,33 @@ export function ActiveTracker() {
       return
     }
     setEnding(true)
+
+    // Agréger profil accélération (si samples > 0)
+    let accel_profile
+    const samples = accelSamplesRef.current
+    if (samples.length > 2) {
+      const avgMagnitude = samples.reduce((s, x) => s + x, 0) / samples.length
+      const variance =
+        samples.reduce((s, x) => s + (x - avgMagnitude) ** 2, 0) / samples.length
+      const peakCount = samples.filter((x) => x > avgMagnitude + 2).length
+      accel_profile = { avgMagnitude, variance, peakCount }
+    }
+
     try {
       const r = await fetch('/api/vida/trip/end', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trip_id: tripId, points }),
+        body: JSON.stringify({ trip_id: tripId, points, accel_profile }),
       })
       const data = await r.json()
       if (!r.ok) throw new Error(data?.error ?? 'Erreur fin trajet')
       const flagged = data.status === 'flagged'
       if (flagged) {
         toast.warning('Trajet signalé', { description: 'Anti-fraude a détecté des incohérences.' })
+      } else if (data.capped_reason) {
+        toast.warning(`Gain plafonné : ${data.capped_reason}`, {
+          description: `+ ${Number(data.gain_credits_eur).toFixed(2)} € crédités`,
+        })
       } else if (Number(data.gain_credits_eur) > 0) {
         toast.success(`+ ${Number(data.gain_credits_eur).toFixed(2)} € de Vida Credits 🎉`)
       } else {
@@ -120,6 +200,7 @@ export function ActiveTracker() {
   useEffect(() => {
     return () => {
       if (watchRef.current !== null) navigator.geolocation.clearWatch(watchRef.current)
+      wakeLockRef.current?.release().catch(() => {})
     }
   }, [])
 

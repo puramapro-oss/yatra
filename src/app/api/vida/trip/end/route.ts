@@ -1,12 +1,19 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
-import { analyzeTrip } from '@/lib/anti-fraud'
+import { analyzeTrip, type AccelProfile } from '@/lib/anti-fraud'
 import { VIDA_CREDITS_PER_KM, CO2_AVOIDED_PER_KM, isCleanMode } from '@/lib/wow'
 import { ancienneteMultiplier } from '@/lib/utils'
 import { creditWallet } from '@/lib/wallet'
 import { rangMultiplier } from '@/lib/rangs'
 import { recordTrustEvent } from '@/lib/trust'
+import {
+  getRateForMode,
+  getUserDailyLimit,
+  getUserMonthlyLimit,
+  checkDailyCap,
+  checkMonthlyCap,
+} from '@/lib/mobility-config'
 import type { GpsPoint, RouteGeometry } from '@/types/trip'
 import type { CleanMobilityMode, RangIdentity } from '@/types/vida'
 
@@ -23,9 +30,18 @@ const pointSchema = z.object({
   altitude: z.number().nullable().optional(),
 })
 
+const accelProfileSchema = z
+  .object({
+    avgMagnitude: z.number().min(0).max(50),
+    variance: z.number().min(0).max(100),
+    peakCount: z.number().int().min(0).max(1000),
+  })
+  .optional()
+
 const endSchema = z.object({
   trip_id: z.string().uuid(),
   points: z.array(pointSchema).min(2).max(5000),
+  accel_profile: accelProfileSchema,
 })
 
 const FRAUD_REJECT_THRESHOLD = 60
@@ -37,7 +53,7 @@ export async function POST(request: Request) {
     if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
     const body = await request.json()
-    const { trip_id, points } = endSchema.parse(body)
+    const { trip_id, points, accel_profile } = endSchema.parse(body)
 
     const { data: trip, error: tErr } = await supabase
       .from('trips')
@@ -54,7 +70,11 @@ export async function POST(request: Request) {
     }
 
     const declared_mode = trip.declared_mode as Parameters<typeof analyzeTrip>[0]['declared_mode']
-    const result = analyzeTrip({ points: points as GpsPoint[], declared_mode })
+    const result = analyzeTrip({
+      points: points as GpsPoint[],
+      declared_mode,
+      accel_profile: accel_profile as AccelProfile | undefined,
+    })
 
     const isFlagged = result.fraud_score >= FRAUD_REJECT_THRESHOLD
     const newStatus = isFlagged ? 'flagged' : 'completed'
@@ -67,7 +87,7 @@ export async function POST(request: Request) {
     // Multiplicateur ancienneté ×1 → ×2 (cap 12 mois) + multiplicateur rang ×1 à ×2
     const { data: profile } = await supabase
       .from('profiles')
-      .select('anciennete_months, rang')
+      .select('anciennete_months, rang, stripe_plan')
       .eq('id', user.id)
       .maybeSingle()
     const anciennete_months = Math.min(profile?.anciennete_months ?? 0, 12)
@@ -75,16 +95,35 @@ export async function POST(request: Request) {
     const rang = (profile?.rang ?? 'explorateur') as RangIdentity
     const multiplier_rang = rangMultiplier(rang)
     const multiplier = Math.round(multiplier_anc * multiplier_rang * 100) / 100
+    const stripePlan = profile?.stripe_plan ?? 'free'
 
     // Crédits + CO₂ — uniquement si non flagged ET mode propre
     let gain_credits_eur = 0
     let gain_base_eur = 0
     let co2_avoided_kg = 0
+    let capped_reason: string | undefined
     if (!isFlagged && isCleanMode(declared_mode)) {
-      gain_base_eur =
-        Math.round(distance_km * VIDA_CREDITS_PER_KM[declared_mode as CleanMobilityMode] * 100) / 100
-      gain_credits_eur = Math.round(gain_base_eur * multiplier * 100) / 100
-      co2_avoided_kg = Math.round(distance_km * CO2_AVOIDED_PER_KM[declared_mode] * 100) / 100
+      // Fetch tarif + plafonds depuis DB (table mobility_rate_config)
+      const rate = await getRateForMode(declared_mode as CleanMobilityMode)
+      gain_base_eur = Math.round(distance_km * rate.credits_per_km * 100) / 100
+      let potentialGain = Math.round(gain_base_eur * multiplier * 100) / 100
+      co2_avoided_kg = Math.round(distance_km * rate.co2_avoided_per_km * 100) / 100
+
+      // Check plafonds journalier + mensuel (paliers ×1/×5/×10)
+      const dailyCapUser = getUserDailyLimit(rate.daily_cap_base_eur, stripePlan)
+      const monthlyCapUser = getUserMonthlyLimit(rate.monthly_cap_base_eur, stripePlan)
+
+      const dailyCheck = await checkDailyCap(user.id, potentialGain, dailyCapUser)
+      const monthlyCheck = await checkMonthlyCap(user.id, potentialGain, monthlyCapUser)
+
+      // Écrêter au plus contraignant (daily ou monthly)
+      if (dailyCheck.capped || monthlyCheck.capped) {
+        const cappedAt = Math.min(dailyCheck.remaining_eur, monthlyCheck.remaining_eur)
+        potentialGain = Math.max(0, Math.round(cappedAt * 100) / 100)
+        capped_reason = dailyCheck.capped ? dailyCheck.cap_reason : monthlyCheck.cap_reason
+      }
+
+      gain_credits_eur = potentialGain
     }
 
     // Geometry à partir des points (simplification au passage : 1 point sur 5 si > 200 points)
@@ -203,6 +242,7 @@ export async function POST(request: Request) {
       detected_mode: result.detected_mode,
       avg_speed_kmh,
       max_speed_kmh,
+      capped_reason,
     })
   } catch (e: unknown) {
     if (e instanceof z.ZodError) {

@@ -59,16 +59,55 @@ function detectModeFromSpeeds(avg: number, max: number): MobilityMode {
   return 'train'
 }
 
+export type AccelProfile = {
+  avgMagnitude: number // moyenne magnitude accélération (m/s²)
+  variance: number // variance échantillons
+  peakCount: number // nombre pics > seuil
+}
+
 export type AnalyzeInput = {
   points: GpsPoint[]
   declared_mode: MobilityMode
+  accel_profile?: AccelProfile // optionnel (device non supporté → absent)
+}
+
+/**
+ * Analyse profil accéléromètre pour détecter incohérence mode déclaré.
+ * Heuristique simple : marche/vélo = variance haute basse amplitude, voiture = accels franches soutenues.
+ * Retourne score additionnel fraud (0-20).
+ */
+function analyzeAccelProfile(profile: AccelProfile, declared_mode: MobilityMode): number {
+  const { avgMagnitude, variance, peakCount } = profile
+  let accelFraud = 0
+
+  // Marche/vélo/trottinette : variance attendue haute (mouvements irréguliers), magnitude basse
+  if (declared_mode === 'marche' || declared_mode === 'velo' || declared_mode === 'trottinette') {
+    // Si magnitude élevée (>4 m/s²) + pics nombreux (>10) → probable voiture
+    if (avgMagnitude > 4 && peakCount > 10) {
+      accelFraud += 15
+    }
+    // Variance très basse (<0.5) sur mode marche/vélo → suspect (trop régulier = voiture)
+    if (variance < 0.5) {
+      accelFraud += 5
+    }
+  }
+
+  // Covoiturage/voiture : magnitude attendue moyenne-haute, variance modérée
+  if (declared_mode === 'covoiturage' || declared_mode === 'voiture_perso') {
+    // Si magnitude très basse (<1 m/s²) ET variance haute → probable marche/vélo
+    if (avgMagnitude < 1 && variance > 2) {
+      accelFraud += 10
+    }
+  }
+
+  return Math.min(20, accelFraud) // cap 20 pts max pour accel
 }
 
 /**
  * Analyse complète d'un trajet GPS.
  */
 export function analyzeTrip(input: AnalyzeInput): AntiFraudResult {
-  const { points, declared_mode } = input
+  const { points, declared_mode, accel_profile } = input
   const reasons: string[] = []
   let fraud = 0
 
@@ -145,6 +184,17 @@ export function analyzeTrip(input: AnalyzeInput): AntiFraudResult {
   if (detected_mode !== declared_mode) {
     reasons.push(`Mode détecté ${detected_mode} ≠ mode déclaré ${declared_mode}`)
     fraud += 15
+  }
+
+  // Analyse accéléromètre si disponible (device supporté)
+  if (accel_profile) {
+    const accelFraud = analyzeAccelProfile(accel_profile, declared_mode)
+    if (accelFraud > 0) {
+      fraud += accelFraud
+      reasons.push(
+        `Profil accélération incohérent (avg ${accel_profile.avgMagnitude.toFixed(1)} m/s², variance ${accel_profile.variance.toFixed(1)})`,
+      )
+    }
   }
 
   fraud = Math.min(100, Math.max(0, Math.round(fraud)))
