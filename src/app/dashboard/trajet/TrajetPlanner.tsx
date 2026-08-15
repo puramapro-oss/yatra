@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   ArrowLeft, MapPin, Search, Loader2, Sparkles, Leaf, Wind, Clock, EuroIcon,
 } from 'lucide-react'
@@ -21,11 +21,21 @@ export function TrajetPlanner({
   villePrincipale: string | null
 }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [from, setFrom] = useState<Place | null>(null)
   const [to, setTo] = useState<Place | null>(null)
+  const [toQueryHint, setToQueryHint] = useState<string | null>(null)
   const [combinations, setCombinations] = useState<RouteCombination[]>([])
   const [loadingRoute, setLoadingRoute] = useState(false)
   const [starting, setStarting] = useState<string | null>(null)
+
+  // Préremplir destination depuis query params (routeur NLU)
+  useEffect(() => {
+    const toParam = searchParams?.get('to')
+    if (toParam) {
+      setToQueryHint(toParam)
+    }
+  }, [searchParams])
 
   const compute = useCallback(async (f: Place, t: Place) => {
     setLoadingRoute(true)
@@ -111,6 +121,7 @@ export function TrajetPlanner({
               placeholder="Adresse, lieu, gare…"
               value={to}
               onChange={setTo}
+              queryHint={toQueryHint}
             />
             <button
               type="button"
@@ -154,17 +165,26 @@ function PlaceSearch({
   value,
   onChange,
   autoFillLast,
+  queryHint,
 }: {
   label: string
   placeholder: string
   value: Place | null
   onChange: (p: Place | null) => void
   autoFillLast?: boolean
+  queryHint?: string | null
 }) {
   const [query, setQuery] = useState(value?.label ?? '')
   const [suggestions, setSuggestions] = useState<GeocodeResult[]>([])
   const [searching, setSearching] = useState(false)
   const [open, setOpen] = useState(false)
+
+  // Auto-fill query from hint (NLU search router)
+  useEffect(() => {
+    if (queryHint && !query && !value) {
+      setQuery(queryHint)
+    }
+  }, [queryHint, query, value])
 
   const search = useCallback(async (q: string) => {
     if (q.trim().length < 2) {

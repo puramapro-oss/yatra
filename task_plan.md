@@ -1,4 +1,45 @@
-# YATRA — Task Plan (P1 → P13)
+# YATRA — Task Plan (P1 → P24)
+
+## AUDIT V3 — 2026-08-14 (existant / V2 / V3 à faire)
+
+| Sujet brief V3 | Statut | Détail |
+|---|---|---|
+| §0 Audit + V2 | ✅ V2 terminé | P14→P22 livrés, `YATRA_UPGRADE_DONE.md` 2026-07-26, prod vérifiée |
+| §1 Mise aux normes | ✅ conforme | Webhook dispatcher interne existant, split 50/10/40 appliqué, `CORE_READY=false` + fallback en place |
+| §2 Mobilité propre + anti-fraude | 🟡 existe large, à compléter | GPS+anti-fraude vitesse/téléportation/accél. déjà là (`lib/anti-fraud.ts`) ; **manque** : wake lock, accéléromètre réel (`DeviceMotionEvent`), plafonds jour/mois explicites ×1/×5/×10, réconciliation quotidienne pool, barème → table config |
+| §3 Recherche langage naturel + IA YATRA | 🔴 absent (routeur) | "Aria" = companion coaching/journal (7 modes), PAS un routeur de recherche. Module à créer entièrement. Cf. DECISIONS.md (rename identité Aria→YATRA) |
+| §4 Moteur zéro-coût hybride | 🟡 existe, à étendre | `lib/zero-cost.ts` couvre déjà jusqu'à >60km train/covoiturage ; à fusionner avec scanner vacances V2 pour comparatif complet |
+| §5 Achat groupé | 🟡 existe, scope à étendre | Pools génériques + RPC `group_join_v1` (P6) branchés sur events gratuits seulement ; étendre aux billets groupe SNCF / activités partenaires |
+| §6 Radar gratuit & aides | ✅ large couverture | P5/P6 + V2 (VACAF/ANCV/CAF déjà nommés) ; vérifier complétude senior/handicap |
+| §7 Naturel & soins | 🟡 partiel | Cashback partenaires existe (P7, 8 partenaires) ; annuaire "soins naturels accessibles" absent, à créer |
+| §8 Humanitaire & missions + KRIDA | 🟡 missions OK, KRIDA bloqué | `lib/humanitarian-matcher.ts` cadre conforme ; moteur contests **local** (P12) — KRIDA écosystème introuvable → garder legacy, cf. DECISIONS.md |
+| §9 QR codes & pub transports | 🔴 absent | `/go/[slug]` = tracking ambassadeur digital, pas QR physique par lieu/partenaire. À créer entièrement |
+| §10 Surprise parfaite | 🔴 absent | À créer |
+| §11 Multisensoriel | 🟡 large base, complète | Parallax gyroscope + glass + 6 modes ambiance (P8) déjà là ; manque mode "Silence total" |
+| §12 Accessibilité & i18n | 🔴 i18n absent total | 0 `next-intl` dans le repo, 100% FR en dur. Accessibilité : pas de tests axe formalisés. WCAG 2.2 AA cible (cf. DECISIONS.md) |
+| §13 Paiements | 🔴 Apple Pay/PayPal absents | `lib/stripe.ts` = Checkout classique carte only |
+
+**R06 flags (suppositions/incohérences signalées, choix par défaut dans `DECISIONS.md`)** : nom IA Aria vs YATRA · KRIDA écosystème introuvable · cash Swan SEPA vs Stripe Connect Express (docs contradictoires) · WCAG 2.1 vs 2.2 · barème en dur vs config table · reporting AGNI inexistant.
+
+## Plan V3 — phases P14 → P24 (ordre de marche du brief, aucune exécutée — attente "ok")
+
+| Phase | Contenu | Statut |
+|---|---|---|
+| P14 | Recherche langage naturel + IA YATRA (§3) — routeur NLU texte/voix + rename identité Aria→YATRA | ⏳ |
+| P15 | Mobilité propre + anti-fraude renforcée (§2) | ⏳ |
+| P16 | Radar gratuit & aides — compléments (§6) | ⏳ |
+| P17 | Moteur zéro-coût hybride étendu (§4) | ⏳ |
+| P18 | Surprise parfaite (§10) | ⏳ |
+| P19 | Achat groupé étendu (§5) | ⏳ |
+| P20 | Naturel & soins — annuaire (§7) | ⏳ |
+| P21 | Humanitaire & missions + doc KRIDA backlog (§8) | ⏳ |
+| P22bis | QR codes & pub transports (§9) | ⏳ |
+| P23 | Multisensoriel complément + Accessibilité/i18n + Paiements (§11+§12+§13) | ⏳ |
+| P24 | Boucle Directeur Artistique ≥9 + tests 5 niveaux + `YATRA_V3_DONE.md` | ⏳ |
+
+---
+
+# Historique V1 (P1 → P13)
 
 | Phase | Statut | Notes |
 |-------|:------:|-------|

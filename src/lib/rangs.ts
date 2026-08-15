@@ -40,7 +40,7 @@ export const RANG_AVANTAGES: Record<RangIdentity, RangAvantages> = {
     features: [
       'Crédits Vida sur trajets propres',
       'Radar gratuit & aides',
-      'Communauté Aria · 7 modes',
+      'Communauté YATRA · 7 modes',
       "1 challenge stake actif (max 25€)",
     ],
   },

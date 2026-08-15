@@ -37,7 +37,7 @@ export const TIER_CONFIG: Record<AmbassadorTier, TierConfig> = {
   },
   or: {
     tier: 'or', label: 'Or', emoji: '🥇', threshold_eur: 400, commission_pct: 12,
-    perks: ['Plan Unlimited offert', 'Page perso /p/[slug]', 'Coach IA Aria 50 msg/j'],
+    perks: ['Plan Unlimited offert', 'Page perso /p/[slug]', 'Coach IA YATRA 50 msg/j'],
   },
   platine: {
     tier: 'platine', label: 'Platine', emoji: '💎', threshold_eur: 1000, commission_pct: 13,

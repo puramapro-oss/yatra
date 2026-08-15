@@ -12,7 +12,7 @@ export function StepName({ name, setName }: { name: string; setName: (v: string)
           Comment on t&apos;appelle&nbsp;?
         </h1>
         <p className="text-sm text-white/55">
-          Pour qu&apos;Aria et toi puissiez parler simplement.
+          Pour que YATRA et toi puissiez parler simplement.
         </p>
       </div>
 

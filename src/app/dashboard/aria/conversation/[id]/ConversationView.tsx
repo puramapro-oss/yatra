@@ -214,7 +214,7 @@ export function ConversationView({
               ttsEnabled ? 'bg-violet-500/20 text-violet-200' : 'bg-white/5 text-white/40'
             }`}
             aria-label={ttsEnabled ? 'Couper la voix' : 'Activer la voix'}
-            title={ttsEnabled ? 'Voix Aria activée' : 'Voix Aria désactivée'}
+            title={ttsEnabled ? 'Voix YATRA activée' : 'Voix YATRA désactivée'}
           >
             {ttsEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
           </button>
@@ -231,7 +231,7 @@ export function ConversationView({
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 max-w-3xl mx-auto w-full space-y-4">
           {messages.length === 0 && (
-            <p className="text-center text-white/55 italic">Aria est là quand tu veux. Écris ton premier mot.</p>
+            <p className="text-center text-white/55 italic">YATRA est là quand tu veux. Écris ton premier mot.</p>
           )}
           {messages.map((m) => (
             <Bubble key={m.id} role={m.role} content={m.content} />
@@ -251,7 +251,7 @@ export function ConversationView({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder={meta.placeholder || 'Écris à Aria…'}
+                placeholder={meta.placeholder || 'Écris à YATRA…'}
                 rows={2}
                 maxLength={8000}
                 className="flex-1 bg-white/[0.04] border border-white/10 rounded-2xl p-3 text-sm focus:border-violet-400/40 focus:outline-none resize-none"

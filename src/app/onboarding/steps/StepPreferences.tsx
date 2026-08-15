@@ -71,7 +71,7 @@ export function StepPreferences({
       </div>
 
       <div>
-        <span className="text-xs font-medium text-white/65 mb-2 block">Voix d&apos;Aria</span>
+        <span className="text-xs font-medium text-white/65 mb-2 block">Voix de YATRA</span>
         <div className="grid grid-cols-3 gap-2">
           {(['douce', 'energique', 'silencieuse'] as const).map((v) => {
             const active = preferences.voix_aria === v

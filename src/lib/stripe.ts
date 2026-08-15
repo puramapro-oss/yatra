@@ -36,7 +36,7 @@ export const YATRA_PLANS = {
       'Vida Credits illimités',
       'Aides & droits auto remplis',
       '6 modes ambiance multisensoriel',
-      'Aria conscience voyage',
+      'YATRA conscience voyage',
       'Tirages au sort + concours',
     ],
   },

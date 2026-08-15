@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Sparkles, CheckCircle2, AlertCircle, Plane, Home, UtensilsCrossed, Ticket } from 'lucide-react'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
@@ -33,6 +34,7 @@ type Proposition = {
 }
 
 export function BudgetView() {
+  const searchParams = useSearchParams()
   const [budget, setBudget] = useState('600')
   const [jours, setJours] = useState('5')
   const [depart, setDepart] = useState('Paris')
@@ -42,6 +44,18 @@ export function BudgetView() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [propositions, setPropositions] = useState<Proposition[] | null>(null)
+
+  // Préremplir depuis query params (routeur NLU)
+  useEffect(() => {
+    const budgetParam = searchParams?.get('budget')
+    const joursParam = searchParams?.get('jours')
+    if (budgetParam && !Number.isNaN(Number(budgetParam))) {
+      setBudget(budgetParam)
+    }
+    if (joursParam && !Number.isNaN(Number(joursParam))) {
+      setJours(joursParam)
+    }
+  }, [searchParams])
 
   function toggleEnvie(id: string) {
     setEnvies((prev) => (prev.includes(id) ? prev.filter((e) => e !== id) : [...prev, id]))

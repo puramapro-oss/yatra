@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag, Headphones, MessageCircle, Users, Radar, Shield, ShieldAlert, Megaphone, Award, Plane } from 'lucide-react'
 import { CrossPromoBanner } from '@/components/promo/CrossPromoBanner'
+import { NLUSearchBar } from '@/components/search/NLUSearchBar'
 import { useAuth } from '@/hooks/useAuth'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { getGreeting, formatPrice } from '@/lib/utils'
@@ -115,6 +116,9 @@ export function DashboardHello({
             </p>
           </div>
 
+          {/* NLU Search Bar */}
+          <NLUSearchBar />
+
           {/* KPI cards */}
           <section className="grid sm:grid-cols-3 gap-4">
             <KpiCard
@@ -199,7 +203,7 @@ export function DashboardHello({
               onClick={() => router.push('/dashboard/ambiance')}
             />
             <ActionCard
-              title="Aria · ta présence"
+              title="YATRA · ta présence"
               description="7 modes de conversation : coach trajet, méditation, journal, cri du cœur, boussole, gratitude, question profonde."
               icon={<MessageCircle size={22} />}
               onClick={() => router.push('/dashboard/aria')}

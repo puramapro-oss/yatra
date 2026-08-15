@@ -64,7 +64,7 @@ export async function POST(request: Request) {
     const isPaid = profile?.plan && profile.plan !== 'free' && profile.plan !== 'lifetime' ? true : profile?.plan === 'lifetime'
     if (!isPaid && (count ?? 0) >= ARIA_DAILY_LIMIT_FREE) {
       return NextResponse.json(
-        { error: `Limite quotidienne atteinte (${ARIA_DAILY_LIMIT_FREE} messages/jour). Reviens demain ou passe Premium pour discussions illimitées avec Aria.` },
+        { error: `Limite quotidienne atteinte (${ARIA_DAILY_LIMIT_FREE} messages/jour). Reviens demain ou passe Premium pour discussions illimitées avec YATRA.` },
         { status: 429 },
       )
     }

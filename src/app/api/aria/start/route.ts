@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: parsed.error.issues[0]?.message ?? 'Payload invalide' }, { status: 400 })
     }
 
-    const fallbackTitle = ARIA_MODE_META[parsed.data.mode as keyof typeof ARIA_MODE_META]?.label ?? 'Aria'
+    const fallbackTitle = ARIA_MODE_META[parsed.data.mode as keyof typeof ARIA_MODE_META]?.label ?? 'YATRA'
     const { data, error } = await supabase
       .from('aria_conversations')
       .insert({

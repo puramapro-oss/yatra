@@ -79,7 +79,7 @@ export function AriaHubView({ firstName, dailyQuestion, lastConversation, state 
             <span className="text-sm">Dashboard</span>
           </Link>
           <h1 className="ml-2 text-lg font-semibold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
-            Aria · ta présence YATRA
+            YATRA · ta présence
           </h1>
         </header>
 
@@ -91,7 +91,7 @@ export function AriaHubView({ firstName, dailyQuestion, lastConversation, state 
                 ✨
               </div>
               <div className="flex-1">
-                <p className="text-xs uppercase tracking-wider text-white/45">Aria</p>
+                <p className="text-xs uppercase tracking-wider text-white/45">YATRA</p>
                 <h2 className="text-xl font-bold mt-0.5 gradient-text-aurora" style={{ fontFamily: 'var(--font-display)' }}>
                   {firstName ? `Bonjour ${firstName}.` : 'Bonjour.'}
                 </h2>
@@ -120,7 +120,7 @@ export function AriaHubView({ firstName, dailyQuestion, lastConversation, state 
                 className="mt-4 btn-primary disabled:opacity-50 disabled:cursor-wait"
               >
                 {openingMode === 'question_profonde' ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
-                Y répondre avec Aria
+                Y répondre avec YATRA
               </button>
             </section>
           )}
@@ -166,7 +166,7 @@ export function AriaHubView({ firstName, dailyQuestion, lastConversation, state 
                 <div className="text-2xl">{ARIA_MODE_META[lastConversation.mode as AriaMode]?.emoji ?? '✨'}</div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium">
-                    {lastConversation.title ?? MODE_LABEL[lastConversation.mode] ?? 'Aria'}
+                    {lastConversation.title ?? MODE_LABEL[lastConversation.mode] ?? 'YATRA'}
                   </p>
                   <p className="text-xs text-white/55 mt-0.5">
                     {new Date(lastConversation.started_at).toLocaleString('fr-FR', {
@@ -189,7 +189,7 @@ export function AriaHubView({ firstName, dailyQuestion, lastConversation, state 
           )}
 
           <p className="text-xs text-white/40 text-center">
-            Aria ne remplace ni un thérapeute ni un professionnel. Si tu vis une détresse vitale, le 3114 est gratuit, anonyme et 24/7.
+            YATRA ne remplace ni un thérapeute ni un professionnel. Si tu vis une détresse vitale, le 3114 est gratuit, anonyme et 24/7.
           </p>
         </div>
       </main>
