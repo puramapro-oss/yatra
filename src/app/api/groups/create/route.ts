@@ -15,6 +15,8 @@ const createSchema = z.object({
   group_price_eur: z.number().min(0).max(100000),
   deadline_days: z.number().int().min(1).max(180).default(14),
   partner_url: z.string().url().optional().nullable(),
+  pool_type: z.enum(['event_gratuit', 'trajet_sncf', 'activite_partenaire', 'autre']).default('autre'),
+  metadata: z.record(z.string(), z.unknown()).optional().nullable(),
 })
 
 export async function POST(request: Request) {
@@ -46,6 +48,8 @@ export async function POST(request: Request) {
         group_price_eur: data.group_price_eur,
         deadline,
         partner_url: data.partner_url ?? null,
+        pool_type: data.pool_type,
+        metadata: data.metadata ?? {},
         status: 'open',
       })
       .select('id, title, status')

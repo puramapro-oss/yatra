@@ -3,57 +3,125 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, Plus } from 'lucide-react'
+import { ArrowLeft, Loader2, Plus, Train, Users, Calendar, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 
 const CATEGORIES = [
-  { id: 'transport', label: 'Transport (abo Navigo, location vélo…)' },
-  { id: 'activite', label: 'Activité (cours yoga, piscine…)' },
-  { id: 'soins', label: 'Soins (massage, naturopathie…)' },
-  { id: 'culture', label: 'Culture (visite guidée, atelier…)' },
+  { id: 'transport', label: 'Transport' },
+  { id: 'activite', label: 'Activité' },
+  { id: 'soins', label: 'Soins' },
+  { id: 'culture', label: 'Culture' },
   { id: 'autre', label: 'Autre' },
+]
+
+type PoolType = 'event_gratuit' | 'trajet_sncf' | 'activite_partenaire'
+
+const POOL_TYPES = [
+  { id: 'event_gratuit' as PoolType, label: 'Event gratuit', icon: Calendar, desc: 'Musée, concert, atelier gratuit ou peu cher' },
+  { id: 'trajet_sncf' as PoolType, label: 'Trajet SNCF groupe', icon: Train, desc: 'Billet de groupe train (réservation manuelle)' },
+  { id: 'activite_partenaire' as PoolType, label: 'Activité partenaire', icon: Users, desc: 'Sortie, atelier, cours avec partenaire' },
 ]
 
 export function GroupCreateForm({ defaultCity }: { defaultCity: string }) {
   const router = useRouter()
   const [submitting, setSubmitting] = useState(false)
+  const [poolType, setPoolType] = useState<PoolType>('event_gratuit')
+
+  // Commun
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [category, setCategory] = useState('activite')
   const [city, setCity] = useState(defaultCity)
-  const [targetCount, setTargetCount] = useState('5')
+  const [targetCount, setTargetCount] = useState('10')
+  const [deadlineDays, setDeadlineDays] = useState('14')
+
+  // Event gratuit
+  const [eventPrice, setEventPrice] = useState('0')
+
+  // Trajet SNCF
+  const [origine, setOrigine] = useState('')
+  const [destination, setDestination] = useState('')
+  const [dateDepart, setDateDepart] = useState('')
+  const [tarifIndividuel, setTarifIndividuel] = useState('')
+  const [reductionPct, setReductionPct] = useState('25')
+
+  // Activité partenaire
+  const [nomPartenaire, setNomPartenaire] = useState('')
   const [unitPrice, setUnitPrice] = useState('')
   const [groupPrice, setGroupPrice] = useState('')
-  const [deadlineDays, setDeadlineDays] = useState('14')
   const [partnerUrl, setPartnerUrl] = useState('')
 
-  const valid =
-    title.trim().length >= 5 &&
-    Number(targetCount) >= 2 &&
-    Number(unitPrice) > 0 &&
-    Number(groupPrice) > 0 &&
-    Number(groupPrice) < Number(unitPrice)
+  const valid = (() => {
+    if (title.trim().length < 5 || Number(targetCount) < 2) return false
+    if (poolType === 'event_gratuit') return Number(eventPrice) >= 0
+    if (poolType === 'trajet_sncf') {
+      return origine.trim().length > 0 && destination.trim().length > 0 && dateDepart.length > 0 && Number(tarifIndividuel) > 0
+    }
+    if (poolType === 'activite_partenaire') {
+      return nomPartenaire.trim().length > 0 && Number(unitPrice) > 0 && Number(groupPrice) > 0 && Number(groupPrice) < Number(unitPrice)
+    }
+    return false
+  })()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!valid) return
     setSubmitting(true)
     try {
+      let payload: Record<string, unknown> = {
+        title: title.trim(),
+        description: description.trim() || null,
+        city: city.trim() || null,
+        target_count: Number(targetCount),
+        deadline_days: Number(deadlineDays),
+        pool_type: poolType,
+      }
+
+      if (poolType === 'event_gratuit') {
+        payload = {
+          ...payload,
+          category: 'culture',
+          unit_price_eur: Number(eventPrice),
+          group_price_eur: 0,
+          partner_url: null,
+          metadata: {},
+        }
+      } else if (poolType === 'trajet_sncf') {
+        const tarif = Number(tarifIndividuel)
+        const reduc = Number(reductionPct) / 100
+        const tarifGroupe = tarif * (1 - reduc)
+        payload = {
+          ...payload,
+          category: 'transport',
+          unit_price_eur: tarif,
+          group_price_eur: tarifGroupe,
+          partner_url: 'https://www.sncf-connect.com',
+          metadata: {
+            origine: origine.trim(),
+            destination: destination.trim(),
+            date_depart: dateDepart,
+            tarif_individuel_estime: tarif,
+            reduction_groupe_pct: Number(reductionPct),
+          },
+        }
+      } else if (poolType === 'activite_partenaire') {
+        payload = {
+          ...payload,
+          category: 'activite',
+          unit_price_eur: Number(unitPrice),
+          group_price_eur: Number(groupPrice),
+          partner_url: partnerUrl.trim() || null,
+          metadata: {
+            nom_partenaire: nomPartenaire.trim(),
+            lien_reservation: partnerUrl.trim() || null,
+          },
+        }
+      }
+
       const r = await fetch('/api/groups/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: title.trim(),
-          description: description.trim() || null,
-          category,
-          city: city.trim() || null,
-          target_count: Number(targetCount),
-          unit_price_eur: Number(unitPrice),
-          group_price_eur: Number(groupPrice),
-          deadline_days: Number(deadlineDays),
-          partner_url: partnerUrl.trim() || null,
-        }),
+        body: JSON.stringify(payload),
       })
       const data = await r.json()
       if (!r.ok) throw new Error(data?.error ?? 'Erreur')
@@ -65,8 +133,10 @@ export function GroupCreateForm({ defaultCity }: { defaultCity: string }) {
     }
   }
 
-  const savings = Number(unitPrice) > 0 && Number(groupPrice) > 0
+  const savings = poolType === 'activite_partenaire' && Number(unitPrice) > 0 && Number(groupPrice) > 0
     ? Math.round(((Number(unitPrice) - Number(groupPrice)) / Number(unitPrice)) * 100)
+    : poolType === 'trajet_sncf' && Number(reductionPct) > 0
+    ? Number(reductionPct)
     : 0
 
   return (
@@ -83,15 +153,53 @@ export function GroupCreateForm({ defaultCity }: { defaultCity: string }) {
           </h1>
         </header>
 
-        <div className="px-6 pb-16 max-w-2xl mx-auto">
+        <div className="px-6 pb-16 max-w-2xl mx-auto space-y-5">
+          {/* Type de pool */}
+          <div className="glass rounded-3xl p-5">
+            <label className="block text-xs uppercase tracking-wider text-white/40 mb-3">Type de pool</label>
+            <div className="grid grid-cols-1 gap-3">
+              {POOL_TYPES.map((pt) => {
+                const Icon = pt.icon
+                const active = poolType === pt.id
+                return (
+                  <button
+                    key={pt.id}
+                    type="button"
+                    onClick={() => setPoolType(pt.id)}
+                    className={`flex items-center gap-3 p-4 rounded-2xl border transition ${
+                      active
+                        ? 'bg-white/10 border-emerald-400/50'
+                        : 'bg-white/5 border-white/10 hover:bg-white/8'
+                    }`}
+                  >
+                    <Icon size={20} className={active ? 'text-emerald-300' : 'text-white/40'} />
+                    <div className="flex-1 text-left">
+                      <div className="text-sm font-medium">{pt.label}</div>
+                      <div className="text-xs text-white/50 mt-0.5">{pt.desc}</div>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Formulaire */}
           <form onSubmit={handleSubmit} className="glass rounded-3xl p-6 space-y-5">
             <Field label="Titre du pool">
               <input
                 type="text"
-                required minLength={5} maxLength={200}
+                required
+                minLength={5}
+                maxLength={200}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Ex. Cours de yoga groupé Studio Bercy"
+                placeholder={
+                  poolType === 'trajet_sncf'
+                    ? 'Ex. Paris → Lyon 20 mars 2026'
+                    : poolType === 'activite_partenaire'
+                    ? 'Ex. Sortie kayak sur la Loire'
+                    : 'Ex. Visite guidée Musée d\'Orsay'
+                }
                 className="input"
               />
             </Field>
@@ -107,22 +215,158 @@ export function GroupCreateForm({ defaultCity }: { defaultCity: string }) {
               />
             </Field>
 
-            <Field label="Catégorie">
-              <select value={category} onChange={(e) => setCategory(e.target.value)} className="input">
-                {CATEGORIES.map((c) => (
-                  <option key={c.id} value={c.id}>{c.label}</option>
-                ))}
-              </select>
-            </Field>
+            {poolType === 'trajet_sncf' && (
+              <>
+                <div className="glass-soft rounded-2xl p-4 flex items-start gap-3 text-sm text-amber-200/90">
+                  <AlertCircle size={18} className="shrink-0 mt-0.5" />
+                  <div>
+                    <strong>Réservation manuelle</strong> : YATRA ne réserve pas à votre place. Ce pool met en relation les
+                    utilisateurs intéressés par le même trajet. Une fois le seuil atteint, vous recevrez un code et un lien vers
+                    SNCF Connect pour réserver manuellement votre billet groupe.
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Origine">
+                    <input
+                      type="text"
+                      required
+                      value={origine}
+                      onChange={(e) => setOrigine(e.target.value)}
+                      placeholder="Ex. Paris"
+                      className="input"
+                    />
+                  </Field>
+                  <Field label="Destination">
+                    <input
+                      type="text"
+                      required
+                      value={destination}
+                      onChange={(e) => setDestination(e.target.value)}
+                      placeholder="Ex. Lyon"
+                      className="input"
+                    />
+                  </Field>
+                </div>
+                <Field label="Date de départ souhaitée">
+                  <input
+                    type="date"
+                    required
+                    value={dateDepart}
+                    onChange={(e) => setDateDepart(e.target.value)}
+                    className="input"
+                  />
+                </Field>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Tarif individuel estimé (€)">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min={0}
+                      required
+                      value={tarifIndividuel}
+                      onChange={(e) => setTarifIndividuel(e.target.value)}
+                      placeholder="ex 75"
+                      className="input"
+                    />
+                  </Field>
+                  <Field label="Réduction groupe estimée (%)">
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      required
+                      value={reductionPct}
+                      onChange={(e) => setReductionPct(e.target.value)}
+                      placeholder="ex 25"
+                      className="input"
+                    />
+                  </Field>
+                </div>
+              </>
+            )}
+
+            {poolType === 'activite_partenaire' && (
+              <>
+                <Field label="Nom du partenaire">
+                  <input
+                    type="text"
+                    required
+                    value={nomPartenaire}
+                    onChange={(e) => setNomPartenaire(e.target.value)}
+                    placeholder="Ex. Kayak Loire Aventure"
+                    className="input"
+                  />
+                </Field>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Prix individuel (€)">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min={0}
+                      required
+                      value={unitPrice}
+                      onChange={(e) => setUnitPrice(e.target.value)}
+                      placeholder="ex 45"
+                      className="input"
+                    />
+                  </Field>
+                  <Field label="Prix groupe (€)">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min={0}
+                      required
+                      value={groupPrice}
+                      onChange={(e) => setGroupPrice(e.target.value)}
+                      placeholder="ex 30"
+                      className="input"
+                    />
+                  </Field>
+                </div>
+                <Field label="URL partenaire (facultatif)">
+                  <input
+                    type="url"
+                    value={partnerUrl}
+                    onChange={(e) => setPartnerUrl(e.target.value)}
+                    placeholder="https://..."
+                    className="input"
+                  />
+                </Field>
+              </>
+            )}
+
+            {poolType === 'event_gratuit' && (
+              <Field label="Prix de l'event (€)">
+                <input
+                  type="number"
+                  step="0.01"
+                  min={0}
+                  required
+                  value={eventPrice}
+                  onChange={(e) => setEventPrice(e.target.value)}
+                  placeholder="0 si gratuit, ou <10€ si peu cher"
+                  className="input"
+                />
+              </Field>
+            )}
 
             <Field label="Ville">
-              <input type="text" value={city} onChange={(e) => setCity(e.target.value)} maxLength={100} className="input" />
+              <input
+                type="text"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                maxLength={100}
+                className="input"
+              />
             </Field>
 
             <div className="grid grid-cols-2 gap-3">
               <Field label="Participants visés">
                 <input
-                  type="number" min={2} max={1000} required
+                  type="number"
+                  min={2}
+                  max={1000}
+                  required
                   value={targetCount}
                   onChange={(e) => setTargetCount(e.target.value)}
                   className="input"
@@ -130,30 +374,12 @@ export function GroupCreateForm({ defaultCity }: { defaultCity: string }) {
               </Field>
               <Field label="Délai (jours)">
                 <input
-                  type="number" min={1} max={180} required
+                  type="number"
+                  min={1}
+                  max={180}
+                  required
                   value={deadlineDays}
                   onChange={(e) => setDeadlineDays(e.target.value)}
-                  className="input"
-                />
-              </Field>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Prix individuel (€)">
-                <input
-                  type="number" step="0.01" min={0} required
-                  value={unitPrice}
-                  onChange={(e) => setUnitPrice(e.target.value)}
-                  placeholder="ex 25"
-                  className="input"
-                />
-              </Field>
-              <Field label="Prix groupe (€)">
-                <input
-                  type="number" step="0.01" min={0} required
-                  value={groupPrice}
-                  onChange={(e) => setGroupPrice(e.target.value)}
-                  placeholder="ex 18"
                   className="input"
                 />
               </Field>
@@ -164,16 +390,6 @@ export function GroupCreateForm({ defaultCity }: { defaultCity: string }) {
                 Économie réalisée : <strong>−{savings}%</strong>
               </p>
             )}
-
-            <Field label="URL partenaire (facultatif)">
-              <input
-                type="url"
-                value={partnerUrl}
-                onChange={(e) => setPartnerUrl(e.target.value)}
-                placeholder="https://..."
-                className="input"
-              />
-            </Field>
 
             <button
               type="submit"
@@ -186,8 +402,20 @@ export function GroupCreateForm({ defaultCity }: { defaultCity: string }) {
           </form>
         </div>
       </main>
-      <style>{`.input { width:100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 14px; font-size: 14px; color: white; outline: none; transition: border-color 0.15s; }
+      <style>{`
+.input {
+  width:100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: white;
+  outline: none;
+  transition: border-color 0.15s;
+}
 .input:focus { border-color: rgba(52,211,153,0.5); }
+.glass-soft { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); }
 `}</style>
     </>
   )
