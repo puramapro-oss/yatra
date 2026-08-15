@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { ArrowRight, ArrowLeft, Loader2 } from 'lucide-react'
@@ -42,6 +43,7 @@ export function OnboardingFlow({
   defaultName: string
   defaultVille: string
 }) {
+  const t = useTranslations('onboarding')
   const router = useRouter()
   const [step, setStep] = useState(0)
   const [direction, setDirection] = useState<1 | -1>(1)
@@ -82,14 +84,14 @@ export function OnboardingFlow({
       })
       if (!r.ok) {
         const err = await r.json().catch(() => ({}))
-        throw new Error(err.error || 'Erreur calcul Moment WOW')
+        throw new Error(err.error || t('toast.error'))
       }
       const data = (await r.json()) as MomentWow
       setWow(data)
       setDirection(1)
       setStep(TOTAL_STEPS - 1)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Échec du calcul')
+      toast.error(e instanceof Error ? e.message : t('toast.error'))
     } finally {
       setSubmitting(false)
     }
@@ -113,12 +115,12 @@ export function OnboardingFlow({
       })
       if (!r.ok) {
         const err = await r.json().catch(() => ({}))
-        throw new Error(err.error || 'Erreur enregistrement onboarding')
+        throw new Error(err.error || t('toast.error'))
       }
-      toast.success('Bienvenue dans YATRA 🌿')
+      toast.success(t('toast.welcome'))
       router.replace('/dashboard')
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Échec')
+      toast.error(e instanceof Error ? e.message : t('toast.error'))
       setSubmitting(false)
     }
   }

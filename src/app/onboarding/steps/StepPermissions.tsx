@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { Bell, MapPin, Activity } from 'lucide-react'
 
 type PermissionState = {
@@ -15,6 +16,7 @@ export function StepPermissions({
   permissions: PermissionState
   setPermissions: (p: PermissionState) => void
 }) {
+  const t = useTranslations('onboarding')
   async function toggleNotifications() {
     if (permissions.notifications) {
       setPermissions({ ...permissions, notifications: false })
@@ -51,44 +53,46 @@ export function StepPermissions({
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <p className="text-xs uppercase tracking-[0.2em] text-emerald-400/80">Étape 4 / 5</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-emerald-400/80">
+          {t('progress', { step: 4, total: 5 })}
+        </p>
         <h1
           className="text-3xl md:text-4xl font-bold tracking-tight"
           style={{ fontFamily: 'var(--font-display)' }}
         >
-          Permissions
+          {t('step4.title')}
         </h1>
         <p className="text-sm text-white/55">
-          Tu contrôles tout. Active uniquement ce qui te sert. Tu peux changer d&apos;avis à tout moment.
+          {t('step4.subtitle')}
         </p>
       </div>
 
       <div className="space-y-3">
         <PermissionCard
           icon={<MapPin size={20} />}
-          title="Géolocalisation pendant un trajet"
-          description="On l&apos;active QUAND tu démarres un trajet, jamais en arrière-plan sans toi."
+          title={t('step4.location.title')}
+          description={t('step4.location.description')}
           enabled={permissions.location}
           onToggle={toggleLocation}
         />
         <PermissionCard
           icon={<Bell size={20} />}
-          title="Notifications"
-          description="Gains, droits activés, résultats concours. Jamais de spam."
+          title={t('step4.notifications.title')}
+          description={t('step4.notifications.description')}
           enabled={permissions.notifications}
           onToggle={toggleNotifications}
         />
         <PermissionCard
           icon={<Activity size={20} />}
-          title="Capteurs de mouvement"
-          description="Détecte si tu marches, pédales ou roules — anti-fraude équitable."
+          title={t('step4.motion.title')}
+          description={t('step4.motion.description')}
           enabled={permissions.motion_sensors}
           onToggle={toggleMotion}
         />
       </div>
 
       <p className="text-xs text-white/35 text-center">
-        Toutes ces données restent privées. RGPD strict, hébergement Europe.
+        {t('step4.footer')}
       </p>
     </div>
   )

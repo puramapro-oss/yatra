@@ -35,7 +35,8 @@
 | P21 | Humanitaire & missions + doc KRIDA backlog (§8) | ✅ |
 | P22bis | QR codes & pub transports (§9) | ✅ |
 | P23a | Multisensoriel complément + Paiements (§11+§13) | ✅ |
-| P23b | Accessibilité/i18n (§12) | ✅ |
+| P23b | Accessibilité/i18n (§12) — infra + home/auth/layout 7 langues | ✅ |
+| P23c | i18n surfaces cœur (onboarding 5 steps + dashboard home 17 cards + pricing) — 7 langues câblées | ✅ |
 | P24 | Boucle Directeur Artistique ≥9 + tests 5 niveaux + `YATRA_V3_DONE.md` | ⏳ |
 
 ---

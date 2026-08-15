@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Sparkles, LogOut, Compass, Wallet, Trophy, MapPin, User, Globe, ShoppingBag, Headphones, MessageCircle, Users, Radar, Shield, ShieldAlert, Megaphone, Award, Plane, Heart } from 'lucide-react'
 import { CrossPromoBanner } from '@/components/promo/CrossPromoBanner'
@@ -39,6 +40,7 @@ export function DashboardHello({
   profile: ProfileLite
   wallet: WalletLite
 }) {
+  const t = useTranslations()
   const { signOut } = useAuth()
   const router = useRouter()
   const [signingOut, setSigningOut] = useState(false)
@@ -77,20 +79,20 @@ export function DashboardHello({
           <div className="flex items-center gap-3">
             <Link
               href="/dashboard/profile"
-              aria-label="Mon profil"
+              aria-label={t('dashboard.hello.profile')}
               className="flex items-center gap-1.5 text-sm text-white/55 hover:text-white transition"
             >
               <span className="text-base">{profile?.rang ? RANG_EMOJI[profile.rang] : '🌱'}</span>
-              <span className="hidden sm:inline">{profile?.rang ? RANG_LABELS[profile.rang] : 'Profil'}</span>
+              <span className="hidden sm:inline">{profile?.rang ? RANG_LABELS[profile.rang] : t('dashboard.hello.profile')}</span>
               <User size={16} className="sm:hidden" />
             </Link>
             <button
               onClick={handleSignOut}
               disabled={signingOut}
-              aria-label="Se déconnecter"
+              aria-label={t('dashboard.hello.logout')}
               className="text-sm text-white/55 hover:text-white transition flex items-center gap-1.5"
             >
-              <LogOut size={16} /> <span className="hidden sm:inline">{signingOut ? '…' : 'Déconnexion'}</span>
+              <LogOut size={16} /> <span className="hidden sm:inline">{signingOut ? '…' : t('dashboard.hello.logout')}</span>
             </button>
           </div>
         </header>
@@ -105,14 +107,15 @@ export function DashboardHello({
             >
               {firstName ? (
                 <>
-                  Bienvenue dans YATRA, <span className="gradient-text-aurora">{firstName}</span>
+                  {t('dashboard.hello.welcome', { name: firstName }).split(', ')[0]},{' '}
+                  <span className="gradient-text-aurora">{firstName}</span>
                 </>
               ) : (
-                <>Bienvenue dans YATRA</>
+                <>{t('dashboard.hello.welcomeFallback')}</>
               )}
             </h1>
             <p className="text-white/55 max-w-xl">
-              Tu viens d&apos;ouvrir un espace où chaque pas, chaque trajet propre, chaque droit activé te rapporte.
+              {t('dashboard.hello.subtitle')}
             </p>
           </div>
 
@@ -123,24 +126,24 @@ export function DashboardHello({
           <section className="grid sm:grid-cols-3 gap-4">
             <KpiCard
               icon={<Wallet size={20} />}
-              label="Wallet"
+              label={t('dashboard.stats.wallet')}
               value={formatPrice(wallet?.balance ?? 0)}
-              hint={`${formatPrice(wallet?.total_earned ?? 0)} gagnés au total`}
+              hint={t('dashboard.stats.walletHint', { total: formatPrice(wallet?.total_earned ?? 0) })}
               color="emerald"
               href="/dashboard/wallet"
             />
             <KpiCard
               icon={<Sparkles size={20} />}
-              label="Vida Credits"
+              label={t('dashboard.stats.vidaCredits')}
               value={`${(wallet?.vida_credits ?? 0).toFixed(2)}`}
-              hint="Cumulés sur trajets propres"
+              hint={t('dashboard.stats.vidaHint')}
               color="cyan"
             />
             <KpiCard
               icon={<Trophy size={20} />}
-              label="Score d'Humanité"
+              label={t('dashboard.stats.humanityScore')}
               value={`${(profile?.score_humanite ?? 0).toFixed(1)} / 10`}
-              hint={`Niveau d'éveil ${profile?.awakening_level ?? 1}`}
+              hint={t('dashboard.stats.humanityHint', { level: profile?.awakening_level ?? 1 })}
               color="violet"
               href="/dashboard/profile"
             />
@@ -149,110 +152,110 @@ export function DashboardHello({
           {/* Next steps */}
           <section className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <ActionCard
-              title="Démarrer mon premier trajet"
-              description="On calcule la combinaison la moins chère + la plus propre + la plus apaisante en 3 sec."
+              title={t('dashboard.actions.trajet.title')}
+              description={t('dashboard.actions.trajet.description')}
               icon={<Compass size={22} />}
               onClick={() => router.push('/dashboard/trajet')}
             />
             <ActionCard
-              title="Mes trajets"
-              description="Historique, gains cumulés, CO₂ évité. Toute ta progression mobilité propre."
+              title={t('dashboard.actions.trajets.title')}
+              description={t('dashboard.actions.trajets.description')}
               icon={<MapPin size={22} />}
               onClick={() => router.push('/dashboard/trajets')}
             />
             <ActionCard
-              title="Vacances"
-              description="Budget inversé, vrai prix total, argent récupéré (EU261, cashback) et bien plus. Le prix le plus bas, honnêtement."
+              title={t('dashboard.actions.vacances.title')}
+              description={t('dashboard.actions.vacances.description')}
               icon={<Plane size={22} />}
               onClick={() => router.push('/dashboard/vacances')}
             />
             <ActionCard
-              title="Mes droits & aides"
-              description="Radar permanent : aides transport, énergie, logement matchées sur ton profil."
+              title={t('dashboard.actions.aides.title')}
+              description={t('dashboard.actions.aides.description')}
               icon={<Sparkles size={22} />}
               onClick={() => router.push('/dashboard/aides')}
             />
             <ActionCard
-              title="Radar gratuit"
-              description="Musées, ateliers, repas solidaires, concerts gratuits accessibles en mobilité douce."
+              title={t('dashboard.actions.gratuit.title')}
+              description={t('dashboard.actions.gratuit.description')}
               icon={<Sparkles size={22} />}
               onClick={() => router.push('/dashboard/gratuit')}
             />
             <ActionCard
-              title="Achats groupés"
-              description="Plus on est nombreux, moins c'est cher. Yoga, transport partagé, soins solidaires."
+              title={t('dashboard.actions.groupes.title')}
+              description={t('dashboard.actions.groupes.description')}
               icon={<Compass size={22} />}
               onClick={() => router.push('/dashboard/groupes')}
             />
             <ActionCard
-              title="Cashback éthique"
-              description="Achète chez nos partenaires bio, mobilité douce, énergie verte → cashback crédité sur ton wallet."
+              title={t('dashboard.actions.cashback.title')}
+              description={t('dashboard.actions.cashback.description')}
               icon={<ShoppingBag size={22} />}
               onClick={() => router.push('/dashboard/cashback')}
             />
             <ActionCard
-              title="Soins naturels accessibles"
-              description="Annuaire naturopathie, cures, ateliers respiration/méditation à tarifs solidaires. Bien-être non médical."
+              title={t('dashboard.actions.soins.title')}
+              description={t('dashboard.actions.soins.description')}
               icon={<Heart size={22} />}
               onClick={() => router.push('/dashboard/soins-naturels')}
             />
             <ActionCard
-              title="Voyages humanitaires"
-              description="Missions VIDA Assoc partout en France. Train réduit, hébergement inclus, sens retrouvé."
+              title={t('dashboard.actions.humanitaire.title')}
+              description={t('dashboard.actions.humanitaire.description')}
               icon={<Globe size={22} />}
               onClick={() => router.push('/dashboard/humanitaire')}
             />
             <ActionCard
-              title="Modes Ambiance"
-              description="6 mondes immersifs Three.js + sons binauraux. Forêt, océan, montagne, désert, aurore, cosmos."
+              title={t('dashboard.actions.ambiance.title')}
+              description={t('dashboard.actions.ambiance.description')}
               icon={<Headphones size={22} />}
               onClick={() => router.push('/dashboard/ambiance')}
             />
             <ActionCard
-              title="YATRA · ta présence"
-              description="7 modes de conversation : coach trajet, méditation, journal, cri du cœur, boussole, gratitude, question profonde."
+              title={t('dashboard.actions.aria.title')}
+              description={t('dashboard.actions.aria.description')}
               icon={<MessageCircle size={22} />}
               onClick={() => router.push('/dashboard/aria')}
             />
             <ActionCard
-              title="Famille"
-              description="Voyagez ensemble. 2 à 6 personnes, partage des km clean et du Score d'Humanité."
+              title={t('dashboard.actions.famille.title')}
+              description={t('dashboard.actions.famille.description')}
               icon={<Users size={22} />}
               onClick={() => router.push('/dashboard/famille')}
             />
             <ActionCard
-              title="Radar AR"
-              description="Caméra + boussole. Vois les points YATRA proches projetés en réalité augmentée."
+              title={t('dashboard.actions.radar.title')}
+              description={t('dashboard.actions.radar.description')}
               icon={<Radar size={22} />}
               onClick={() => router.push('/dashboard/radar')}
             />
             <ActionCard
-              title="Challenges Stake"
-              description="Mise sur toi-même. 7, 30 ou 90 jours. Réussis = récup mise + récompense. Anti-fraude Trust Score."
+              title={t('dashboard.actions.challenges.title')}
+              description={t('dashboard.actions.challenges.description')}
               icon={<Shield size={22} />}
               onClick={() => router.push('/dashboard/challenges')}
             />
             <ActionCard
-              title="Sécurité Vivante"
-              description="Carte communautaire. Signale travaux, danger, voirie. Évite les zones flagués pendant tes trajets."
+              title={t('dashboard.actions.safety.title')}
+              description={t('dashboard.actions.safety.description')}
               icon={<ShieldAlert size={22} />}
               onClick={() => router.push('/dashboard/safety')}
             />
             <ActionCard
-              title="Programme ambassadeur"
-              description="Lien personnel /go/[slug]. 10% à 25% commission. Plan offert dès Bronze."
+              title={t('dashboard.actions.ambassadeur.title')}
+              description={t('dashboard.actions.ambassadeur.description')}
               icon={<Megaphone size={22} />}
               onClick={() => router.push('/dashboard/ambassadeur')}
             />
             <ActionCard
-              title="Classement hebdo"
-              description="Top 10 = 6% du CA. Score = parrainages × 10 + trajets × 5 + jours actifs × 5. Reset dimanche 23:59 UTC."
+              title={t('dashboard.actions.classement.title')}
+              description={t('dashboard.actions.classement.description')}
               icon={<Award size={22} />}
               onClick={() => router.push('/dashboard/classement')}
             />
             <ActionCard
-              title="Concours · résultats"
-              description="20% du CA redistribué. Hebdo + tirage mensuel + concours spéciaux. Animations en live."
+              title={t('dashboard.actions.concours.title')}
+              description={t('dashboard.actions.concours.description')}
               icon={<Trophy size={22} />}
               onClick={() => router.push('/dashboard/concours')}
             />
@@ -264,24 +267,24 @@ export function DashboardHello({
           {/* Account info */}
           <section className="glass rounded-2xl p-6 space-y-3 text-sm">
             <h2 className="font-semibold text-white/80" style={{ fontFamily: 'var(--font-display)' }}>
-              Ton compte
+              {t('dashboard.account.title')}
             </h2>
             <div className="grid grid-cols-2 gap-3 text-white/65">
               <div>
-                <span className="text-white/40 text-xs uppercase tracking-wider block mb-0.5">Email</span>
+                <span className="text-white/40 text-xs uppercase tracking-wider block mb-0.5">{t('dashboard.account.email')}</span>
                 {email}
               </div>
               <div>
-                <span className="text-white/40 text-xs uppercase tracking-wider block mb-0.5">Plan</span>
-                {labelForPlan(profile?.plan)}
+                <span className="text-white/40 text-xs uppercase tracking-wider block mb-0.5">{t('dashboard.account.plan')}</span>
+                {labelForPlan(profile?.plan, t)}
               </div>
               <div>
-                <span className="text-white/40 text-xs uppercase tracking-wider block mb-0.5">Ancienneté</span>
-                {profile?.anciennete_months ?? 0} mois
+                <span className="text-white/40 text-xs uppercase tracking-wider block mb-0.5">{t('dashboard.account.seniority')}</span>
+                {t('dashboard.account.seniorityMonths', { months: profile?.anciennete_months ?? 0 })}
               </div>
               <div>
-                <span className="text-white/40 text-xs uppercase tracking-wider block mb-0.5">Ville</span>
-                {profile?.ville_principale ?? '—'}
+                <span className="text-white/40 text-xs uppercase tracking-wider block mb-0.5">{t('dashboard.account.city')}</span>
+                {profile?.ville_principale ?? t('dashboard.account.cityEmpty')}
               </div>
             </div>
           </section>
@@ -379,15 +382,15 @@ function ActionCard({
   )
 }
 
-function labelForPlan(plan?: string) {
+function labelForPlan(plan: string | undefined, t: ReturnType<typeof useTranslations>) {
   switch (plan) {
     case 'premium_monthly':
-      return 'Premium mensuel'
+      return t('dashboard.account.plans.premiumMonthly')
     case 'premium_annual':
-      return 'Premium annuel'
+      return t('dashboard.account.plans.premiumAnnual')
     case 'lifetime':
-      return 'À vie 💎'
+      return t('dashboard.account.plans.lifetime')
     default:
-      return 'Découverte'
+      return t('dashboard.account.plans.free')
   }
 }

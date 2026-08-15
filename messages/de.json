@@ -116,93 +116,174 @@
     }
   },
   "onboarding": {
-    "welcome": {
-      "title": "Willkommen bei YATRA",
-      "subtitle": "Beginne deine Reise in wenigen Schritten",
-      "cta": "Los geht's"
-    },
+    "progress": "Schritt {step} / {total}",
     "step1": {
-      "title": "Wie sollen wir dich nennen?",
-      "placeholder": "Dein Vorname",
-      "hint": "Nur dein Vorname reicht"
+      "title": "Wie heißt du?",
+      "subtitle": "Damit YATRA und du einfach sprechen könnt.",
+      "placeholder": "Sophie",
+      "hint": "Du kannst es jederzeit in deinen Einstellungen ändern."
     },
     "step2": {
-      "title": "Wie bewegst du dich normalerweise fort?",
-      "subtitle": "Wähle alle deine Verkehrsmittel aus",
-      "options": {
-        "walk": "Zu Fuß",
-        "bike": "Fahrrad",
-        "publicTransport": "Öffentlicher Verkehr",
-        "car": "Auto",
-        "carpool": "Fahrgemeinschaft",
-        "other": "Andere"
-      }
+      "title": "Deine Mobilität, {name}",
+      "titleFallback": "Deine Mobilität",
+      "subtitle": "Wir brauchen eine grobe Vorstellung, um deine potentiellen Einnahmen zu berechnen.",
+      "villeLabel": "Hauptstadt",
+      "villePlaceholder": "Berlin, München, Hamburg…",
+      "modeDominantLabel": "Hauptverkehrsmittel während der Woche",
+      "kmPropreLabel": "Saubere km / Woche",
+      "kmCarboneLabel": "Auto/Flugzeug km / Woche"
     },
     "step3": {
-      "title": "Was ist dir wichtig?",
-      "subtitle": "Wähle bis zu 3 Werte",
-      "options": {
-        "environment": "Umwelt",
-        "savings": "Ersparnisse",
-        "health": "Gesundheit",
-        "community": "Gemeinschaft",
-        "discovery": "Entdeckung",
-        "simplicity": "Einfachheit"
+      "title": "Deine Atmosphäre",
+      "subtitle": "Wähle deine Standard-Sinneslandschaft.",
+      "binauralLabel": "Subtile binaurale Klänge während der Fahrten",
+      "haptiqueLabel": "Haptische Vibrationen (Bestätigungen, Erfolg)",
+      "voixLabel": "YATRA-Stimme",
+      "voix": {
+        "douce": "sanft",
+        "energique": "energisch",
+        "silencieuse": "still"
       }
     },
     "step4": {
       "title": "Berechtigungen",
-      "subtitle": "Um dir die besten Routen anzubieten",
+      "subtitle": "Du kontrollierst alles. Aktiviere nur, was du brauchst. Du kannst deine Meinung jederzeit ändern.",
       "location": {
-        "title": "Standort",
-        "description": "Ermöglicht uns, deine Fahrten zu berechnen und Veranstaltungen in deiner Nähe vorzuschlagen",
-        "button": "Standort aktivieren"
+        "title": "Geolokalisierung während einer Fahrt",
+        "description": "Wir aktivieren sie NUR wenn du eine Fahrt startest, nie im Hintergrund ohne dich."
       },
       "notifications": {
         "title": "Benachrichtigungen",
-        "description": "Um dich über neue Möglichkeiten und deine Einnahmen zu informieren",
-        "button": "Benachrichtigungen aktivieren"
+        "description": "Einnahmen, aktivierte Rechte, Wettbewerbsergebnisse. Nie Spam."
       },
-      "skip": "Diesen Schritt überspringen"
+      "motion": {
+        "title": "Bewegungssensoren",
+        "description": "Erkennt ob du gehst, radelst oder fährst — fairer Betrugsschutz."
+      },
+      "footer": "Alle diese Daten bleiben privat. Strenge DSGVO, europäisches Hosting."
     },
     "step5": {
-      "title": "Dein WOW-Moment",
-      "subtitle": "Hier ist deine geschätzte Wirkung über 1 Jahr",
-      "metrics": {
-        "co2": "kg CO₂ vermieden",
-        "money": "€ verdient",
-        "km": "km sauber zurückgelegt"
-      },
-      "cta": "YATRA entdecken",
-      "celebrating": "Wir feiern jede Reise mit dir 🌿"
+      "title": "Das erwartet dich, {name}",
+      "subtitle": "Geschätzte monatliche Einnahmen aus sauberer Mobilität",
+      "gainSuffix": " €",
+      "gainHint": "Basierend auf {km} km / Woche.",
+      "co2Label": "CO₂ vermieden / Monat",
+      "co2Suffix": " kg",
+      "aidesCountLabel": "Leistungen erkannt",
+      "aidesPotentielLabel": "Leistungspotential",
+      "aidesSuffix": " €",
+      "premiereActionTitle": "Erste Aktion — 30 Sek",
+      "disclaimer": "Diese Schätzungen passen sich an, während du YATRA nutzt. Quelle: ADEME 2024 + offizielle YATRA-Tarife."
+    },
+    "toast": {
+      "welcome": "Willkommen bei YATRA 🌿",
+      "error": "Onboarding-Registrierungsfehler"
     }
   },
   "dashboard": {
     "hello": {
-      "morning": "Guten Morgen",
-      "afternoon": "Guten Tag",
-      "evening": "Guten Abend",
-      "night": "Gute Nacht",
-      "subtitle": "Was möchtest du heute tun?"
+      "welcome": "Willkommen bei YATRA, {name}",
+      "welcomeFallback": "Willkommen bei YATRA",
+      "subtitle": "Du hast gerade einen Raum geöffnet, in dem jeder Schritt, jede saubere Fahrt, jedes aktivierte Recht dich belohnt.",
+      "logout": "Abmelden",
+      "profile": "Profil"
     },
     "stats": {
-      "wallet": "Geldbörse",
-      "trips": "Fahrten",
-      "impact": "CO₂-Wirkung",
-      "humanityScore": "Menschlichkeitspunktzahl"
+      "wallet": "Wallet",
+      "walletHint": "{total} insgesamt verdient",
+      "vidaCredits": "Vida Credits",
+      "vidaHint": "Auf sauberen Fahrten angesammelt",
+      "humanityScore": "Menschlichkeitspunktzahl",
+      "humanityHint": "Erwachenslevel {level}"
     },
     "actions": {
-      "startTrip": "Meine Fahrt beginnen",
-      "viewTrips": "Meine Fahrten",
-      "findHelp": "Meine Rechte & Leistungen",
-      "freeEvents": "Kostenlos-Radar",
-      "groupBuying": "Gruppenkäufe",
-      "cashback": "Ethisches Cashback",
-      "humanitarian": "Humanitäre Reisen",
-      "ambiance": "Ambiance-Modi",
-      "aria": "YATRA · deine Präsenz",
-      "family": "Familie",
-      "radar": "AR-Radar"
+      "trajet": {
+        "title": "Meine erste Fahrt starten",
+        "description": "Wir berechnen die günstigste + sauberste + friedlichste Kombination in 3 Sek."
+      },
+      "trajets": {
+        "title": "Meine Fahrten",
+        "description": "Verlauf, kumulierte Einnahmen, vermiedenes CO₂. Dein gesamter sauberer Mobilitätsfortschritt."
+      },
+      "vacances": {
+        "title": "Urlaub",
+        "description": "Umgekehrtes Budget, echter Gesamtpreis, zurückgewonnenes Geld (EU261, Cashback) und mehr. Der niedrigste Preis, ehrlich."
+      },
+      "aides": {
+        "title": "Meine Rechte & Leistungen",
+        "description": "Permanentes Radar: Transport-, Energie-, Wohnungsleistungen auf dein Profil abgestimmt."
+      },
+      "gratuit": {
+        "title": "Kostenlos-Radar",
+        "description": "Museen, Workshops, Solidaritätsmahlzeiten, kostenlose Konzerte zugänglich durch sanfte Mobilität."
+      },
+      "groupes": {
+        "title": "Gruppenkäufe",
+        "description": "Je mehr wir sind, desto günstiger wird es. Yoga, geteilter Transport, Solidaritätspflege."
+      },
+      "cashback": {
+        "title": "Ethisches Cashback",
+        "description": "Kaufe bei unseren Bio-, Sanftmobilitäts-, Grünenergie-Partnern → Cashback auf dein Wallet gutgeschrieben."
+      },
+      "soins": {
+        "title": "Zugängliche natürliche Pflege",
+        "description": "Naturheilkunde-Verzeichnis, Kuren, Atem-/Meditations-Workshops zu Solidaritätspreisen. Nicht-medizinisches Wohlbefinden."
+      },
+      "humanitaire": {
+        "title": "Humanitäre Reisen",
+        "description": "VIDA Assoc Missionen in ganz Frankreich. Reduzierter Zug, Unterkunft inklusive, Sinn wiedergefunden."
+      },
+      "ambiance": {
+        "title": "Ambiance-Modi",
+        "description": "6 immersive Three.js-Welten + binaurale Klänge. Wald, Ozean, Berg, Wüste, Aurora, Kosmos."
+      },
+      "aria": {
+        "title": "YATRA · deine Präsenz",
+        "description": "7 Gesprächsmodi: Fahrten-Coach, Meditation, Tagebuch, Herzensschrei, Kompass, Dankbarkeit, tiefe Frage."
+      },
+      "famille": {
+        "title": "Familie",
+        "description": "Reist zusammen. 2 bis 6 Personen, teilt saubere km und Menschlichkeitspunktzahl."
+      },
+      "radar": {
+        "title": "AR-Radar",
+        "description": "Kamera + Kompass. Sieh nahe YATRA-Punkte in erweiterter Realität projiziert."
+      },
+      "challenges": {
+        "title": "Stake-Herausforderungen",
+        "description": "Wette auf dich selbst. 7, 30 oder 90 Tage. Erfolg = Einsatz zurück + Belohnung. Trust Score Betrugsschutz."
+      },
+      "safety": {
+        "title": "Lebendige Sicherheit",
+        "description": "Community-Karte. Melde Baustellen, Gefahren, Straßenprobleme. Vermeide markierte Bereiche während deiner Fahrten."
+      },
+      "ambassadeur": {
+        "title": "Botschafterprogramm",
+        "description": "Persönlicher /go/[slug] Link. 10% bis 25% Provision. Kostenloser Plan ab Bronze."
+      },
+      "classement": {
+        "title": "Wochenrangliste",
+        "description": "Top 10 = 6% Umsatz. Punktzahl = Empfehlungen × 10 + Fahrten × 5 + aktive Tage × 5. Reset Sonntag 23:59 UTC."
+      },
+      "concours": {
+        "title": "Wettbewerbe · Ergebnisse",
+        "description": "20% Umsatz umverteilt. Wöchentlich + monatliche Verlosung + Sonderwettbewerbe. Live-Animationen."
+      }
+    },
+    "account": {
+      "title": "Dein Konto",
+      "email": "E-Mail",
+      "plan": "Plan",
+      "seniority": "Mitgliedsdauer",
+      "seniorityMonths": "{months} Monate",
+      "city": "Stadt",
+      "cityEmpty": "—",
+      "plans": {
+        "free": "Entdeckung",
+        "premiumMonthly": "Premium monatlich",
+        "premiumAnnual": "Premium jährlich",
+        "lifetime": "Lebenslang 💎"
+      }
     }
   },
   "pricing": {

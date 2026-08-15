@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { AMBIANCE_LABELS, AMBIANCE_MODES } from '@/lib/constants'
 import type { AmbianceMode, PreferencesSensorielles } from '@/types/vida'
 
@@ -19,18 +20,22 @@ export function StepPreferences({
   preferences: PreferencesSensorielles
   setPreferences: (p: PreferencesSensorielles) => void
 }) {
+  const t = useTranslations('onboarding')
+
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <p className="text-xs uppercase tracking-[0.2em] text-emerald-400/80">Étape 3 / 5</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-emerald-400/80">
+          {t('progress', { step: 3, total: 5 })}
+        </p>
         <h1
           className="text-3xl md:text-4xl font-bold tracking-tight"
           style={{ fontFamily: 'var(--font-display)' }}
         >
-          Ton ambiance
+          {t('step3.title')}
         </h1>
         <p className="text-sm text-white/55">
-          Choisis ton décor sensoriel par défaut.
+          {t('step3.subtitle')}
         </p>
       </div>
 
@@ -59,19 +64,19 @@ export function StepPreferences({
       {/* Toggles */}
       <div className="space-y-3">
         <ToggleRow
-          label="Sons binauraux subtils pendant les trajets"
+          label={t('step3.binauralLabel')}
           checked={preferences.binaural_enabled}
           onChange={(b) => setPreferences({ ...preferences, binaural_enabled: b })}
         />
         <ToggleRow
-          label="Vibrations haptiques (validations, succès)"
+          label={t('step3.haptiqueLabel')}
           checked={preferences.haptique_enabled}
           onChange={(b) => setPreferences({ ...preferences, haptique_enabled: b })}
         />
       </div>
 
       <div>
-        <span className="text-xs font-medium text-white/65 mb-2 block">Voix de YATRA</span>
+        <span className="text-xs font-medium text-white/65 mb-2 block">{t('step3.voixLabel')}</span>
         <div className="grid grid-cols-3 gap-2">
           {(['douce', 'energique', 'silencieuse'] as const).map((v) => {
             const active = preferences.voix_aria === v
@@ -87,7 +92,7 @@ export function StepPreferences({
                     : 'bg-white/5 border-white/10 text-white/65 hover:bg-white/8'
                 }`}
               >
-                {v === 'energique' ? 'énergique' : v}
+                {t(`step3.voix.${v}`)}
               </button>
             )
           })}

@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import type { HabitudesMobilite, MobilityMode } from '@/types/vida'
 import { MOBILITY_LABELS, MOBILITY_EMOJI } from '@/types/vida'
 
@@ -27,36 +28,41 @@ export function StepHabitudes({
   habitudes: HabitudesMobilite
   setHabitudes: (h: HabitudesMobilite) => void
 }) {
+  const t = useTranslations('onboarding')
+  const firstName = name.split(' ')[0]
+
   return (
     <div className="space-y-5">
       <div className="text-center space-y-2">
-        <p className="text-xs uppercase tracking-[0.2em] text-emerald-400/80">Étape 2 / 5</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-emerald-400/80">
+          {t('progress', { step: 2, total: 5 })}
+        </p>
         <h1
           className="text-3xl md:text-4xl font-bold tracking-tight"
           style={{ fontFamily: 'var(--font-display)' }}
         >
-          {name ? `Ta mobilité, ${name.split(' ')[0]}` : 'Ta mobilité'}
+          {name ? t('step2.title', { name: firstName }) : t('step2.titleFallback')}
         </h1>
         <p className="text-sm text-white/55">
-          On a besoin d&apos;une idée brute pour calculer ton gain potentiel.
+          {t('step2.subtitle')}
         </p>
       </div>
 
       {/* Ville */}
       <label className="block">
-        <span className="text-xs font-medium text-white/65 mb-1.5 block">Ville principale</span>
+        <span className="text-xs font-medium text-white/65 mb-1.5 block">{t('step2.villeLabel')}</span>
         <input
           type="text"
           value={ville}
           onChange={(e) => setVille(e.target.value)}
-          placeholder="Paris, Lyon, Frasne…"
+          placeholder={t('step2.villePlaceholder')}
           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-emerald-400/60 outline-none transition"
         />
       </label>
 
       {/* Mode dominant */}
       <div>
-        <span className="text-xs font-medium text-white/65 mb-2 block">Mode principal en semaine</span>
+        <span className="text-xs font-medium text-white/65 mb-2 block">{t('step2.modeDominantLabel')}</span>
         <div className="grid grid-cols-4 gap-2">
           {ALL_MODES.map((m) => {
             const active = habitudes.mode_dominant === m
@@ -83,7 +89,7 @@ export function StepHabitudes({
       {/* km/sem propre */}
       <label className="block">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs font-medium text-white/65">Km propres / semaine</span>
+          <span className="text-xs font-medium text-white/65">{t('step2.kmPropreLabel')}</span>
           <span className="text-sm font-semibold text-emerald-400">{habitudes.km_propre_semaine} km</span>
         </div>
         <input
@@ -102,7 +108,7 @@ export function StepHabitudes({
       {/* km/sem carbone */}
       <label className="block">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs font-medium text-white/65">Km voiture/avion / semaine</span>
+          <span className="text-xs font-medium text-white/65">{t('step2.kmCarboneLabel')}</span>
           <span className="text-sm font-semibold text-amber-400">{habitudes.km_carbone_semaine} km</span>
         </div>
         <input
