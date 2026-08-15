@@ -10,7 +10,7 @@
 | §3 Recherche langage naturel + IA YATRA | ✅ livré P14 | Routeur NLU texte+voix (Claude extraction) → trajet/budget/radar/aides. Identité IA renommée "Aria"→"YATRA" (UI+prompts, 0 technique). Query params trajet+budget. Table search_queries. |
 | §4 Moteur zéro-coût hybride | 🟡 existe, à étendre | `lib/zero-cost.ts` couvre déjà jusqu'à >60km train/covoiturage ; à fusionner avec scanner vacances V2 pour comparatif complet |
 | §5 Achat groupé | 🟡 existe, scope à étendre | Pools génériques + RPC `group_join_v1` (P6) branchés sur events gratuits seulement ; étendre aux billets groupe SNCF / activités partenaires |
-| §6 Radar gratuit & aides | ✅ large couverture | P5/P6 + V2 (VACAF/ANCV/CAF déjà nommés) ; vérifier complétude senior/handicap |
+| §6 Radar gratuit & aides | ✅ complet P16 | P5/P6 + V2 (VACAF/ANCV/CAF) + P16 : 7 aides seniors ajoutées (3→10 total), radar étendu prix 0€/<5€/<10€ (col prix + filtres UI + 8 events <10€ seedés). Migration p25 appliquée VPS. |
 | §7 Naturel & soins | 🟡 partiel | Cashback partenaires existe (P7, 8 partenaires) ; annuaire "soins naturels accessibles" absent, à créer |
 | §8 Humanitaire & missions + KRIDA | 🟡 missions OK, KRIDA bloqué | `lib/humanitarian-matcher.ts` cadre conforme ; moteur contests **local** (P12) — KRIDA écosystème introuvable → garder legacy, cf. DECISIONS.md |
 | §9 QR codes & pub transports | 🔴 absent | `/go/[slug]` = tracking ambassadeur digital, pas QR physique par lieu/partenaire. À créer entièrement |
@@ -27,7 +27,7 @@
 |---|---|---|
 | P14 | Recherche langage naturel + IA YATRA (§3) — routeur NLU texte/voix + rename identité Aria→YATRA | ✅ |
 | P15 | Mobilité propre + anti-fraude renforcée (§2) | ✅ |
-| P16 | Radar gratuit & aides — compléments (§6) | ⏳ |
+| P16 | Radar gratuit & aides — compléments (§6) | ✅ |
 | P17 | Moteur zéro-coût hybride étendu (§4) | ⏳ |
 | P18 | Surprise parfaite (§10) | ⏳ |
 | P19 | Achat groupé étendu (§5) | ⏳ |

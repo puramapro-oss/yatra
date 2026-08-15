@@ -29,7 +29,12 @@ const CATEGORY_LABEL: Record<string, string> = {
   culture: 'Culture',
 }
 
-export default async function GratuitPage() {
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
+
+export default async function GratuitPage(props: { searchParams: SearchParams }) {
+  const searchParams = await props.searchParams
+  const prixFilter = typeof searchParams.prix === 'string' ? searchParams.prix : 'tous'
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -50,6 +55,15 @@ export default async function GratuitPage() {
     .eq('active', true)
 
   const ranked = rankGratuit((events ?? []) as GratuitEvent[], { userCity: ville, userRegion: region })
+
+  // Filtrer selon prix
+  const filtered = ranked.filter((e) => {
+    const prix = (e as GratuitEvent & { prix?: number }).prix ?? 0
+    if (prixFilter === 'gratuit') return prix === 0
+    if (prixFilter === 'moins5') return prix < 5
+    if (prixFilter === 'moins10') return prix < 10
+    return true // 'tous'
+  })
 
   return (
     <>
@@ -72,20 +86,56 @@ export default async function GratuitPage() {
               <span className="text-xs uppercase tracking-wider">Près de toi à {ville}</span>
             </div>
             <p className="text-3xl font-bold gradient-text-aurora" style={{ fontFamily: 'var(--font-display)' }}>
-              {ranked.length} événement{ranked.length > 1 ? 's' : ''} gratuit{ranked.length > 1 ? 's' : ''}
+              {filtered.length} événement{filtered.length > 1 ? 's' : ''} {prixFilter === 'gratuit' ? 'gratuit' : 'accessible'}{filtered.length > 1 ? 's' : ''}
             </p>
             <p className="text-sm text-white/55 leading-relaxed">
               Musées, ateliers, repas solidaires, sport, culture. Accessibles en mobilité douce.
             </p>
           </section>
 
-          {ranked.length === 0 ? (
+          {/* Filtres prix */}
+          <section className="flex items-center gap-2 overflow-x-auto pb-2">
+            <Link
+              href="/dashboard/gratuit?prix=tous"
+              className={`px-4 py-2 rounded-full text-xs font-medium transition whitespace-nowrap ${
+                prixFilter === 'tous' ? 'bg-white/15 text-white border border-white/20' : 'bg-white/5 text-white/55 hover:bg-white/10'
+              }`}
+            >
+              Tous
+            </Link>
+            <Link
+              href="/dashboard/gratuit?prix=gratuit"
+              className={`px-4 py-2 rounded-full text-xs font-medium transition whitespace-nowrap ${
+                prixFilter === 'gratuit' ? 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/40' : 'bg-white/5 text-white/55 hover:bg-white/10'
+              }`}
+            >
+              0€ (gratuit)
+            </Link>
+            <Link
+              href="/dashboard/gratuit?prix=moins5"
+              className={`px-4 py-2 rounded-full text-xs font-medium transition whitespace-nowrap ${
+                prixFilter === 'moins5' ? 'bg-cyan-400/20 text-cyan-300 border border-cyan-400/40' : 'bg-white/5 text-white/55 hover:bg-white/10'
+              }`}
+            >
+              {'<'} 5€
+            </Link>
+            <Link
+              href="/dashboard/gratuit?prix=moins10"
+              className={`px-4 py-2 rounded-full text-xs font-medium transition whitespace-nowrap ${
+                prixFilter === 'moins10' ? 'bg-violet-400/20 text-violet-300 border border-violet-400/40' : 'bg-white/5 text-white/55 hover:bg-white/10'
+              }`}
+            >
+              {'<'} 10€
+            </Link>
+          </section>
+
+          {filtered.length === 0 ? (
             <div className="glass rounded-2xl p-8 text-center text-white/55 text-sm">
-              Aucun événement détecté pour {ville}. Le radar tourne en continu.
+              Aucun événement détecté pour {ville} dans cette tranche de prix. Le radar tourne en continu.
             </div>
           ) : (
             <section className="grid sm:grid-cols-2 gap-3">
-              {ranked.map((e) => (
+              {filtered.map((e) => (
                 <article key={e.id} className="glass rounded-2xl p-4 space-y-3 hover:border-emerald-400/30 transition">
                   <div className="flex items-start gap-3">
                     <div className="text-3xl">{CATEGORY_EMOJI[e.category] ?? '✨'}</div>
@@ -94,6 +144,15 @@ export default async function GratuitPage() {
                         <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-400/15 text-emerald-300 border border-emerald-400/30">
                           {CATEGORY_LABEL[e.category] ?? e.category}
                         </span>
+                        {((e as GratuitEvent & { prix?: number }).prix ?? 0) === 0 ? (
+                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-400/20 text-emerald-300 border border-emerald-400/40 font-semibold">
+                            Gratuit
+                          </span>
+                        ) : (
+                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-cyan-400/15 text-cyan-300 border border-cyan-400/30 font-semibold">
+                            {((e as GratuitEvent & { prix?: number }).prix ?? 0).toFixed(2)}€
+                          </span>
+                        )}
                         <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/5 text-white/55 border border-white/10 flex items-center gap-1">
                           <MapPin size={10} /> {e.city}
                         </span>

@@ -18,6 +18,7 @@ export type GratuitEvent = {
   starts_at: string | null
   recurrence: string | null
   url_official: string | null
+  prix: number
 }
 
 export type GratuitMatch = GratuitEvent & { _distance_km: number | null; _score: number }
