@@ -1,0 +1,273 @@
+{
+  "common": {
+    "buttons": {
+      "login": "Accedi",
+      "signup": "Registrati",
+      "next": "Avanti",
+      "back": "Indietro",
+      "validate": "Convalida",
+      "cancel": "Annulla",
+      "logout": "Disconnetti",
+      "continue": "Continua",
+      "save": "Salva",
+      "close": "Chiudi",
+      "loading": "Caricamento...",
+      "error": "Errore",
+      "retry": "Riprova"
+    },
+    "states": {
+      "loading": "Caricamento in corso...",
+      "error": "Si è verificato un errore",
+      "empty": "Nessun dato disponibile",
+      "noResults": "Nessun risultato trovato",
+      "offline": "Sei offline"
+    },
+    "navigation": {
+      "home": "Home",
+      "dashboard": "Dashboard",
+      "profile": "Profilo",
+      "settings": "Impostazioni",
+      "help": "Aiuto"
+    },
+    "errors": {
+      "generic": "Si è verificato un errore. Riprova.",
+      "network": "Errore di connessione. Controlla la tua connessione internet.",
+      "unauthorized": "Devi effettuare l'accesso per accedere a questa pagina.",
+      "forbidden": "Non hai il permesso di accedere a questa pagina.",
+      "notFound": "Pagina non trovata."
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Accedi",
+      "subtitle": "Riconnettiti al tuo viaggio interiore",
+      "email": "Indirizzo e-mail",
+      "password": "Password",
+      "forgotPassword": "Password dimenticata?",
+      "noAccount": "Non hai ancora un account?",
+      "signupLink": "Crea un account",
+      "googleButton": "Continua con Google",
+      "or": "oppure",
+      "submit": "Accedi",
+      "success": "Accesso effettuato con successo",
+      "error": "Credenziali non valide"
+    },
+    "signup": {
+      "title": "Registrazione",
+      "subtitle": "Inizia il tuo viaggio consapevole",
+      "firstName": "Nome",
+      "email": "Indirizzo e-mail",
+      "password": "Password",
+      "confirmPassword": "Conferma password",
+      "hasAccount": "Hai già un account?",
+      "loginLink": "Accedi",
+      "googleButton": "Registrati con Google",
+      "or": "oppure",
+      "submit": "Crea il mio account",
+      "success": "Account creato con successo",
+      "error": "Si è verificato un errore durante la registrazione",
+      "passwordMismatch": "Le password non corrispondono",
+      "terms": "Creando un account, accetti i nostri",
+      "termsLink": "Termini di servizio",
+      "and": "e la nostra",
+      "privacyLink": "Informativa sulla privacy"
+    },
+    "forgotPassword": {
+      "title": "Password dimenticata",
+      "subtitle": "Ti invieremo un link di reimpostazione",
+      "email": "Indirizzo e-mail",
+      "submit": "Invia link",
+      "backToLogin": "Torna all'accesso",
+      "success": "Link di reimpostazione inviato. Controlla la tua casella di posta.",
+      "error": "Impossibile inviare il link. Controlla il tuo indirizzo e-mail."
+    },
+    "resetPassword": {
+      "title": "Nuova password",
+      "subtitle": "Scegli una nuova password sicura",
+      "password": "Nuova password",
+      "confirmPassword": "Conferma password",
+      "submit": "Reimposta password",
+      "success": "Password reimpostata con successo",
+      "error": "Il link è scaduto o non è valido",
+      "passwordMismatch": "Le password non corrispondono"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "YATRA",
+      "subtitle": "viaggio pulito, pagato, consapevole",
+      "tagline": "Ti muovi in modo pulito → vieni pagato. Fai del bene → viaggi quasi gratis.",
+      "cta": "Inizia il mio viaggio",
+      "ctaSecondary": "Scopri di più"
+    },
+    "features": {
+      "mobility": {
+        "title": "Mobilità pulita ricompensata",
+        "description": "Ogni viaggio in bici, a piedi o con i mezzi pubblici ti fa guadagnare soldi veri."
+      },
+      "rights": {
+        "title": "Radar diritti e aiuti",
+        "description": "Scopri automaticamente gli aiuti per i trasporti a cui hai diritto."
+      },
+      "conscious": {
+        "title": "IA coscienza del viaggio",
+        "description": "YATRA ti accompagna con gentilezza nelle tue scelte di mobilità."
+      }
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Benvenuto su YATRA",
+      "subtitle": "Inizia il tuo viaggio in pochi passi",
+      "cta": "Andiamo"
+    },
+    "step1": {
+      "title": "Come vuoi che ti chiamiamo?",
+      "placeholder": "Il tuo nome",
+      "hint": "Solo il tuo nome è sufficiente"
+    },
+    "step2": {
+      "title": "Come ti sposti abitualmente?",
+      "subtitle": "Seleziona tutti i tuoi mezzi di trasporto",
+      "options": {
+        "walk": "A piedi",
+        "bike": "Bicicletta",
+        "publicTransport": "Trasporto pubblico",
+        "car": "Auto",
+        "carpool": "Carpooling",
+        "other": "Altro"
+      }
+    },
+    "step3": {
+      "title": "Cosa conta per te?",
+      "subtitle": "Scegli fino a 3 valori",
+      "options": {
+        "environment": "Ambiente",
+        "savings": "Risparmi",
+        "health": "Salute",
+        "community": "Comunità",
+        "discovery": "Scoperta",
+        "simplicity": "Semplicità"
+      }
+    },
+    "step4": {
+      "title": "Permessi",
+      "subtitle": "Per offrirti i percorsi migliori",
+      "location": {
+        "title": "Posizione",
+        "description": "Ci permette di calcolare i tuoi viaggi e suggerirti eventi vicini a te",
+        "button": "Attiva posizione"
+      },
+      "notifications": {
+        "title": "Notifiche",
+        "description": "Per avvisarti di nuove opportunità e dei tuoi guadagni",
+        "button": "Attiva notifiche"
+      },
+      "skip": "Salta questo passaggio"
+    },
+    "step5": {
+      "title": "Il tuo Momento WOW",
+      "subtitle": "Ecco il tuo impatto stimato in 1 anno",
+      "metrics": {
+        "co2": "kg di CO₂ evitati",
+        "money": "€ guadagnati",
+        "km": "km percorsi in modo pulito"
+      },
+      "cta": "Scopri YATRA",
+      "celebrating": "Celebriamo ogni viaggio con te 🌿"
+    }
+  },
+  "dashboard": {
+    "hello": {
+      "morning": "Buongiorno",
+      "afternoon": "Buon pomeriggio",
+      "evening": "Buonasera",
+      "night": "Buonanotte",
+      "subtitle": "Cosa vuoi fare oggi?"
+    },
+    "stats": {
+      "wallet": "Portafoglio",
+      "trips": "Viaggi",
+      "impact": "Impatto CO₂",
+      "humanityScore": "Punteggio di Umanità"
+    },
+    "actions": {
+      "startTrip": "Inizia il mio viaggio",
+      "viewTrips": "I miei viaggi",
+      "findHelp": "I miei diritti e aiuti",
+      "freeEvents": "Radar gratuito",
+      "groupBuying": "Acquisti di gruppo",
+      "cashback": "Cashback etico",
+      "humanitarian": "Viaggi umanitari",
+      "ambiance": "Modalità Ambiance",
+      "aria": "YATRA · la tua presenza",
+      "family": "Famiglia",
+      "radar": "Radar AR"
+    }
+  },
+  "pricing": {
+    "title": "Scegli il tuo piano",
+    "subtitle": "Tutti i piani includono la mobilità ricompensata",
+    "plans": {
+      "free": {
+        "name": "Essenziale",
+        "price": "Gratuito",
+        "features": [
+          "Mobilità pulita ricompensata",
+          "Radar diritti e aiuti",
+          "Eventi gratuiti",
+          "IA YATRA (limitata)"
+        ]
+      },
+      "premium": {
+        "name": "Premium",
+        "price": "{price}€/mese",
+        "features": [
+          "Tutto in Essenziale, più:",
+          "IA YATRA illimitata",
+          "Modalità Ambiance avanzate",
+          "Viaggi umanitari prioritari",
+          "Supporto prioritario"
+        ]
+      },
+      "lifetime": {
+        "name": "Lifetime",
+        "price": "{price}€",
+        "priceSubtitle": "una volta, per sempre",
+        "features": [
+          "Tutto in Premium, per sempre",
+          "Accesso anticipato alle nuove funzionalità",
+          "Badge Pioniere",
+          "Cashback bonificato 2×"
+        ]
+      }
+    },
+    "cta": "Scegli questo piano",
+    "currentPlan": "Piano attuale"
+  },
+  "layout": {
+    "header": {
+      "nav": {
+        "home": "Home",
+        "pricing": "Prezzi",
+        "help": "Aiuto"
+      }
+    },
+    "footer": {
+      "tagline": "YATRA · viaggio pulito, pagato, consapevole",
+      "links": {
+        "about": "Chi siamo",
+        "privacy": "Privacy",
+        "terms": "Termini",
+        "legal": "Note legali",
+        "contact": "Contatto"
+      },
+      "legal": "© 2026 YATRA · PURAMA. Tutti i diritti riservati.",
+      "madeWith": "Fatto con 🌿 per la Terra"
+    },
+    "languageSelector": {
+      "label": "Lingua",
+      "current": "Italiano"
+    }
+  }
+}

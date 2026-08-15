@@ -1,0 +1,273 @@
+{
+  "common": {
+    "buttons": {
+      "login": "Log in",
+      "signup": "Sign up",
+      "next": "Next",
+      "back": "Back",
+      "validate": "Validate",
+      "cancel": "Cancel",
+      "logout": "Log out",
+      "continue": "Continue",
+      "save": "Save",
+      "close": "Close",
+      "loading": "Loading...",
+      "error": "Error",
+      "retry": "Try again"
+    },
+    "states": {
+      "loading": "Loading...",
+      "error": "An error occurred",
+      "empty": "No data available",
+      "noResults": "No results found",
+      "offline": "You are offline"
+    },
+    "navigation": {
+      "home": "Home",
+      "dashboard": "Dashboard",
+      "profile": "Profile",
+      "settings": "Settings",
+      "help": "Help"
+    },
+    "errors": {
+      "generic": "An error occurred. Please try again.",
+      "network": "Connection error. Check your internet connection.",
+      "unauthorized": "You must be logged in to access this page.",
+      "forbidden": "You don't have permission to access this page.",
+      "notFound": "Page not found."
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Log in",
+      "subtitle": "Reconnect with your inner journey",
+      "email": "Email address",
+      "password": "Password",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account yet?",
+      "signupLink": "Create an account",
+      "googleButton": "Continue with Google",
+      "or": "or",
+      "submit": "Log in",
+      "success": "Successfully logged in",
+      "error": "Invalid credentials"
+    },
+    "signup": {
+      "title": "Sign up",
+      "subtitle": "Begin your conscious journey",
+      "firstName": "First name",
+      "email": "Email address",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Log in",
+      "googleButton": "Sign up with Google",
+      "or": "or",
+      "submit": "Create my account",
+      "success": "Account created successfully",
+      "error": "An error occurred during signup",
+      "passwordMismatch": "Passwords don't match",
+      "terms": "By creating an account, you accept our",
+      "termsLink": "Terms of Service",
+      "and": "and our",
+      "privacyLink": "Privacy Policy"
+    },
+    "forgotPassword": {
+      "title": "Forgot password",
+      "subtitle": "We'll send you a reset link",
+      "email": "Email address",
+      "submit": "Send link",
+      "backToLogin": "Back to login",
+      "success": "Reset link sent. Check your inbox.",
+      "error": "Unable to send link. Check your email address."
+    },
+    "resetPassword": {
+      "title": "New password",
+      "subtitle": "Choose a new secure password",
+      "password": "New password",
+      "confirmPassword": "Confirm password",
+      "submit": "Reset password",
+      "success": "Password reset successfully",
+      "error": "The link has expired or is invalid",
+      "passwordMismatch": "Passwords don't match"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "YATRA",
+      "subtitle": "clean travel, paid, conscious",
+      "tagline": "You travel green → you get paid. You do good → you travel almost free.",
+      "cta": "Start my journey",
+      "ctaSecondary": "Learn more"
+    },
+    "features": {
+      "mobility": {
+        "title": "Rewarded clean mobility",
+        "description": "Every bike, walk or public transport trip earns you real money."
+      },
+      "rights": {
+        "title": "Rights & benefits radar",
+        "description": "Automatically discover the transport benefits you're entitled to."
+      },
+      "conscious": {
+        "title": "Travel consciousness AI",
+        "description": "YATRA guides you with kindness in your mobility choices."
+      }
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to YATRA",
+      "subtitle": "Start your journey in a few steps",
+      "cta": "Let's go"
+    },
+    "step1": {
+      "title": "What should we call you?",
+      "placeholder": "Your first name",
+      "hint": "Just your first name is enough"
+    },
+    "step2": {
+      "title": "How do you usually get around?",
+      "subtitle": "Select all your modes of transport",
+      "options": {
+        "walk": "Walking",
+        "bike": "Bike",
+        "publicTransport": "Public transport",
+        "car": "Car",
+        "carpool": "Carpool",
+        "other": "Other"
+      }
+    },
+    "step3": {
+      "title": "What matters to you?",
+      "subtitle": "Choose up to 3 values",
+      "options": {
+        "environment": "Environment",
+        "savings": "Savings",
+        "health": "Health",
+        "community": "Community",
+        "discovery": "Discovery",
+        "simplicity": "Simplicity"
+      }
+    },
+    "step4": {
+      "title": "Permissions",
+      "subtitle": "To offer you the best routes",
+      "location": {
+        "title": "Location",
+        "description": "Allows us to calculate your trips and suggest nearby events",
+        "button": "Enable location"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "To notify you of new opportunities and your earnings",
+        "button": "Enable notifications"
+      },
+      "skip": "Skip this step"
+    },
+    "step5": {
+      "title": "Your WOW Moment",
+      "subtitle": "Here's your estimated impact over 1 year",
+      "metrics": {
+        "co2": "kg of CO₂ avoided",
+        "money": "€ earned",
+        "km": "km traveled cleanly"
+      },
+      "cta": "Discover YATRA",
+      "celebrating": "We celebrate every journey with you 🌿"
+    }
+  },
+  "dashboard": {
+    "hello": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening",
+      "night": "Good night",
+      "subtitle": "What would you like to do today?"
+    },
+    "stats": {
+      "wallet": "Wallet",
+      "trips": "Trips",
+      "impact": "CO₂ impact",
+      "humanityScore": "Humanity Score"
+    },
+    "actions": {
+      "startTrip": "Start my trip",
+      "viewTrips": "My trips",
+      "findHelp": "My rights & benefits",
+      "freeEvents": "Free radar",
+      "groupBuying": "Group buying",
+      "cashback": "Ethical cashback",
+      "humanitarian": "Humanitarian trips",
+      "ambiance": "Ambiance Modes",
+      "aria": "YATRA · your presence",
+      "family": "Family",
+      "radar": "AR Radar"
+    }
+  },
+  "pricing": {
+    "title": "Choose your plan",
+    "subtitle": "All plans include rewarded mobility",
+    "plans": {
+      "free": {
+        "name": "Essential",
+        "price": "Free",
+        "features": [
+          "Rewarded clean mobility",
+          "Rights & benefits radar",
+          "Free events",
+          "YATRA AI (limited)"
+        ]
+      },
+      "premium": {
+        "name": "Premium",
+        "price": "€{price}/month",
+        "features": [
+          "Everything in Essential, plus:",
+          "Unlimited YATRA AI",
+          "Advanced Ambiance Modes",
+          "Priority humanitarian trips",
+          "Priority support"
+        ]
+      },
+      "lifetime": {
+        "name": "Lifetime",
+        "price": "€{price}",
+        "priceSubtitle": "once, forever",
+        "features": [
+          "Everything in Premium, forever",
+          "Early access to new features",
+          "Pioneer Badge",
+          "2× bonus cashback"
+        ]
+      }
+    },
+    "cta": "Choose this plan",
+    "currentPlan": "Current plan"
+  },
+  "layout": {
+    "header": {
+      "nav": {
+        "home": "Home",
+        "pricing": "Pricing",
+        "help": "Help"
+      }
+    },
+    "footer": {
+      "tagline": "YATRA · clean travel, paid, conscious",
+      "links": {
+        "about": "About",
+        "privacy": "Privacy",
+        "terms": "Terms",
+        "legal": "Legal notice",
+        "contact": "Contact"
+      },
+      "legal": "© 2026 YATRA · PURAMA. All rights reserved.",
+      "madeWith": "Made with 🌿 for Earth"
+    },
+    "languageSelector": {
+      "label": "Language",
+      "current": "English"
+    }
+  }
+}

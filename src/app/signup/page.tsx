@@ -5,11 +5,13 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { Mail, Lock, User as UserIcon, Loader2, ArrowLeft, Gift } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/useAuth'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { GoogleButton } from '@/components/auth/GoogleButton'
 
 function SignupForm() {
+  const t = useTranslations()
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialReferral = searchParams.get('ref') || ''
@@ -189,9 +191,9 @@ function SignupForm() {
             </form>
 
             <div className="text-center text-xs text-white/55">
-              Déjà un compte ?{' '}
-              <Link href="/login" className="text-emerald-400 hover:text-emerald-300 transition">
-                Se connecter
+              {t('auth.signup.hasAccount')}{' '}
+              <Link href="/login" className="text-white underline decoration-emerald-400 hover:decoration-emerald-300 transition">
+                {t('auth.signup.loginLink')}
               </Link>
             </div>
           </div>

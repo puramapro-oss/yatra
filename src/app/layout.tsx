@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Sora, DM_Sans } from 'next/font/google'
+import { NextIntlClientProvider } from 'next-intl'
+import { getLocale, getMessages } from 'next-intl/server'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/shared/ThemeProvider'
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary'
@@ -7,6 +9,7 @@ import { CookieBanner } from '@/components/shared/CookieBanner'
 import { InstallBanner } from '@/components/shared/InstallBanner'
 import { OfflineBanner } from '@/components/shared/OfflineBanner'
 import { SilentModeToggle } from '@/components/multisensoriel/SilentModeToggle'
+import { LanguageSelector } from '@/components/layout/LanguageSelector'
 import './globals.css'
 
 const sora = Sora({
@@ -70,22 +73,35 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await getLocale()
+  const messages = await getMessages()
+
   return (
-    <html lang="fr" suppressHydrationWarning className={`${sora.variable} ${dmSans.variable} h-full antialiased`}>
+    <html
+      lang={locale}
+      dir={locale === 'ar' ? 'rtl' : 'ltr'}
+      suppressHydrationWarning
+      className={`${sora.variable} ${dmSans.variable} h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider>
-          <ErrorBoundary>
-            <OfflineBanner />
-            {children}
-            <Toaster position="top-right" theme="dark" richColors closeButton />
-            <CookieBanner />
-            <InstallBanner />
-            <SilentModeToggle />
-          </ErrorBoundary>
-        </ThemeProvider>
+        <NextIntlClientProvider messages={messages}>
+          <ThemeProvider>
+            <ErrorBoundary>
+              <OfflineBanner />
+              {children}
+              <Toaster position="top-right" theme="dark" richColors closeButton />
+              <CookieBanner />
+              <InstallBanner />
+              <SilentModeToggle />
+              <div className="fixed top-4 right-4 z-[100]">
+                <LanguageSelector />
+              </div>
+            </ErrorBoundary>
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   )

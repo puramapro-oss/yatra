@@ -1,9 +1,13 @@
+'use client'
+
 import Link from 'next/link'
 import { ArrowRight, Sparkles } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { CinematicIntro } from '@/components/multisensoriel/CinematicIntro'
 
 export default function Home() {
+  const t = useTranslations()
   return (
     <>
       <CinematicIntro />
@@ -27,7 +31,7 @@ export default function Home() {
             href="/login"
             className="text-sm text-white/70 hover:text-white transition-colors"
           >
-            Se connecter
+            {t('common.buttons.login')}
           </Link>
         </header>
 
@@ -47,15 +51,15 @@ export default function Home() {
               className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.05]"
               style={{ fontFamily: 'var(--font-display)' }}
             >
-              <span className="text-white">Tu te déplaces proprement.</span>
+              <span className="text-white">{t('home.hero.tagline').split('→')[0]}→</span>
               <br />
-              <span className="gradient-text-aurora">Tu es payé.</span>
+              <span className="gradient-text-aurora">{t('home.hero.tagline').split('→')[1]?.split('.')[0]}.</span>
             </h1>
 
             <p className="text-base md:text-lg text-white/65 leading-relaxed max-w-md mx-auto">
-              Mobilité propre rémunérée, droits activés automatiquement, voyage conscient.
+              {t('home.features.mobility.description')}
               <br />
-              <span className="text-white/45">Tout ce que tu fais de bien te rapporte.</span>
+              <span className="text-white/45">{t('home.features.rights.description')}</span>
             </p>
           </div>
 
@@ -64,18 +68,18 @@ export default function Home() {
             <Link
               href="/signup"
               className="btn-primary group"
-              aria-label="Commencer gratuitement"
+              aria-label={t('home.hero.cta')}
             >
-              Commencer
+              {t('home.hero.cta')}
               <ArrowRight size={18} className="group-hover:translate-x-0.5 transition-transform" />
             </Link>
-            <Link href="/login" className="btn-ghost" aria-label="Se connecter">
-              J&apos;ai déjà un compte
+            <Link href="/login" className="btn-ghost" aria-label={t('auth.login.hasAccount')}>
+              {t('auth.login.hasAccount')}
             </Link>
           </div>
 
           <p className="text-xs text-white/35 pt-4">
-            Aucune pub. Aucune toxicité. RGPD strict. Données hébergées en Europe 🇪🇺
+            {t('layout.footer.legal')}
           </p>
         </div>
 
@@ -83,9 +87,9 @@ export default function Home() {
         <footer className="absolute bottom-6 left-0 right-0 px-6 flex items-center justify-between text-xs text-white/30">
           <span>© 2026 PURAMA · SASU Frasne · ZFRR</span>
           <div className="flex items-center gap-4">
-            <Link href="/privacy" className="hover:text-white/60 transition">Confidentialité</Link>
-            <Link href="/terms" className="hover:text-white/60 transition">CGU</Link>
-            <Link href="/legal" className="hover:text-white/60 transition">Mentions</Link>
+            <Link href="/privacy" className="hover:text-white/60 transition">{t('layout.footer.links.privacy')}</Link>
+            <Link href="/terms" className="hover:text-white/60 transition">{t('layout.footer.links.terms')}</Link>
+            <Link href="/legal" className="hover:text-white/60 transition">{t('layout.footer.links.legal')}</Link>
           </div>
         </footer>
       </main>

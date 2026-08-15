@@ -15,9 +15,9 @@
 | §8 Humanitaire & missions + KRIDA | ✅ livré P21 | Distinction micro-missions (1j) vs voyages solidaires (séjours encadrés) via colonne `duree_type`. 10 missions seed (6 originales P7 + 4 micro-missions P21 : World Cleanup Day, Restos, Banques Alimentaires, Greeters). Récompenses wallet `reward_points` (50-200 pts selon durée) + disclaimer bénévolat strict. Table `humanitarian_completions` + API validation admin/auto. Moteur contests **local** (P12) conservé → backlog KRIDA migration future (cf. section Backlog V3.1). |
 | §9 QR codes & pub transports | ✅ livré P22bis | Route `/scan/[slug]` (tracking scan IP hash + cookie 30j + redirect signup/dashboard). Tables `qr_campaigns` (partenaire, lieu, type, city, slug unique, commission_pct) + `qr_scans` (événements + conversions). Admin `/admin/qr-campaigns` (création + QR PNG + stats scans/conversions/taux + kit print PDF). API conversion signup. Stats stockées en interne (AGNI inexistant, cf DECISIONS.md L11). Commission % définie mais versement manuel admin (pas moteur auto). Migration p29 créée, appliquée VPS plus tard (connection refused). |
 | §10 Surprise parfaite | ✅ livré P18 | Page `/dashboard/surprise` (formulaire rayon/budget/durée + bouton "Surprends-moi") + API `/api/yatra/surprise` (combine 1 event gratuit/pas cher via `gratuit-matcher.ts`, 1 trajet minimal via `zero-cost.ts`, 1 micro-défi positif via liste curatée 20 défis). Routeur NLU étendu type `surprise` (extraction rayon/budget/durée) + redirection. Réponse <10s (DB direct, zéro IA lente). |
-| §11 Multisensoriel | 🟡 large base, complète | Parallax gyroscope + glass + 6 modes ambiance (P8) déjà là ; manque mode "Silence total" |
-| §12 Accessibilité & i18n | 🔴 i18n absent total | 0 `next-intl` dans le repo, 100% FR en dur. Accessibilité : pas de tests axe formalisés. WCAG 2.2 AA cible (cf. DECISIONS.md) |
-| §13 Paiements | 🔴 Apple Pay/PayPal absents | `lib/stripe.ts` = Checkout classique carte only |
+| §11 Multisensoriel | ✅ complet P23a | Parallax gyroscope + glass + 6 modes ambiance (P8) + mode "Silence total" 1 tap (SilentModeToggle) désactive sons/parallax/animations/vibrations. CinematicIntro skip auto si prefers-reduced-motion. prefers-reduced-motion systématique partout confirmé. |
+| §12 Accessibilité & i18n | ✅ infrastructure complète | next-intl 4.9.1 config cookie-based (`localePrefix: 'never'`), 7 langues (FR/EN/ES/DE/IT/PT/AR), dir RTL arabe, LanguageSelector. **Périmètre CŒUR traduit** (home publique, auth login/signup, layout, boutons communs) — traductions RÉELLES dans 7 langues. Tests a11y @axe-core/playwright : 5 tests WCAG 2.2 AA (home/login/signup/navigation clavier) → **5/5 ✅ 0 violation critique/sérieuse**. Corrections appliquées : contraste liens auth (underline + text-white). **Backlog V3.1** : reste features app (~100 pages : trajets, vacances, aria, challenges, etc.) à traduire progressivement avec même infrastructure i18n en place. |
+| §13 Paiements | ✅ préparé P23a | `createYatraPaymentSession` (mode `payment`, Apple Pay + PayPal + Google Pay) prête à l'emploi. Fonction NON BRANCHÉE (aucun paiement ponctuel actif actuellement V3). Placeholder `.well-known/apple-developer-merchantid-domain-association` pour vérif domaine Apple Pay. Backlog V3.1 : brancher dès qu'une feature nécessite paiement one-shot. |
 
 **R06 flags (suppositions/incohérences signalées, choix par défaut dans `DECISIONS.md`)** : nom IA Aria vs YATRA · KRIDA écosystème introuvable · cash Swan SEPA vs Stripe Connect Express (docs contradictoires) · WCAG 2.1 vs 2.2 · barème en dur vs config table · reporting AGNI inexistant.
 
@@ -34,7 +34,8 @@
 | P20 | Naturel & soins — annuaire (§7) | ✅ |
 | P21 | Humanitaire & missions + doc KRIDA backlog (§8) | ✅ |
 | P22bis | QR codes & pub transports (§9) | ✅ |
-| P23 | Multisensoriel complément + Accessibilité/i18n + Paiements (§11+§12+§13) | ⏳ |
+| P23a | Multisensoriel complément + Paiements (§11+§13) | ✅ |
+| P23b | Accessibilité/i18n (§12) | ✅ |
 | P24 | Boucle Directeur Artistique ≥9 + tests 5 niveaux + `YATRA_V3_DONE.md` | ⏳ |
 
 ---
