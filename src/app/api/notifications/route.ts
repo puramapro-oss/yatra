@@ -19,7 +19,7 @@ export async function GET() {
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-    const unread = notifications?.filter((n) => !n.read).length ?? 0
+    const unread = notifications?.filter((n) => !n.is_read).length ?? 0
 
     return NextResponse.json({ notifications: notifications ?? [], unread })
   } catch (e: unknown) {

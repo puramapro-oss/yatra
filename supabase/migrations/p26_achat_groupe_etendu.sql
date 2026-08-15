@@ -80,13 +80,13 @@ BEGIN
     FOR v_member IN
       SELECT user_id FROM yatra.group_purchase_members WHERE group_id = NEW.id
     LOOP
-      INSERT INTO yatra.notifications (user_id, type, title, body, data)
+      INSERT INTO yatra.notifications (user_id, type, title, message, link)
       VALUES (
         v_member.user_id,
         'group_threshold_reached',
         'Seuil atteint 🎉',
         'Le pool "' || NEW.title || '" a atteint son objectif ! Code de réservation disponible.',
-        jsonb_build_object('group_id', NEW.id, 'unlock_code', NEW.unlock_code, 'pool_type', NEW.pool_type)
+        '/dashboard/groupes/' || NEW.id::text
       );
     END LOOP;
   END IF;
