@@ -69,3 +69,7 @@ BRIEF.md
 
 tests/uat/report/
 tests/uat/output/
+-e 
+# Capacitor native scaffolds (regenerated in CI)
+/ios
+/android
