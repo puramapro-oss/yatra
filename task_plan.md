@@ -247,3 +247,26 @@
 
 **Périmètre V3.1** : Développement complet du module natif selon SKILL NATIVE (EAS, HealthKit si santé, stores, etc.). Non inclus dans le périmètre V3 (web/PWA uniquement).
 
+
+---
+
+# P9 — Mobile wrapper (Capacitor iOS + Android)
+
+**Date** : 2026-08-16  
+**Stratégie** : Web wrapping (MOBILE.md recette kaia), zéro réécriture. Le wrapper charge `https://yatra.purama.dev` live dans une WebView native.
+
+## Livré
+
+- ✅ `capacitor.config.ts` : bundle `dev.purama.yatra`, server.url live
+- ✅ `resources/icon.png` (1024×1024) + `resources/splash.png` (2732×2732)
+- ✅ `.github/workflows/mobile-build.yml` : CI Android APK signé + iOS compile-check
+- ✅ Secrets GitHub repo configurés (ASC keys, Android keystore partagé)
+- ✅ Build Android : [run 31951307233](https://github.com/puramapro-oss/yatra/actions/runs/31951307233) vert, APK signé vérifié (`jarsigner -verify` exit 0)
+- ✅ Build iOS : compile-check vert, archive/export IPA gated par `APPLE_TEAM_ID` (cf MOBILE.md §5.1 blocage Apple)
+
+## Notes
+
+- **95% mises à jour OTA** : toute modification du site web (UI, features, contenu) est live immédiat dans l'app mobile, sans rebuild. Seuls les changements `capacitor.config.ts`, `resources/` ou ajout de plugins Capacitor nécessitent un rebuild.
+- **Tracking en arrière-plan** (backlog V3.1 ci-dessus) reste impossible en WebView comme en PWA. Le backlog Expo (mentionné plus haut) reste valide si un tracking GPS continu en arrière-plan devient nécessaire. Capacitor offre un compromis : binaire stores avec 95% du code web réutilisé, mais pas de tracking avancé sans plugins natifs additionnels.
+- **Stores** : En attente `APPLE_TEAM_ID` + agreement développeur Apple signés. Android APK release prêt dès que nécessaire (pas de blocage technique).
+
