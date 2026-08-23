@@ -21,7 +21,7 @@ export default async function TripsListPage() {
     .limit(100)
 
   const completed = (trips ?? []).filter((t) => t.status === 'completed')
-  const totalKm = completed.reduce((s, t) => s + Number(t.distance_km ?? 0), 0)
+  // const totalKm = completed.reduce((s, t) => s + Number(t.distance_km ?? 0), 0)
   const totalGain = completed.reduce((s, t) => s + Number(t.gain_credits_eur ?? 0), 0)
   const totalCo2 = completed.reduce((s, t) => s + Number(t.co2_avoided_kg ?? 0), 0)
 

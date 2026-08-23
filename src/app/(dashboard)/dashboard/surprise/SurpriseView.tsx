@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import Link from 'next/link'
-import { Sparkles, Loader2, MapPin, Navigation, Euro, Clock, Leaf, TrendingUp, ArrowRight } from 'lucide-react'
+import { Sparkles, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { SurpriseResultCard } from '@/components/surprise/SurpriseResult'
 
 type SurpriseResult = {
   destination: {
@@ -232,122 +232,7 @@ export function SurpriseView() {
       </div>
 
       {/* Résultat */}
-      {result && (
-        <div className="space-y-6 animate-in fade-in duration-700">
-          {/* Destination */}
-          <div className="glass rounded-3xl p-6 bg-gradient-to-br from-emerald-500/10 to-violet-500/10">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center">
-                  <MapPin size={24} className="text-emerald-400" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
-                    {result.destination.title}
-                  </h3>
-                  <p className="text-sm text-white/60">
-                    {result.destination.city} · {result.destination.category}
-                    {result.destination.distance_km != null && (
-                      <> · {Math.round(result.destination.distance_km)} km</>
-                    )}
-                  </p>
-                </div>
-              </div>
-              <div className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-sm font-medium">
-                {result.destination.prix === 0 ? 'Gratuit' : `${result.destination.prix}€`}
-              </div>
-            </div>
-
-            {result.destination.description && (
-              <p className="text-white/70 text-sm mb-4">{result.destination.description}</p>
-            )}
-
-            <div className="flex gap-3">
-              {result.trajet && (
-                <Link
-                  href={`/dashboard/trajet?to=${encodeURIComponent(result.destination.city)}`}
-                  className="flex-1 px-4 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-white font-medium text-sm transition flex items-center justify-center gap-2"
-                >
-                  <Navigation size={16} />
-                  <span>Voir le trajet</span>
-                </Link>
-              )}
-              {result.destination.url_official && (
-                <a
-                  href={result.destination.url_official}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 px-4 py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-white/80 font-medium text-sm transition flex items-center justify-center gap-2"
-                >
-                  <ArrowRight size={16} />
-                  <span>Site officiel</span>
-                </a>
-              )}
-            </div>
-          </div>
-
-          {/* Trajet */}
-          {result.trajet && (
-            <div className="glass rounded-3xl p-6">
-              <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Navigation size={20} className="text-violet-400" />
-                <span>Trajet minimal</span>
-              </h4>
-              <div className="space-y-3">
-                <div className="text-sm text-white/80">
-                  <span className="font-medium">{result.trajet.label}</span> · Mode dominant :{' '}
-                  <span className="text-emerald-400">{result.trajet.mode_dominant}</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="flex items-center gap-2">
-                    <Euro size={16} className="text-white/40" />
-                    <div>
-                      <div className="text-xs text-white/50">Prix</div>
-                      <div className="font-semibold text-sm">{result.trajet.cost_eur.toFixed(2)}€</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock size={16} className="text-white/40" />
-                    <div>
-                      <div className="text-xs text-white/50">Durée</div>
-                      <div className="font-semibold text-sm">{Math.round(result.trajet.duration_min)} min</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Leaf size={16} className="text-emerald-400" />
-                    <div>
-                      <div className="text-xs text-white/50">CO₂ évité</div>
-                      <div className="font-semibold text-sm">{result.trajet.co2_avoided_kg.toFixed(2)} kg</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <TrendingUp size={16} className="text-violet-400" />
-                    <div>
-                      <div className="text-xs text-white/50">Gain</div>
-                      <div className="font-semibold text-sm">{result.trajet.gain_credits_eur.toFixed(2)}€</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Micro-défi */}
-          <div className="glass rounded-3xl p-6 bg-gradient-to-br from-violet-500/10 to-pink-500/10">
-            <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Sparkles size={20} className="text-pink-400" />
-              <span>Micro-défi positif</span>
-            </h4>
-            <div className="flex items-center gap-4">
-              <div className="text-5xl">{result.micro_defi.emoji}</div>
-              <div>
-                <p className="text-lg text-white/90 font-medium">{result.micro_defi.texte}</p>
-                <p className="text-xs text-white/50 mt-1">Catégorie : {result.micro_defi.categorie}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {result && <SurpriseResultCard result={result} />}
     </div>
   )
 }

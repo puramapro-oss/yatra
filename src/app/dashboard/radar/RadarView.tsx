@@ -126,7 +126,7 @@ export function RadarView() {
         } catch {
           // ignore
         }
-      } catch (err) {
+      } catch {
         toast.error('Impossible d\'accéder à la caméra. Vérifie les permissions du navigateur.')
         setTab('list')
       }

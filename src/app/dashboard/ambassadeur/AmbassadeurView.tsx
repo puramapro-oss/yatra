@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Copy, Loader2, Megaphone, Send, ExternalLink } from 'lucide-react'
+import { ArrowLeft, Copy, Loader2, Megaphone, Send } from 'lucide-react'
 import { toast } from 'sonner'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { formatPrice, formatRelativeDate } from '@/lib/utils'
@@ -118,7 +118,6 @@ export function AmbassadeurView({
                   </h2>
                   <p className="text-sm text-white/65 mt-1">
                     Lien personnel /go/[slug]. Commission 10% à 25% selon ton tier. Plan offert dès Bronze.
-                    Pas de validation manuelle, pas d&apos;attente.
                   </p>
                 </div>
               </div>
@@ -135,7 +134,7 @@ export function AmbassadeurView({
                 className="w-full bg-white/[0.04] border border-white/10 rounded-xl p-3 text-sm focus:border-emerald-400/40 focus:outline-none font-mono"
               />
               <p className="text-xs text-white/45">
-                3-30 chars · a-z, 0-9, tirets · sera ton lien <span className="font-mono">yatra.purama.dev/go/{slug || 'ton-slug'}</span>
+                3-30 chars · a-z, 0-9, tirets
               </p>
 
               <h3 className="font-semibold pt-2" style={{ fontFamily: 'var(--font-display)' }}>Présente-toi</h3>
@@ -148,26 +147,10 @@ export function AmbassadeurView({
                 className="w-full bg-white/[0.04] border border-white/10 rounded-xl p-3 text-sm focus:border-emerald-400/40 focus:outline-none"
               />
               <div className="grid grid-cols-2 gap-3">
-                <input
-                  type="text"
-                  value={instagram}
-                  onChange={(e) => setInstagram(e.target.value)}
-                  placeholder="@instagram"
-                  className="bg-white/[0.04] border border-white/10 rounded-xl p-2.5 text-sm focus:border-emerald-400/40 focus:outline-none"
-                />
-                <input
-                  type="text"
-                  value={tiktok}
-                  onChange={(e) => setTiktok(e.target.value)}
-                  placeholder="@tiktok"
-                  className="bg-white/[0.04] border border-white/10 rounded-xl p-2.5 text-sm focus:border-emerald-400/40 focus:outline-none"
-                />
+                <input type="text" value={instagram} onChange={(e) => setInstagram(e.target.value)} placeholder="@instagram" className="bg-white/[0.04] border border-white/10 rounded-xl p-2.5 text-sm focus:border-emerald-400/40 focus:outline-none" />
+                <input type="text" value={tiktok} onChange={(e) => setTiktok(e.target.value)} placeholder="@tiktok" className="bg-white/[0.04] border border-white/10 rounded-xl p-2.5 text-sm focus:border-emerald-400/40 focus:outline-none" />
               </div>
-              <button
-                onClick={applyAmbassadeur}
-                disabled={submitting || !isValidSlug(slug) || isReservedSlug(slug)}
-                className="btn-primary w-full justify-center disabled:opacity-50"
-              >
+              <button onClick={applyAmbassadeur} disabled={submitting || !isValidSlug(slug) || isReservedSlug(slug)} className="btn-primary w-full justify-center disabled:opacity-50">
                 {submitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                 Activer mon programme
               </button>
@@ -219,7 +202,6 @@ export function AmbassadeurView({
         </header>
 
         <div className="px-6 pb-16 max-w-3xl mx-auto space-y-6">
-          {/* Hero tier */}
           <section className="glass rounded-3xl p-6 bg-gradient-to-br from-emerald-500/10 to-violet-500/10 space-y-4">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
@@ -244,44 +226,38 @@ export function AmbassadeurView({
                   Prochain palier : <span className="font-semibold">{TIER_CONFIG[next.next].label}</span> ({TIER_CONFIG[next.next].commission_pct}%) à {formatPrice(next.threshold_eur)}
                 </p>
                 <div className="rounded-full bg-white/5 h-2 overflow-hidden mt-1.5">
-                  <div
-                    className="h-full bg-gradient-to-r from-emerald-400 to-violet-400 transition-all"
-                    style={{ width: `${Math.min(100, (ambassadeur.total_earnings_eur / next.threshold_eur) * 100)}%` }}
-                  />
+                  <div className="h-full bg-gradient-to-r from-emerald-400 to-violet-400 transition-all" style={{ width: `${Math.min(100, (ambassadeur.total_earnings_eur / next.threshold_eur) * 100)}%` }} />
                 </div>
                 <p className="text-[11px] text-white/45 mt-1">{formatPrice(remaining)} restants</p>
               </div>
             )}
           </section>
 
-          {/* Lien personnel */}
           <section className="glass rounded-2xl p-5 space-y-3">
             <h3 className="font-semibold" style={{ fontFamily: 'var(--font-display)' }}>Ton lien</h3>
             <div className="flex items-center gap-3">
-              <input
-                readOnly
-                value={link}
-                className="flex-1 bg-white/[0.04] border border-white/10 rounded-xl p-3 text-sm font-mono focus:outline-none"
-              />
-              <button
-                onClick={copyLink}
-                className="w-12 h-12 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 flex items-center justify-center transition"
-                aria-label="Copier le lien"
-              >
+              <input readOnly value={link} className="flex-1 bg-white/[0.04] border border-white/10 rounded-xl p-3 text-sm font-mono focus:outline-none" />
+              <button onClick={copyLink} className="w-12 h-12 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 flex items-center justify-center transition" aria-label="Copier le lien">
                 <Copy size={18} />
               </button>
             </div>
-            <p className="text-xs text-white/45">Cookie 30j. Toute conversion remontée à toi.</p>
           </section>
 
-          {/* Stats */}
           <section className="grid grid-cols-3 gap-3">
-            <Stat label="Clics" value={ambassadeur.total_clicks.toLocaleString('fr-FR')} />
-            <Stat label="Signups" value={ambassadeur.total_signups.toLocaleString('fr-FR')} />
-            <Stat label="Conversions" value={ambassadeur.total_conversions.toLocaleString('fr-FR')} />
+            <div className="glass rounded-xl p-4 text-center">
+              <p className="text-2xl font-bold">{ambassadeur.total_clicks.toLocaleString('fr-FR')}</p>
+              <p className="text-xs text-white/55">Clics</p>
+            </div>
+            <div className="glass rounded-xl p-4 text-center">
+              <p className="text-2xl font-bold">{ambassadeur.total_signups.toLocaleString('fr-FR')}</p>
+              <p className="text-xs text-white/55">Signups</p>
+            </div>
+            <div className="glass rounded-xl p-4 text-center">
+              <p className="text-2xl font-bold">{ambassadeur.total_conversions.toLocaleString('fr-FR')}</p>
+              <p className="text-xs text-white/55">Conversions</p>
+            </div>
           </section>
 
-          {/* Avantages tier */}
           <section className="glass rounded-2xl p-5 space-y-2">
             <h3 className="font-semibold" style={{ fontFamily: 'var(--font-display)' }}>Tes avantages {tierCfg.label}</h3>
             <ul className="text-sm text-white/65 space-y-1">
@@ -294,49 +270,24 @@ export function AmbassadeurView({
             </ul>
           </section>
 
-          {/* Conversions */}
           {lastConversions.length > 0 && (
             <section className="glass rounded-2xl p-5 space-y-3">
               <h3 className="font-semibold" style={{ fontFamily: 'var(--font-display)' }}>Dernières conversions</h3>
-              <ul className="divide-y divide-white/5">
-                {lastConversions.slice(0, 10).map((c) => (
-                  <li key={c.id} className="py-3 flex items-center justify-between gap-2">
+              <div className="space-y-2">
+                {lastConversions.map((c) => (
+                  <div key={c.id} className="flex items-center justify-between text-sm p-3 rounded-xl bg-white/[0.04]">
                     <div>
-                      <p className="text-sm font-medium">
-                        {c.event_type === 'signup' ? '🌱 Inscription' : c.event_type === 'first_payment' ? '💎 1er paiement' : '🔁 Récurrence'}
-                      </p>
-                      <p className="text-xs text-white/45">{formatRelativeDate(c.created_at)}{c.paid_at && ' · payé'}</p>
+                      <p className="font-medium">{c.event_type}</p>
+                      <p className="text-xs text-white/45">{formatRelativeDate(c.created_at)}</p>
                     </div>
-                    <span className="font-semibold text-emerald-300">+{formatPrice(c.commission_eur)}</span>
-                  </li>
+                    <p className="font-bold text-emerald-300">{formatPrice(c.commission_eur)}</p>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </section>
           )}
-
-          {/* Outils */}
-          <section className="glass rounded-2xl p-5 space-y-2">
-            <h3 className="font-semibold" style={{ fontFamily: 'var(--font-display)' }}>Outils</h3>
-            <a
-              href={`https://yatra.purama.dev/api/og?title=Rejoins-moi%20sur%20YATRA&subtitle=${encodeURIComponent(ambassadeur.slug)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-emerald-300 hover:text-emerald-200 inline-flex items-center gap-1"
-            >
-              Image OG personnalisée <ExternalLink size={12} />
-            </a>
-          </section>
         </div>
       </main>
     </>
-  )
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="glass rounded-2xl p-4 text-center">
-      <p className="text-xs uppercase tracking-wider text-white/45">{label}</p>
-      <p className="text-2xl font-bold mt-0.5" style={{ fontFamily: 'var(--font-display)' }}>{value}</p>
-    </div>
   )
 }

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  ArrowLeft, Wallet, ArrowUpRight, ArrowDownLeft, RotateCcw, Sparkles, Compass, Users,
+  ArrowLeft, ArrowUpRight, ArrowDownLeft, RotateCcw, Sparkles, Compass, Users,
   Trophy, Clock, Shield, Banknote,
 } from 'lucide-react'
 import { formatPrice, formatRelativeDate, ancienneteMultiplier } from '@/lib/utils'

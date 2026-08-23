@@ -6,14 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, Loader2, Plus, Train, Users, Calendar, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
-
-const CATEGORIES = [
-  { id: 'transport', label: 'Transport' },
-  { id: 'activite', label: 'Activité' },
-  { id: 'soins', label: 'Soins' },
-  { id: 'culture', label: 'Culture' },
-  { id: 'autre', label: 'Autre' },
-]
+import { Field } from '@/components/forms/Field'
 
 type PoolType = 'event_gratuit' | 'trajet_sncf' | 'activite_partenaire'
 
@@ -418,14 +411,5 @@ export function GroupCreateForm({ defaultCity }: { defaultCity: string }) {
 .glass-soft { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); }
 `}</style>
     </>
-  )
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <label className="block text-xs uppercase tracking-wider text-white/40 mb-1.5">{label}</label>
-      {children}
-    </div>
   )
 }

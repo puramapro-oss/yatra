@@ -12,6 +12,9 @@ import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { getGreeting, formatPrice } from '@/lib/utils'
 import { RANG_LABELS, RANG_EMOJI } from '@/lib/score-humanite'
 import type { RangIdentity } from '@/types/vida'
+import { KpiCard } from '@/components/dashboard/DashboardKpiCards'
+import { ActionCard } from '@/components/dashboard/ActionCard'
+import { labelForPlan } from '@/lib/plan-labels'
 
 type ProfileLite = {
   full_name: string | null
@@ -63,7 +66,6 @@ export function DashboardHello({
     <>
       <NatureBackground />
       <main className="relative z-card min-h-dvh">
-        {/* Header */}
         <header className="px-6 py-5 flex items-center justify-between max-w-5xl mx-auto">
           <div className="flex items-center gap-2">
             <span
@@ -98,7 +100,6 @@ export function DashboardHello({
         </header>
 
         <div className="px-6 py-8 max-w-5xl mx-auto space-y-8">
-          {/* Greeting */}
           <div className="space-y-2">
             <p className="text-sm text-white/50 min-h-5" suppressHydrationWarning>{greeting}</p>
             <h1
@@ -119,10 +120,8 @@ export function DashboardHello({
             </p>
           </div>
 
-          {/* NLU Search Bar */}
           <NLUSearchBar />
 
-          {/* KPI cards */}
           <section className="grid sm:grid-cols-3 gap-4">
             <KpiCard
               icon={<Wallet size={20} />}
@@ -149,122 +148,29 @@ export function DashboardHello({
             />
           </section>
 
-          {/* Next steps */}
           <section className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <ActionCard
-              title={t('dashboard.actions.trajet.title')}
-              description={t('dashboard.actions.trajet.description')}
-              icon={<Compass size={22} />}
-              onClick={() => router.push('/dashboard/trajet')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.trajets.title')}
-              description={t('dashboard.actions.trajets.description')}
-              icon={<MapPin size={22} />}
-              onClick={() => router.push('/dashboard/trajets')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.vacances.title')}
-              description={t('dashboard.actions.vacances.description')}
-              icon={<Plane size={22} />}
-              onClick={() => router.push('/dashboard/vacances')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.aides.title')}
-              description={t('dashboard.actions.aides.description')}
-              icon={<Sparkles size={22} />}
-              onClick={() => router.push('/dashboard/aides')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.gratuit.title')}
-              description={t('dashboard.actions.gratuit.description')}
-              icon={<Sparkles size={22} />}
-              onClick={() => router.push('/dashboard/gratuit')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.groupes.title')}
-              description={t('dashboard.actions.groupes.description')}
-              icon={<Compass size={22} />}
-              onClick={() => router.push('/dashboard/groupes')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.cashback.title')}
-              description={t('dashboard.actions.cashback.description')}
-              icon={<ShoppingBag size={22} />}
-              onClick={() => router.push('/dashboard/cashback')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.soins.title')}
-              description={t('dashboard.actions.soins.description')}
-              icon={<Heart size={22} />}
-              onClick={() => router.push('/dashboard/soins-naturels')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.humanitaire.title')}
-              description={t('dashboard.actions.humanitaire.description')}
-              icon={<Globe size={22} />}
-              onClick={() => router.push('/dashboard/humanitaire')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.ambiance.title')}
-              description={t('dashboard.actions.ambiance.description')}
-              icon={<Headphones size={22} />}
-              onClick={() => router.push('/dashboard/ambiance')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.aria.title')}
-              description={t('dashboard.actions.aria.description')}
-              icon={<MessageCircle size={22} />}
-              onClick={() => router.push('/dashboard/aria')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.famille.title')}
-              description={t('dashboard.actions.famille.description')}
-              icon={<Users size={22} />}
-              onClick={() => router.push('/dashboard/famille')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.radar.title')}
-              description={t('dashboard.actions.radar.description')}
-              icon={<Radar size={22} />}
-              onClick={() => router.push('/dashboard/radar')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.challenges.title')}
-              description={t('dashboard.actions.challenges.description')}
-              icon={<Shield size={22} />}
-              onClick={() => router.push('/dashboard/challenges')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.safety.title')}
-              description={t('dashboard.actions.safety.description')}
-              icon={<ShieldAlert size={22} />}
-              onClick={() => router.push('/dashboard/safety')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.ambassadeur.title')}
-              description={t('dashboard.actions.ambassadeur.description')}
-              icon={<Megaphone size={22} />}
-              onClick={() => router.push('/dashboard/ambassadeur')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.classement.title')}
-              description={t('dashboard.actions.classement.description')}
-              icon={<Award size={22} />}
-              onClick={() => router.push('/dashboard/classement')}
-            />
-            <ActionCard
-              title={t('dashboard.actions.concours.title')}
-              description={t('dashboard.actions.concours.description')}
-              icon={<Trophy size={22} />}
-              onClick={() => router.push('/dashboard/concours')}
-            />
+            <ActionCard title={t('dashboard.actions.trajet.title')} description={t('dashboard.actions.trajet.description')} icon={<Compass size={22} />} onClick={() => router.push('/dashboard/trajet')} />
+            <ActionCard title={t('dashboard.actions.trajets.title')} description={t('dashboard.actions.trajets.description')} icon={<MapPin size={22} />} onClick={() => router.push('/dashboard/trajets')} />
+            <ActionCard title={t('dashboard.actions.vacances.title')} description={t('dashboard.actions.vacances.description')} icon={<Plane size={22} />} onClick={() => router.push('/dashboard/vacances')} />
+            <ActionCard title={t('dashboard.actions.aides.title')} description={t('dashboard.actions.aides.description')} icon={<Sparkles size={22} />} onClick={() => router.push('/dashboard/aides')} />
+            <ActionCard title={t('dashboard.actions.gratuit.title')} description={t('dashboard.actions.gratuit.description')} icon={<Sparkles size={22} />} onClick={() => router.push('/dashboard/gratuit')} />
+            <ActionCard title={t('dashboard.actions.groupes.title')} description={t('dashboard.actions.groupes.description')} icon={<Compass size={22} />} onClick={() => router.push('/dashboard/groupes')} />
+            <ActionCard title={t('dashboard.actions.cashback.title')} description={t('dashboard.actions.cashback.description')} icon={<ShoppingBag size={22} />} onClick={() => router.push('/dashboard/cashback')} />
+            <ActionCard title={t('dashboard.actions.soins.title')} description={t('dashboard.actions.soins.description')} icon={<Heart size={22} />} onClick={() => router.push('/dashboard/soins-naturels')} />
+            <ActionCard title={t('dashboard.actions.humanitaire.title')} description={t('dashboard.actions.humanitaire.description')} icon={<Globe size={22} />} onClick={() => router.push('/dashboard/humanitaire')} />
+            <ActionCard title={t('dashboard.actions.ambiance.title')} description={t('dashboard.actions.ambiance.description')} icon={<Headphones size={22} />} onClick={() => router.push('/dashboard/ambiance')} />
+            <ActionCard title={t('dashboard.actions.aria.title')} description={t('dashboard.actions.aria.description')} icon={<MessageCircle size={22} />} onClick={() => router.push('/dashboard/aria')} />
+            <ActionCard title={t('dashboard.actions.famille.title')} description={t('dashboard.actions.famille.description')} icon={<Users size={22} />} onClick={() => router.push('/dashboard/famille')} />
+            <ActionCard title={t('dashboard.actions.radar.title')} description={t('dashboard.actions.radar.description')} icon={<Radar size={22} />} onClick={() => router.push('/dashboard/radar')} />
+            <ActionCard title={t('dashboard.actions.challenges.title')} description={t('dashboard.actions.challenges.description')} icon={<Shield size={22} />} onClick={() => router.push('/dashboard/challenges')} />
+            <ActionCard title={t('dashboard.actions.safety.title')} description={t('dashboard.actions.safety.description')} icon={<ShieldAlert size={22} />} onClick={() => router.push('/dashboard/safety')} />
+            <ActionCard title={t('dashboard.actions.ambassadeur.title')} description={t('dashboard.actions.ambassadeur.description')} icon={<Megaphone size={22} />} onClick={() => router.push('/dashboard/ambassadeur')} />
+            <ActionCard title={t('dashboard.actions.classement.title')} description={t('dashboard.actions.classement.description')} icon={<Award size={22} />} onClick={() => router.push('/dashboard/classement')} />
+            <ActionCard title={t('dashboard.actions.concours.title')} description={t('dashboard.actions.concours.description')} icon={<Trophy size={22} />} onClick={() => router.push('/dashboard/concours')} />
           </section>
 
-          {/* Cross-promo Purama */}
           <CrossPromoBanner />
 
-          {/* Account info */}
           <section className="glass rounded-2xl p-6 space-y-3 text-sm">
             <h2 className="font-semibold text-white/80" style={{ fontFamily: 'var(--font-display)' }}>
               {t('dashboard.account.title')}
@@ -292,105 +198,4 @@ export function DashboardHello({
       </main>
     </>
   )
-}
-
-function KpiCard({
-  icon,
-  label,
-  value,
-  hint,
-  color,
-  href,
-}: {
-  icon: React.ReactNode
-  label: string
-  value: string
-  hint: string
-  color: 'emerald' | 'cyan' | 'violet'
-  href?: string
-}) {
-  const colorClass = {
-    emerald: 'text-emerald-400 bg-emerald-500/10',
-    cyan: 'text-cyan-400 bg-cyan-500/10',
-    violet: 'text-violet-400 bg-violet-500/10',
-  }[color]
-  const inner = (
-    <>
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colorClass}`}>{icon}</div>
-      <div>
-        <p className="text-xs text-white/45 uppercase tracking-wider">{label}</p>
-        <p className="text-2xl font-bold mt-1" style={{ fontFamily: 'var(--font-display)' }}>
-          {value}
-        </p>
-        <p className="text-xs text-white/45 mt-1">{hint}</p>
-      </div>
-    </>
-  )
-  if (href) {
-    return (
-      <Link
-        href={href}
-        className="glass rounded-2xl p-5 space-y-3 hover:border-white/20 hover:bg-white/3 transition block"
-      >
-        {inner}
-      </Link>
-    )
-  }
-  return <div className="glass rounded-2xl p-5 space-y-3">{inner}</div>
-}
-
-function ActionCard({
-  title,
-  description,
-  icon,
-  onClick,
-  disabled,
-  soonLabel,
-}: {
-  title: string
-  description: string
-  icon: React.ReactNode
-  onClick: () => void
-  disabled?: boolean
-  soonLabel?: string
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className="glass rounded-2xl p-5 text-left hover:border-emerald-400/30 transition disabled:cursor-not-allowed disabled:opacity-70 group"
-    >
-      <div className="flex items-start gap-4">
-        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-400/15 to-cyan-400/15 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition">
-          {icon}
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-semibold" style={{ fontFamily: 'var(--font-display)' }}>
-              {title}
-            </h3>
-            {soonLabel && (
-              <span className="text-[10px] uppercase tracking-wider text-white/40 px-1.5 py-0.5 rounded bg-white/5 border border-white/10">
-                Bientôt · {soonLabel}
-              </span>
-            )}
-          </div>
-          <p className="text-sm text-white/55 leading-snug">{description}</p>
-        </div>
-      </div>
-    </button>
-  )
-}
-
-function labelForPlan(plan: string | undefined, t: ReturnType<typeof useTranslations>) {
-  switch (plan) {
-    case 'premium_monthly':
-      return t('dashboard.account.plans.premiumMonthly')
-    case 'premium_annual':
-      return t('dashboard.account.plans.premiumAnnual')
-    case 'lifetime':
-      return t('dashboard.account.plans.lifetime')
-    default:
-      return t('dashboard.account.plans.free')
-  }
 }
