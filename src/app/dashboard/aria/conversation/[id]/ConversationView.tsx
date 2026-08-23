@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Loader2, Send, Volume2, VolumeX } from 'lucide-react'
 import { toast } from 'sonner'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
+import AIDisclosure from '@/lib/legal/components/AIDisclosure'
 
 type Conversation = {
   id: string
@@ -228,6 +229,12 @@ export function ConversationView({
             </button>
           )}
         </header>
+
+        <AIDisclosure
+          appName="YATRA"
+          extra="Aria ne remplace pas l'avis d'un professionnel qualifié."
+          className="px-6 py-2 text-center text-[10px] text-white/35 border-b border-white/5"
+        />
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 max-w-3xl mx-auto w-full space-y-4">
           {messages.length === 0 && (

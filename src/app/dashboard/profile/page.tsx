@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Shield } from 'lucide-react'
+import { ArrowLeft, Shield, ShieldCheck } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { computeScoreHumanite, rangFromScore, RANG_LABELS, RANG_EMOJI } from '@/lib/score-humanite'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
@@ -243,6 +243,20 @@ export default async function ProfilePage() {
                 </a>
               ))}
             </div>
+          </section>
+
+          {/* Compte & données */}
+          <section className="glass rounded-2xl p-6 space-y-3">
+            <p className="text-xs uppercase tracking-[0.18em] text-white/45">Compte & données</p>
+            <Link
+              href="/dashboard/ma-memoire"
+              className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/[0.08] transition"
+            >
+              <span className="flex items-center gap-2 text-sm">
+                <ShieldCheck size={16} className="text-emerald-400" /> Ma mémoire — voir, exporter, supprimer mes données
+              </span>
+              <ArrowLeft size={14} className="rotate-180 text-white/40" />
+            </Link>
           </section>
 
           {/* XP / niveau */}

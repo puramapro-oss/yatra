@@ -38,6 +38,16 @@
   --radius-pill: 9999px;
 
   --ease-spring: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* Pont vers les tokens sémantiques shadcn-like attendus par src/lib/legal/components/*
+     (socle légal partagé NIYAMA, copy-in — jamais renommer ces composants, mapper ici). */
+  --color-background: var(--color-bg);
+  --color-background-soft: rgba(255, 255, 255, 0.05);
+  --color-foreground: var(--color-fg);
+  --color-muted-foreground: var(--color-fg-muted);
+  --color-primary: var(--color-yatra-emerald);
+  --color-primary-on-dark: var(--color-yatra-emerald);
+  --color-destructive: #EF4444;
 }
 
 :root {

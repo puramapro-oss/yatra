@@ -9,6 +9,20 @@ import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/useAuth'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { GoogleButton } from '@/components/auth/GoogleButton'
+import LegalAcceptanceNotice from '@/lib/legal/components/LegalAcceptanceNotice'
+
+async function acceptLegalDocs() {
+  const docTypes = ['cgu', 'cgv', 'confidentialite'] as const
+  await Promise.allSettled(
+    docTypes.map((docType) =>
+      fetch('/api/legal/accept', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ docType }),
+      }),
+    ),
+  )
+}
 
 function SignupForm() {
   const t = useTranslations()
@@ -56,6 +70,8 @@ function SignupForm() {
         // best effort, ne bloque pas le flow
       }
     }
+
+    await acceptLegalDocs()
 
     toast.success('Compte créé ! 🌿')
     router.replace(next)
@@ -168,6 +184,8 @@ function SignupForm() {
                 </div>
               </label>
 
+              <LegalAcceptanceNotice actionLabel="Créer mon compte" />
+
               <button
                 type="submit"
                 disabled={submitting || !email || !password || !fullName}
@@ -181,13 +199,6 @@ function SignupForm() {
                   'Créer mon compte'
                 )}
               </button>
-
-              <p className="text-xs text-white/40 text-center pt-1">
-                En continuant, tu acceptes les{' '}
-                <Link href="/terms" className="underline hover:text-white">CGU</Link>
-                {' '}et la{' '}
-                <Link href="/privacy" className="underline hover:text-white">Politique de confidentialité</Link>.
-              </p>
             </form>
 
             <div className="text-center text-xs text-white/55">

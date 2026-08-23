@@ -87,9 +87,10 @@ export default function Home() {
         <footer className="absolute bottom-6 left-0 right-0 px-6 flex items-center justify-between text-xs text-white/30">
           <span>© 2026 PURAMA · SASU Frasne · ZFRR</span>
           <div className="flex items-center gap-4">
-            <Link href="/privacy" className="hover:text-white/60 transition">{t('layout.footer.links.privacy')}</Link>
-            <Link href="/terms" className="hover:text-white/60 transition">{t('layout.footer.links.terms')}</Link>
-            <Link href="/legal" className="hover:text-white/60 transition">{t('layout.footer.links.legal')}</Link>
+            <Link href="/politique-confidentialite" className="hover:text-white/60 transition">{t('layout.footer.links.privacy')}</Link>
+            <Link href="/cgu" className="hover:text-white/60 transition">{t('layout.footer.links.terms')}</Link>
+            <Link href="/cgv" className="hover:text-white/60 transition">CGV</Link>
+            <Link href="/mentions-legales" className="hover:text-white/60 transition">{t('layout.footer.links.legal')}</Link>
           </div>
         </footer>
       </main>

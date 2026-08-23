@@ -24,6 +24,10 @@
     {
       "path": "/api/cron/mobilite-reconciliation",
       "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/cron/account-deletion",
+      "schedule": "0 3 * * *"
     }
   ]
 }
