@@ -5,7 +5,7 @@ import { getLocale, getMessages } from 'next-intl/server'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/shared/ThemeProvider'
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary'
-import { CookieBanner } from '@/components/shared/CookieBanner'
+import CookieConsentBannerClient from '@/components/legal/CookieConsentBannerClient'
 import { InstallBanner } from '@/components/shared/InstallBanner'
 import { OfflineBanner } from '@/components/shared/OfflineBanner'
 import { SilentModeToggle } from '@/components/multisensoriel/SilentModeToggle'
@@ -93,7 +93,7 @@ export default async function RootLayout({
               <OfflineBanner />
               {children}
               <Toaster position="top-right" theme="dark" richColors closeButton />
-              <CookieBanner />
+              <CookieConsentBannerClient />
               <InstallBanner />
               <SilentModeToggle />
               <div className="fixed top-4 right-4 z-[100]">

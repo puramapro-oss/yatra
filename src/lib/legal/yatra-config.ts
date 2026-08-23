@@ -47,7 +47,15 @@ export const YATRA_LEGAL_CONFIG: LegalAppConfig = {
     {
       titre: 'Âge minimum',
       paragraphes: [
-        "YATRA est accessible à partir de 16 ans (Digital Services Act). Pour les utilisateurs de 16 à 18 ans, le consentement d'un titulaire de l'autorité parentale est requis.",
+        "YATRA est réservé aux personnes majeures (18 ans), conformément à la clause d'inscription des présentes CGU. Le service comportant un wallet retirable (Vida Credits) et des paiements réels (abonnement Premium), aucune inscription de mineur, même avec autorisation parentale, n'est acceptée à ce jour.",
+      ],
+    },
+    {
+      titre: 'Voyages et hébergements — rôle d\'affiliation uniquement',
+      paragraphes: [
+        "YATRA n'est ni une agence de voyages ni un opérateur de vente de voyages ou de séjours au sens du Code du tourisme : la plateforme ne vend, ne réserve et n'encaisse aucun voyage, transport, hébergement ou séjour pour le compte de l'utilisateur.",
+        "Les fonctionnalités « Vacances » se limitent à : (i) le suivi d'un lien de réservation que l'utilisateur a lui-même effectuée ailleurs, (ii) la journalisation d'usages de house-sitting, d'échange de logement ou de volontariat entre particuliers, sans transaction opérée par YATRA, et (iii) l'affiliation vers des partenaires cashback tiers, rémunérée en commission.",
+        "Tant que YATRA n'est pas immatriculée au registre des opérateurs de voyages et de séjours (Atout France) et ne dispose pas de la garantie financière correspondante, aucune fonctionnalité de réservation directe, d'encaissement de voyage ou de vente de séjour ne sera activée sur la plateforme.",
       ],
     },
   ],

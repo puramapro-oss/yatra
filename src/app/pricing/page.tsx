@@ -15,10 +15,6 @@ const PLANS = {
     monthlyPrice: 9.9,
     features: 5,
   },
-  lifetime: {
-    price: 149,
-    features: 5,
-  },
 } as const
 
 export default function PricingPage() {
@@ -26,7 +22,7 @@ export default function PricingPage() {
   const router = useRouter()
   const { user } = useAuth()
 
-  function handleSelectPlan(planType: 'free' | 'premium' | 'lifetime') {
+  function handleSelectPlan(planType: 'free' | 'premium') {
     if (!user) {
       router.push('/signup')
       return
@@ -35,7 +31,7 @@ export default function PricingPage() {
       router.push('/dashboard')
       return
     }
-    // Pour premium/lifetime → redirect vers Stripe checkout (à implémenter)
+    // Premium → redirect vers Stripe checkout (à implémenter)
     router.push('/dashboard')
   }
 
@@ -83,8 +79,11 @@ export default function PricingPage() {
             </p>
           </div>
 
-          {/* Plans grid */}
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {/* Plans grid — 2 plans réels seulement (cf CGV `yatra-config.ts` + catalogue
+              Stripe `src/lib/stripe.ts`). L'ancien 3e plan "lifetime 149€" affiché ici
+              n'existait ni en CGV ni côté Stripe et son bouton d'achat n'était jamais
+              implémenté (TODO) — supprimé, cf CONFORMITE.md gap #5. */}
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {/* Free */}
             <PlanCard
               name={t('pricing.plans.free.name')}
@@ -109,19 +108,6 @@ export default function PricingPage() {
               cta={t('pricing.cta')}
               onSelect={() => handleSelectPlan('premium')}
               highlighted
-            />
-
-            {/* Lifetime */}
-            <PlanCard
-              name={t('pricing.plans.lifetime.name')}
-              price={t('pricing.plans.lifetime.price', { price: PLANS.lifetime.price })}
-              priceSubtitle={t('pricing.plans.lifetime.priceSubtitle')}
-              features={Array.from({ length: PLANS.lifetime.features }, (_, i) =>
-                t(`pricing.plans.lifetime.features.${i}`)
-              )}
-              cta={t('pricing.cta')}
-              onSelect={() => handleSelectPlan('lifetime')}
-              highlighted={false}
             />
           </div>
         </div>

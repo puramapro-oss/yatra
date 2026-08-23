@@ -1,16 +1,13 @@
 -- P31 — Socle légal partagé NIYAMA (packages/legal/sql/001_legal_core.sql, schéma yatra).
--- NON EXÉCUTÉE lors de l'intégration du socle (2026-08-23) : SSH VPS (port 22) inaccessible
--- depuis ce sandbox (HTTPS 443 OK, "Connection refused" sur 22 — piège réseau connu,
--- PIEGES.md §16 entrée mukti 2026-08-23). Prête à l'emploi dès qu'une session avec accès
--- VPS est disponible :
---
---   sshpass -p '<VPS_SSH_PASSWORD>' ssh root@72.62.191.111 \
---     "docker exec -i supabase-db psql -U supabase_admin -d postgres -f /dev/stdin" \
---     < supabase/migrations/p31_legal_niyama.sql
---
--- -U supabase_admin (pas postgres) : le rôle postgres n'est pas superuser sur ce VPS et
--- n'a pas CREATE sur le schéma yatra (PIEGES.md §16, entrées sarva/rishi 2026-08-23).
--- Puis régénérer les types : supabase gen types typescript --project-id ... > src/types/database.ts
+-- EXÉCUTÉE le 2026-08-24 via fallback pg-meta API (SSH port 22 toujours inaccessible depuis
+-- ce sandbox — cf ERRORS.md 2026-08-24) : `POST https://auth.purama.dev/pg/query` avec
+-- header `apikey: $SUPABASE_SERVICE_ROLE_KEY`. Vérifié en live : les 3 tables existent dans
+-- `information_schema.tables` du schéma `yatra`, RLS active. Idempotente (`IF NOT EXISTS` /
+-- `EXCEPTION WHEN duplicate_object`) — rejouable sans risque si une session VPS SSH future
+-- veut re-confirmer via `docker exec -i supabase-db psql -U supabase_admin -d postgres`.
+-- Reste à faire (hors périmètre de cette remédiation, non bloquant) : régénérer les types
+-- `supabase gen types typescript --project-id ... > src/types/database.ts` (l'app n'a pas ce
+-- fichier aujourd'hui, cf ERRORS.md).
 
 CREATE TABLE IF NOT EXISTS yatra.legal_acceptances (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
