@@ -39,7 +39,7 @@ export function CinematicIntro() {
       clearTimeout(t3)
       clearTimeout(t4)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [])
 
   function skip() {

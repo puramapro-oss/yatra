@@ -6,20 +6,42 @@ import { Search, Mic, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 // Type declarations for Web Speech API
-interface SpeechRecognitionEvent {
-  results: {
-    [index: number]: {
-      [index: number]: {
-        transcript: string
-      }
-    }
-  }
+interface SpeechRecognitionResultItem {
+  transcript: string
+  confidence: number
+}
+
+interface SpeechRecognitionResult {
+  [index: number]: SpeechRecognitionResultItem
+  isFinal: boolean
+}
+
+interface SpeechRecognitionResultList {
+  [index: number]: SpeechRecognitionResult
+  length: number
+}
+
+interface SpeechRecognitionEventData {
+  results: SpeechRecognitionResultList
+  resultIndex: number
+}
+
+interface SpeechRecognitionInstance {
+  lang: string
+  continuous: boolean
+  interimResults: boolean
+  onstart: (() => void) | null
+  onend: (() => void) | null
+  onresult: ((event: SpeechRecognitionEventData) => void) | null
+  onerror: ((event: Event) => void) | null
+  start: () => void
+  stop: () => void
 }
 
 declare global {
   interface Window {
-    SpeechRecognition?: new () => any
-    webkitSpeechRecognition?: new () => any
+    SpeechRecognition?: new () => SpeechRecognitionInstance
+    webkitSpeechRecognition?: new () => SpeechRecognitionInstance
   }
 }
 
@@ -38,13 +60,9 @@ export function NLUSearchBar() {
   const [query, setQuery] = useState('')
   const [searching, setSearching] = useState(false)
   const [listening, setListening] = useState(false)
-  const [hasSpeechAPI, setHasSpeechAPI] = useState(false)
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setHasSpeechAPI('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
-    }
-  }, [])
+  const [hasSpeechAPI] = useState(() =>
+    typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
+  )
 
   async function handleSearch() {
     const trimmed = query.trim()
@@ -108,7 +126,9 @@ export function NLUSearchBar() {
   function handleVoiceInput() {
     if (!hasSpeechAPI || listening) return
     try {
-      const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+      if (!SpeechRecognition) return
+
       const recognition = new SpeechRecognition()
       recognition.lang = 'fr-FR'
       recognition.continuous = false
@@ -117,7 +137,7 @@ export function NLUSearchBar() {
       recognition.onstart = () => setListening(true)
       recognition.onend = () => setListening(false)
 
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event: SpeechRecognitionEventData) => {
         const transcript = event.results?.[0]?.[0]?.transcript ?? ''
         if (transcript) {
           setQuery(transcript)

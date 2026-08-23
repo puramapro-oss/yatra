@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Sparkles, Loader2, MapPin, Navigation, Euro, Clock, Leaf, TrendingUp, ArrowRight } from 'lucide-react'
@@ -37,30 +37,36 @@ type SurpriseResult = {
 
 export function SurpriseView() {
   const searchParams = useSearchParams()
-  const [rayon, setRayon] = useState(20)
-  const [budget, setBudget] = useState<0 | 5 | 10>(0)
-  const [duree, setDuree] = useState<'2h' | 'demi_journee' | 'weekend'>('2h')
+
+  // Initialise depuis query params ou défauts
+  const [rayon, setRayon] = useState(() => {
+    const rayonParam = searchParams?.get('rayon')
+    if (rayonParam) {
+      const r = Number(rayonParam)
+      if (r >= 5 && r <= 100) return r
+    }
+    return 20
+  })
+
+  const [budget, setBudget] = useState<0 | 5 | 10>(() => {
+    const budgetParam = searchParams?.get('budget')
+    if (budgetParam && ['0', '5', '10'].includes(budgetParam)) {
+      return Number(budgetParam) as 0 | 5 | 10
+    }
+    return 0
+  })
+
+  const [duree, setDuree] = useState<'2h' | 'demi_journee' | 'weekend'>(() => {
+    const dureeParam = searchParams?.get('duree')
+    if (dureeParam && ['2h', 'demi_journee', 'weekend'].includes(dureeParam)) {
+      return dureeParam as '2h' | 'demi_journee' | 'weekend'
+    }
+    return '2h'
+  })
+
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<SurpriseResult | null>(null)
   const [geolocationError, setGeolocationError] = useState(false)
-
-  // Lire les query params pour pré-remplir le formulaire (depuis NLU search)
-  useEffect(() => {
-    const rayonParam = searchParams?.get('rayon')
-    const budgetParam = searchParams?.get('budget')
-    const dureeParam = searchParams?.get('duree')
-
-    if (rayonParam) {
-      const r = Number(rayonParam)
-      if (r >= 5 && r <= 100) setRayon(r)
-    }
-    if (budgetParam && ['0', '5', '10'].includes(budgetParam)) {
-      setBudget(Number(budgetParam) as 0 | 5 | 10)
-    }
-    if (dureeParam && ['2h', 'demi_journee', 'weekend'].includes(dureeParam)) {
-      setDuree(dureeParam as '2h' | 'demi_journee' | 'weekend')
-    }
-  }, [searchParams])
 
   async function handleSurprise() {
     setLoading(true)

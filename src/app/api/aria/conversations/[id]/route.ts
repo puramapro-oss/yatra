@@ -87,7 +87,7 @@ export async function PATCH(
           const summary = await askClaudeJSON<{ summary: string; sentiment: string }>(
             `Tu es un analyste qui résume des conversations YATRA-Aria. Réponds en JSON {"summary": "...", "sentiment": "apaise|energise|inspire|doute|libere|neutre"}. Résumé en 1-2 phrases françaises, factuel, sans jugement. Sentiment selon ce que la personne semble ressentir À LA FIN.`,
             transcript,
-            { model: 'fast', maxTokens: 200 },
+            { model: 'fast', maxTokens: 200, userId: user.id },
           )
           if (summary?.summary) updates.summary = summary.summary.slice(0, 600)
           if (summary?.sentiment && isValidSentiment(summary.sentiment)) updates.sentiment = summary.sentiment

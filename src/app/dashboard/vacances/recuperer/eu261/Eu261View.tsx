@@ -1,11 +1,9 @@
 'use client'
-
 import { useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, PlaneTakeoff, Copy, CheckCircle2, AlertTriangle, HelpCircle } from 'lucide-react'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { formatPrice } from '@/lib/utils'
-
 type Airport = { code_iata: string; nom: string; ville: string; pays: string; ue: boolean }
 type Claim = {
   id: string
@@ -20,20 +18,17 @@ type Claim = {
   lettre_texte: string
   statut: 'brouillon' | 'envoyee' | 'obtenue' | 'refusee'
 }
-
 const INCIDENT_LABELS: Record<Claim['type_incident'], string> = {
   retard: 'Retard à l\'arrivée',
   annulation: 'Annulation',
   refus_embarquement: 'Refus d\'embarquement (surbooking)',
 }
-
 const STATUT_LABELS: Record<Claim['statut'], { label: string; cls: string }> = {
   brouillon: { label: 'Brouillon', cls: 'bg-white/5 text-white/55 border-white/10' },
   envoyee: { label: 'Envoyée', cls: 'bg-cyan-400/15 text-cyan-300 border-cyan-400/40' },
   obtenue: { label: 'Obtenue', cls: 'bg-emerald-400/15 text-emerald-300 border-emerald-400/40' },
   refusee: { label: 'Refusée', cls: 'bg-rose-400/15 text-rose-300 border-rose-400/40' },
 }
-
 export function Eu261View({ initialReclamations, aeroports, nomComplet }: { initialReclamations: Claim[]; aeroports: Airport[]; nomComplet: string }) {
   const [claims, setClaims] = useState<Claim[]>(initialReclamations)
   const [form, setForm] = useState({

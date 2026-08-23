@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Sparkles, CheckCircle2, AlertCircle, Plane, Home, UtensilsCrossed, Ticket } from 'lucide-react'
@@ -35,8 +35,24 @@ type Proposition = {
 
 export function BudgetView() {
   const searchParams = useSearchParams()
-  const [budget, setBudget] = useState('600')
-  const [jours, setJours] = useState('5')
+
+  // Préremplir depuis query params (routeur NLU) ou défauts
+  const [budget, setBudget] = useState(() => {
+    const budgetParam = searchParams?.get('budget')
+    if (budgetParam && !Number.isNaN(Number(budgetParam))) {
+      return budgetParam
+    }
+    return '600'
+  })
+
+  const [jours, setJours] = useState(() => {
+    const joursParam = searchParams?.get('jours')
+    if (joursParam && !Number.isNaN(Number(joursParam))) {
+      return joursParam
+    }
+    return '5'
+  })
+
   const [depart, setDepart] = useState('Paris')
   const [avecQui, setAvecQui] = useState('')
   const [envies, setEnvies] = useState<string[]>([])
@@ -44,18 +60,6 @@ export function BudgetView() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [propositions, setPropositions] = useState<Proposition[] | null>(null)
-
-  // Préremplir depuis query params (routeur NLU)
-  useEffect(() => {
-    const budgetParam = searchParams?.get('budget')
-    const joursParam = searchParams?.get('jours')
-    if (budgetParam && !Number.isNaN(Number(budgetParam))) {
-      setBudget(budgetParam)
-    }
-    if (joursParam && !Number.isNaN(Number(joursParam))) {
-      setJours(joursParam)
-    }
-  }, [searchParams])
 
   function toggleEnvie(id: string) {
     setEnvies((prev) => (prev.includes(id) ? prev.filter((e) => e !== id) : [...prev, id]))

@@ -10,6 +10,8 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { formatPrice, formatDate } from '@/lib/utils'
+import { Group } from './components/Group'
+import { Tag } from './components/Tag'
 
 type Aide = {
   id: string
@@ -100,9 +102,7 @@ export function AideDetailView({ aide, subscription }: { aide: Aide; subscriptio
             <span className="text-sm">Toutes les aides</span>
           </Link>
         </header>
-
         <div className="px-6 pb-16 max-w-3xl mx-auto space-y-5">
-          {/* Hero */}
           <section className="glass rounded-3xl p-6 sm:p-8 space-y-4">
             <div className="flex items-center gap-2 flex-wrap">
               {aide.category && <span className="text-[10px] uppercase tracking-wider px-2 py-1 rounded bg-emerald-400/15 text-emerald-300 border border-emerald-400/30">{aide.category}</span>}
@@ -118,11 +118,9 @@ export function AideDetailView({ aide, subscription }: { aide: Aide; subscriptio
                 </span>
               )}
             </div>
-
             <h1 className="text-2xl sm:text-3xl font-bold leading-tight" style={{ fontFamily: 'var(--font-display)' }}>
               {aide.nom}
             </h1>
-
             {aide.montant_max && Number(aide.montant_max) > 0 && (
               <div className="flex items-center gap-2 text-emerald-300">
                 <Banknote size={20} />
@@ -131,12 +129,10 @@ export function AideDetailView({ aide, subscription }: { aide: Aide; subscriptio
                 </span>
               </div>
             )}
-
             {aide.description && (
               <p className="text-sm text-white/70 leading-relaxed">{aide.description}</p>
             )}
           </section>
-
           {/* Actions */}
           <section className="flex flex-col sm:flex-row gap-2">
             {aide.url_officielle && (
@@ -197,12 +193,8 @@ export function AideDetailView({ aide, subscription }: { aide: Aide; subscriptio
               </div>
             )
           )}
-
-          {/* Métadonnées */}
           <section className="glass rounded-2xl p-5 space-y-3">
-            <h2 className="text-sm font-semibold text-white/80" style={{ fontFamily: 'var(--font-display)' }}>
-              Pour qui&nbsp;?
-            </h2>
+            <h2 className="text-sm font-semibold text-white/80" style={{ fontFamily: 'var(--font-display)' }}>Pour qui&nbsp;?</h2>
             {aide.situation_eligible && aide.situation_eligible.length > 0 && (
               <Group label="Situations éligibles">
                 {aide.situation_eligible.map((s) => (
@@ -303,22 +295,5 @@ export function AideDetailView({ aide, subscription }: { aide: Aide; subscriptio
         </div>
       </main>
     </>
-  )
-}
-
-function Group({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <p className="text-[10px] uppercase tracking-wider text-white/40 mb-1.5">{label}</p>
-      <div className="flex flex-wrap gap-1.5">{children}</div>
-    </div>
-  )
-}
-
-function Tag({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/5 text-white/65 border border-white/10">
-      {children}
-    </span>
   )
 }

@@ -7,7 +7,11 @@ export default getRequestConfig(async () => {
   const cookieLocale = store.get('NEXT_LOCALE')?.value
 
   // Validate cookie locale against supported locales
-  const locale = cookieLocale && locales.includes(cookieLocale as any)
+  const isValidLocale = (value: string): value is typeof locales[number] => {
+    return (locales as readonly string[]).includes(value)
+  }
+
+  const locale = cookieLocale && isValidLocale(cookieLocale)
     ? cookieLocale
     : defaultLocale
 

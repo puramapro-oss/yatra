@@ -1,15 +1,14 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import {
-  ArrowLeft, MapPin, Search, Loader2, Sparkles, Leaf, Wind, Clock, EuroIcon,
-} from 'lucide-react'
-import { toast } from 'sonner'
+import { ArrowLeft, Loader2, Sparkles, Leaf, Clock, EuroIcon } from 'lucide-react'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
-import { MOBILITY_LABELS, MOBILITY_EMOJI } from '@/types/vida'
 import type { GeocodeResult, RouteCombination } from '@/types/trip'
+import { PlaceSearch } from './components/PlaceSearch'
+import { CombinationCard } from './components/CombinationCard'
+import { SortButton } from './components/SortButton'
 
 type Place = GeocodeResult & { __key?: string }
 
@@ -24,19 +23,13 @@ export function TrajetPlanner({
   const searchParams = useSearchParams()
   const [from, setFrom] = useState<Place | null>(null)
   const [to, setTo] = useState<Place | null>(null)
-  const [toQueryHint, setToQueryHint] = useState<string | null>(null)
   const [combinations, setCombinations] = useState<RouteCombination[]>([])
   const [loadingRoute, setLoadingRoute] = useState(false)
   const [starting, setStarting] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<'prix' | 'duree' | 'co2' | 'points'>('prix')
 
   // Préremplir destination depuis query params (routeur NLU)
-  useEffect(() => {
-    const toParam = searchParams?.get('to')
-    if (toParam) {
-      setToQueryHint(toParam)
-    }
-  }, [searchParams])
+  const toQueryHint = searchParams?.get('to') ?? null
 
   const compute = useCallback(async (f: Place, t: Place) => {
     setLoadingRoute(true)
@@ -198,296 +191,5 @@ export function TrajetPlanner({
         </div>
       </main>
     </>
-  )
-}
-
-function PlaceSearch({
-  label,
-  placeholder,
-  value,
-  onChange,
-  autoFillLast,
-  queryHint,
-}: {
-  label: string
-  placeholder: string
-  value: Place | null
-  onChange: (p: Place | null) => void
-  autoFillLast?: boolean
-  queryHint?: string | null
-}) {
-  const [query, setQuery] = useState(value?.label ?? '')
-  const [suggestions, setSuggestions] = useState<GeocodeResult[]>([])
-  const [searching, setSearching] = useState(false)
-  const [open, setOpen] = useState(false)
-
-  // Auto-fill query from hint (NLU search router)
-  useEffect(() => {
-    if (queryHint && !query && !value) {
-      setQuery(queryHint)
-    }
-  }, [queryHint, query, value])
-
-  const search = useCallback(async (q: string) => {
-    if (q.trim().length < 2) {
-      setSuggestions([])
-      return
-    }
-    setSearching(true)
-    try {
-      const r = await fetch(`/api/vida/geocode?q=${encodeURIComponent(q)}`)
-      const d = await r.json()
-      setSuggestions((d.results as GeocodeResult[]) ?? [])
-      setOpen(true)
-    } catch {
-      setSuggestions([])
-    } finally {
-      setSearching(false)
-    }
-  }, [])
-
-  const handleGeolocate = () => {
-    if (!('geolocation' in navigator)) {
-      toast.error('Géolocalisation indisponible')
-      return
-    }
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const lat = pos.coords.latitude
-        const lon = pos.coords.longitude
-        const place: Place = { label: 'Ma position actuelle', lat, lon }
-        onChange(place)
-        setQuery(place.label)
-      },
-      () => toast.error('Position refusée'),
-      { enableHighAccuracy: true, timeout: 8000 },
-    )
-  }
-
-  return (
-    <div className="relative">
-      <label className="block text-xs uppercase tracking-wider text-white/40 mb-1.5">{label}</label>
-      <div className="flex gap-2">
-        <div className="flex-1 relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/35" />
-          <input
-            type="text"
-            value={query}
-            placeholder={placeholder}
-            onChange={(e) => {
-              setQuery(e.target.value)
-              search(e.target.value)
-              if (!e.target.value) onChange(null)
-            }}
-            onFocus={() => setOpen(true)}
-            onBlur={() => setTimeout(() => setOpen(false), 150)}
-            className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-sm focus:border-emerald-400/50 focus:outline-none transition"
-          />
-          {open && suggestions.length > 0 && (
-            <div className="absolute z-50 mt-1 w-full bg-[#0d0d12] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
-              {suggestions.map((s, i) => (
-                <button
-                  key={`${s.lat}-${s.lon}-${i}`}
-                  type="button"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    onChange({ ...s })
-                    setQuery(s.label)
-                    setOpen(false)
-                  }}
-                  className="w-full text-left px-3 py-2 text-sm hover:bg-white/5 border-b border-white/5 last:border-0 transition"
-                >
-                  <span className="text-white/80 line-clamp-1">{s.label}</span>
-                </button>
-              ))}
-            </div>
-          )}
-          {searching && (
-            <Loader2
-              size={14}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 animate-spin"
-            />
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={handleGeolocate}
-          aria-label="Utiliser ma position"
-          className="px-3 py-2.5 rounded-xl border border-white/10 hover:border-emerald-400/40 hover:bg-emerald-400/5 transition text-white/70 hover:text-white"
-          title="Ma position"
-        >
-          <MapPin size={16} />
-        </button>
-      </div>
-      {value && value.label !== 'Ma position actuelle' && (
-        <p className="text-[11px] text-emerald-400/70 mt-1.5">✓ {value.label.split(',').slice(0, 2).join(',')}</p>
-      )}
-      {autoFillLast && null}
-    </div>
-  )
-}
-
-function SortButton({
-  active,
-  onClick,
-  label,
-  icon,
-}: {
-  active: boolean
-  onClick: () => void
-  label: string
-  icon: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex items-center gap-1 px-2 py-1 rounded-lg border transition ${
-        active
-          ? 'bg-violet-400/15 text-violet-300 border-violet-400/40'
-          : 'bg-white/5 text-white/50 border-white/10 hover:bg-white/8'
-      }`}
-    >
-      {icon}
-      <span>{label}</span>
-    </button>
-  )
-}
-
-function CombinationCard({
-  combo,
-  rank,
-  sortBy,
-  onStart,
-  starting,
-  disabled,
-}: {
-  combo: RouteCombination
-  rank: number
-  sortBy: 'prix' | 'duree' | 'co2' | 'points'
-  onStart: () => void
-  starting: boolean
-  disabled: boolean
-}) {
-  const isClean = combo.tags.includes('cleanest')
-  const isCheap = combo.tags.includes('cheapest')
-  const isApais = combo.tags.includes('apaisant')
-
-  // Highlight stat selon tri actif
-  const highlightMap = {
-    prix: 0,
-    duree: 1,
-    co2: 2,
-    points: 3,
-  }
-  const highlightIndex = highlightMap[sortBy]
-
-  return (
-    <div className="glass rounded-2xl p-4 flex flex-col gap-3 hover:border-emerald-400/30 transition relative">
-      {rank === 1 && (
-        <div className="absolute -top-2 -right-2 bg-gradient-to-r from-amber-400 to-amber-500 text-black text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full shadow-lg">
-          ⭐ N°1
-        </div>
-      )}
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">{MOBILITY_EMOJI[combo.mode_dominant]}</span>
-          <h3 className="font-semibold text-sm leading-tight">{combo.label}</h3>
-        </div>
-        <div className="flex flex-wrap gap-1 justify-end">
-          {isCheap && <Tag color="amber">💸 Moins cher</Tag>}
-          {isClean && <Tag color="emerald">🌿 Plus propre</Tag>}
-          {isApais && <Tag color="violet">🧘 Apaisant</Tag>}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2 text-xs">
-        <Stat
-          icon={<EuroIcon size={12} />}
-          label="Coût"
-          value={`${combo.cost_eur.toFixed(2)} €`}
-          highlight={highlightIndex === 0}
-        />
-        <Stat
-          icon={<Clock size={12} />}
-          label="Durée"
-          value={`${Math.round(combo.duration_min)} min`}
-          highlight={highlightIndex === 1}
-        />
-        <Stat
-          icon={<Leaf size={12} />}
-          label="CO₂ évité"
-          value={`${combo.co2_avoided_kg.toFixed(2)} kg`}
-          highlight={highlightIndex === 2}
-        />
-        <Stat
-          icon={<Sparkles size={12} />}
-          label="Tu gagnes"
-          value={combo.gain_credits_eur > 0 ? `+ ${combo.gain_credits_eur.toFixed(2)} €` : '—'}
-          highlight={highlightIndex === 3 && combo.gain_credits_eur > 0}
-        />
-      </div>
-
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] text-white/35">
-          <Wind size={11} className="inline mr-1" />
-          Apaisement {combo.apaisement_score.toFixed(1)}/10
-        </span>
-        <button
-          type="button"
-          onClick={onStart}
-          disabled={disabled || starting}
-          className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 text-black text-xs font-semibold disabled:opacity-50 hover:scale-[1.02] active:scale-95 transition"
-        >
-          {starting ? <Loader2 className="animate-spin inline" size={12} /> : 'Démarrer'}
-        </button>
-      </div>
-
-      {combo.steps.length > 1 && (
-        <div className="border-t border-white/5 pt-2 flex flex-wrap gap-1.5 text-[10px] text-white/45">
-          {combo.steps.map((s, i) => (
-            <span key={i} className="px-1.5 py-0.5 rounded bg-white/5">
-              {MOBILITY_EMOJI[s.mode]} {MOBILITY_LABELS[s.mode]} {s.distance_km}km
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
-function Stat({
-  icon,
-  label,
-  value,
-  highlight,
-}: {
-  icon: React.ReactNode
-  label: string
-  value: string
-  highlight?: boolean
-}) {
-  return (
-    <div className={`rounded-lg px-2.5 py-1.5 ${highlight ? 'bg-emerald-400/10 border border-emerald-400/30' : 'bg-white/3 border border-white/5'}`}>
-      <div className="flex items-center gap-1 text-white/50 text-[10px] uppercase tracking-wider">
-        {icon} {label}
-      </div>
-      <div className={`text-sm font-semibold mt-0.5 ${highlight ? 'text-emerald-300' : 'text-white/85'}`}>
-        {value}
-      </div>
-    </div>
-  )
-}
-
-function Tag({ color, children }: { color: 'emerald' | 'amber' | 'violet'; children: React.ReactNode }) {
-  const cls = {
-    emerald: 'bg-emerald-400/15 text-emerald-300 border-emerald-400/30',
-    amber: 'bg-amber-400/15 text-amber-300 border-amber-400/30',
-    violet: 'bg-violet-400/15 text-violet-300 border-violet-400/30',
-  }[color]
-  return (
-    <span className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border ${cls}`}>
-      {children}
-    </span>
   )
 }

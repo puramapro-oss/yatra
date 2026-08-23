@@ -1,5 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
+import { smarana } from '@purama/smarana'
 
+// streamClaude utilise encore Anthropic directement car smarana ne supporte pas le streaming (P0/P1)
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
 
 export const MODELS = {
@@ -10,19 +12,25 @@ export const MODELS = {
 
 type ModelKey = keyof typeof MODELS
 
+// Loi 1 SMARANA-BRIEF.md : "Aucune app n'appelle l'API directement. Tout passe par smarana.ask()."
+// YATRA ne détient plus de client Anthropic pour askClaude/askClaudeJSON — mémoire cross-écosystème + cache + usage
+// centralisés dans @purama/smarana (packages/smarana).
+// EXCEPTION : streamClaude continue d'utiliser Anthropic directement car streaming non supporté P0/P1.
 export async function askClaude(
   systemPrompt: string,
   userMessage: string,
-  options: { model?: ModelKey; maxTokens?: number } = {},
+  options: { model?: ModelKey; maxTokens?: number; userId?: string } = {},
 ) {
-  const { model = 'main', maxTokens = 4096 } = options
-  const response = await anthropic.messages.create({
-    model: MODELS[model],
-    max_tokens: maxTokens,
+  const { model = 'main', maxTokens = 4096, userId } = options
+  const result = await smarana.ask({
+    appSlug: 'yatra',
+    userId,
     system: systemPrompt,
-    messages: [{ role: 'user', content: userMessage }],
+    message: userMessage,
+    tier: model, // ModelKey → ClaudeTier ('fast'/'main'/'pro' sont identiques)
+    maxTokens,
   })
-  return response.content[0]?.type === 'text' ? response.content[0].text : ''
+  return result.text
 }
 
 export async function streamClaude(
@@ -42,7 +50,7 @@ export async function streamClaude(
 export async function askClaudeJSON<T>(
   systemPrompt: string,
   userMessage: string,
-  options: { model?: ModelKey; maxTokens?: number } = {},
+  options: { model?: ModelKey; maxTokens?: number; userId?: string } = {},
 ): Promise<T> {
   const text = await askClaude(
     systemPrompt + '\n\nRéponds UNIQUEMENT en JSON valide, sans backticks, sans commentaires.',

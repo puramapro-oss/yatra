@@ -95,7 +95,9 @@ export function useAuth() {
       try {
         localStorage.clear()
         sessionStorage.clear()
-      } catch {}
+      } catch (error) {
+        console.error('Erreur clear storage:', error)
+      }
       window.location.href = '/login'
     }
   }

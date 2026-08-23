@@ -87,7 +87,7 @@ Exemples:
     const result = await askClaudeJSON<SearchResult>(
       systemPrompt,
       `Requête utilisateur : "${parsed.data.query}"`,
-      { model: 'fast', maxTokens: 300 },
+      { model: 'fast', maxTokens: 300, userId: user.id },
     )
 
     // Validation basique du JSON retourné

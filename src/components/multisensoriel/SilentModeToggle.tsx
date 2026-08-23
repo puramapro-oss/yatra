@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { Volume2, VolumeX } from 'lucide-react'
 
@@ -12,23 +12,18 @@ import { Volume2, VolumeX } from 'lucide-react'
  */
 export function SilentModeToggle() {
   const pathname = usePathname()
-  const [silentMode, setSilentMode] = useState(false)
-  const [visible, setVisible] = useState(false)
-
-  // Affiche uniquement dans le dashboard
-  useEffect(() => {
-    setVisible(pathname?.startsWith('/dashboard') ?? false)
-  }, [pathname])
-
-  // Charge l'état initial depuis localStorage
-  useEffect(() => {
-    if (typeof window === 'undefined') return
+  const [silentMode, setSilentMode] = useState(() => {
+    if (typeof window === 'undefined') return false
     const stored = localStorage.getItem('yatra-silent-mode')
     if (stored === '1') {
-      setSilentMode(true)
       document.documentElement.setAttribute('data-silent-mode', '1')
+      return true
     }
-  }, [])
+    return false
+  })
+
+  // Dérive visibility depuis pathname
+  const visible = pathname?.startsWith('/dashboard') ?? false
 
   async function toggle() {
     const next = !silentMode

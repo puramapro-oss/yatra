@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { QrCode, ArrowLeft, Plus } from 'lucide-react'
+import { QrCode, ArrowLeft } from 'lucide-react'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { isSuperAdmin } from '@/lib/utils'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
