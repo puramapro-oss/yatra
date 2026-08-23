@@ -10,8 +10,6 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.1",
-    "@purama/smarana": "file:../packages/smarana",
-    "pg": "^8.22.0",
     "@capacitor/android": "^7.6.8",
     "@capacitor/app": "^7.1.2",
     "@capacitor/cli": "^7.6.8",
@@ -22,6 +20,7 @@
     "@capacitor/push-notifications": "^7.0.7",
     "@capacitor/splash-screen": "^7.0.5",
     "@capacitor/status-bar": "^7.0.6",
+    "@purama/smarana": "github:puramapro-oss/purama-smarana#main",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.0",
     "@stripe/stripe-js": "^9.3.1",
@@ -41,6 +40,7 @@
     "mapbox-gl": "^3.22.0",
     "next": "16.2.11",
     "next-intl": "^4.9.1",
+    "pg": "^8.22.0",
     "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -55,10 +55,10 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@purama/eslint-config": "file:../packages/eslint-config-purama",
     "@axe-core/playwright": "^4.13.0",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.59.1",
+    "@purama/eslint-config": "file:../packages/eslint-config-purama",
     "@tailwindcss/postcss": "^4",
     "@types/mapbox-gl": "^3.4.1",
     "@types/node": "^20",

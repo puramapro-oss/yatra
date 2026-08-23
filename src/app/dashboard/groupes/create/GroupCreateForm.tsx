@@ -3,10 +3,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, Plus, Train, Users, Calendar, AlertCircle } from 'lucide-react'
+import { ArrowLeft, Loader2, Plus, Train, Users, Calendar } from 'lucide-react'
 import { toast } from 'sonner'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { Field } from '@/components/forms/Field'
+import { EventGratuitFields } from './EventGratuitFields'
+import { TrajetSNCFFields } from './TrajetSNCFFields'
+import { ActivitePartenaireFields } from './ActivitePartenaireFields'
 
 type PoolType = 'event_gratuit' | 'trajet_sncf' | 'activite_partenaire'
 
@@ -209,138 +212,35 @@ export function GroupCreateForm({ defaultCity }: { defaultCity: string }) {
             </Field>
 
             {poolType === 'trajet_sncf' && (
-              <>
-                <div className="glass-soft rounded-2xl p-4 flex items-start gap-3 text-sm text-amber-200/90">
-                  <AlertCircle size={18} className="shrink-0 mt-0.5" />
-                  <div>
-                    <strong>Réservation manuelle</strong> : YATRA ne réserve pas à votre place. Ce pool met en relation les
-                    utilisateurs intéressés par le même trajet. Une fois le seuil atteint, vous recevrez un code et un lien vers
-                    SNCF Connect pour réserver manuellement votre billet groupe.
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="Origine">
-                    <input
-                      type="text"
-                      required
-                      value={origine}
-                      onChange={(e) => setOrigine(e.target.value)}
-                      placeholder="Ex. Paris"
-                      className="input"
-                    />
-                  </Field>
-                  <Field label="Destination">
-                    <input
-                      type="text"
-                      required
-                      value={destination}
-                      onChange={(e) => setDestination(e.target.value)}
-                      placeholder="Ex. Lyon"
-                      className="input"
-                    />
-                  </Field>
-                </div>
-                <Field label="Date de départ souhaitée">
-                  <input
-                    type="date"
-                    required
-                    value={dateDepart}
-                    onChange={(e) => setDateDepart(e.target.value)}
-                    className="input"
-                  />
-                </Field>
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="Tarif individuel estimé (€)">
-                    <input
-                      type="number"
-                      step="0.01"
-                      min={0}
-                      required
-                      value={tarifIndividuel}
-                      onChange={(e) => setTarifIndividuel(e.target.value)}
-                      placeholder="ex 75"
-                      className="input"
-                    />
-                  </Field>
-                  <Field label="Réduction groupe estimée (%)">
-                    <input
-                      type="number"
-                      min={0}
-                      max={100}
-                      required
-                      value={reductionPct}
-                      onChange={(e) => setReductionPct(e.target.value)}
-                      placeholder="ex 25"
-                      className="input"
-                    />
-                  </Field>
-                </div>
-              </>
+              <TrajetSNCFFields
+                origine={origine}
+                setOrigine={setOrigine}
+                destination={destination}
+                setDestination={setDestination}
+                dateDepart={dateDepart}
+                setDateDepart={setDateDepart}
+                tarifIndividuel={tarifIndividuel}
+                setTarifIndividuel={setTarifIndividuel}
+                reductionPct={reductionPct}
+                setReductionPct={setReductionPct}
+              />
             )}
 
             {poolType === 'activite_partenaire' && (
-              <>
-                <Field label="Nom du partenaire">
-                  <input
-                    type="text"
-                    required
-                    value={nomPartenaire}
-                    onChange={(e) => setNomPartenaire(e.target.value)}
-                    placeholder="Ex. Kayak Loire Aventure"
-                    className="input"
-                  />
-                </Field>
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="Prix individuel (€)">
-                    <input
-                      type="number"
-                      step="0.01"
-                      min={0}
-                      required
-                      value={unitPrice}
-                      onChange={(e) => setUnitPrice(e.target.value)}
-                      placeholder="ex 45"
-                      className="input"
-                    />
-                  </Field>
-                  <Field label="Prix groupe (€)">
-                    <input
-                      type="number"
-                      step="0.01"
-                      min={0}
-                      required
-                      value={groupPrice}
-                      onChange={(e) => setGroupPrice(e.target.value)}
-                      placeholder="ex 30"
-                      className="input"
-                    />
-                  </Field>
-                </div>
-                <Field label="URL partenaire (facultatif)">
-                  <input
-                    type="url"
-                    value={partnerUrl}
-                    onChange={(e) => setPartnerUrl(e.target.value)}
-                    placeholder="https://..."
-                    className="input"
-                  />
-                </Field>
-              </>
+              <ActivitePartenaireFields
+                nomPartenaire={nomPartenaire}
+                setNomPartenaire={setNomPartenaire}
+                unitPrice={unitPrice}
+                setUnitPrice={setUnitPrice}
+                groupPrice={groupPrice}
+                setGroupPrice={setGroupPrice}
+                partnerUrl={partnerUrl}
+                setPartnerUrl={setPartnerUrl}
+              />
             )}
 
             {poolType === 'event_gratuit' && (
-              <Field label="Prix de l'event (€)">
-                <input
-                  type="number"
-                  step="0.01"
-                  min={0}
-                  required
-                  value={eventPrice}
-                  onChange={(e) => setEventPrice(e.target.value)}
-                  placeholder="0 si gratuit, ou <10€ si peu cher"
-                  className="input"
-                />
-              </Field>
+              <EventGratuitFields eventPrice={eventPrice} setEventPrice={setEventPrice} />
             )}
 
             <Field label="Ville">

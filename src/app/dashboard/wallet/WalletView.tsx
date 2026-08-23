@@ -4,12 +4,14 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  ArrowLeft, ArrowUpRight, ArrowDownLeft, RotateCcw, Sparkles, Compass, Users,
-  Trophy, Clock, Shield, Banknote,
+  ArrowLeft, ArrowUpRight, RotateCcw, Sparkles, Compass, Users,
+  Trophy, Shield, Banknote,
 } from 'lucide-react'
-import { formatPrice, formatRelativeDate, ancienneteMultiplier } from '@/lib/utils'
+import { formatPrice, ancienneteMultiplier } from '@/lib/utils'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { WithdrawModal } from '@/components/wallet/WithdrawModal'
+import { TransactionList } from './TransactionList'
+import { WithdrawalList } from './WithdrawalList'
 
 type Tx = {
   id: string
@@ -175,40 +177,8 @@ export function WalletView({
             <SourceCard icon={<Trophy size={16} />} label="Concours & Tirages" value={fromContests} color="violet" />
           </section>
 
-          {/* Historique transactions */}
-          <section className="space-y-3">
-            <h2 className="text-sm font-semibold text-white/80 px-1 flex items-center gap-2">
-              <Clock size={14} /> Historique récent
-            </h2>
-            {transactions.length === 0 ? (
-              <div className="glass rounded-2xl p-8 text-center text-sm text-white/55">
-                Aucun mouvement pour l&apos;instant. Commence par un trajet propre 🚲
-              </div>
-            ) : (
-              <ul className="glass rounded-2xl divide-y divide-white/5">
-                {transactions.map((t) => (
-                  <TxRow key={t.id} tx={t} />
-                ))}
-              </ul>
-            )}
-          </section>
-
-          {/* Retraits */}
-          {withdrawals.length > 0 && (
-            <section className="space-y-3">
-              <h2 className="text-sm font-semibold text-white/80 px-1 flex items-center gap-2">
-                <ArrowUpRight size={14} /> Retraits
-              </h2>
-              <ul className="glass rounded-2xl divide-y divide-white/5">
-                {withdrawals.map((w) => (
-                  <WithdrawalRow key={w.id} wd={w} />
-                ))}
-              </ul>
-              <p className="text-[11px] text-white/35 px-1">
-                Pré-Treezor : retraits validés manuellement par l&apos;équipe sous 48 h ouvrées.
-              </p>
-            </section>
-          )}
+          <TransactionList transactions={transactions} />
+          <WithdrawalList withdrawals={withdrawals} />
 
           <div className="text-center text-xs text-white/30 pt-4">
             Total déjà retiré : {formatPrice(totalWithdrawn)}
@@ -288,98 +258,3 @@ function SourceCard({
   )
 }
 
-function TxRow({ tx }: { tx: Tx }) {
-  const isCredit = tx.type === 'credit' || tx.type === 'refund'
-  const Icon = isCredit ? ArrowDownLeft : ArrowUpRight
-  const color = isCredit ? 'text-emerald-400' : 'text-rose-400'
-  const sign = isCredit ? '+' : '−'
-
-  return (
-    <li className="flex items-center gap-3 px-4 py-3">
-      <div className={`w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center ${color}`}>
-        <Icon size={16} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium leading-tight">
-          {tx.description ?? labelForSource(tx.source)}
-        </p>
-        <p className="text-[11px] text-white/40 mt-0.5">
-          {formatRelativeDate(tx.created_at)}
-          {tx.status && tx.status !== 'completed' && (
-            <span className="ml-2 px-1 py-0.5 rounded bg-amber-400/15 text-amber-300 border border-amber-400/30 text-[9px] uppercase">
-              {labelForStatus(tx.status)}
-            </span>
-          )}
-        </p>
-      </div>
-      <div className={`text-right ${color}`}>
-        <p className="text-sm font-semibold">
-          {sign}
-          {formatPrice(Math.abs(Number(tx.amount)))}
-        </p>
-        {tx.balance_after !== null && (
-          <p className="text-[10px] text-white/35">→ {formatPrice(Number(tx.balance_after))}</p>
-        )}
-      </div>
-    </li>
-  )
-}
-
-function WithdrawalRow({ wd }: { wd: Withdrawal }) {
-  const colors: Record<string, string> = {
-    pending: 'text-white/60 bg-white/5 border-white/10',
-    pending_admin: 'text-amber-300 bg-amber-400/10 border-amber-400/30',
-    processing: 'text-cyan-300 bg-cyan-400/10 border-cyan-400/30',
-    completed: 'text-emerald-300 bg-emerald-400/10 border-emerald-400/30',
-    failed: 'text-rose-300 bg-rose-400/10 border-rose-400/30',
-  }
-  const cls = colors[wd.status] ?? colors.pending
-
-  return (
-    <li className="flex items-center gap-3 px-4 py-3">
-      <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-white/55">
-        <Banknote size={16} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium">
-          IBAN ****{wd.bank_iban_last4 ?? '----'}
-        </p>
-        <p className="text-[11px] text-white/40 mt-0.5">
-          Demandé {formatRelativeDate(wd.requested_at)}
-          {wd.completed_at && ` · Versé ${formatRelativeDate(wd.completed_at)}`}
-        </p>
-      </div>
-      <div className="text-right">
-        <p className="text-sm font-semibold">{formatPrice(Number(wd.amount))}</p>
-        <span className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border ${cls}`}>
-          {labelForStatus(wd.status)}
-        </span>
-      </div>
-    </li>
-  )
-}
-
-function labelForSource(s: string): string {
-  switch (s) {
-    case 'trip_clean': return 'Trajet propre'
-    case 'referral': return 'Parrainage'
-    case 'contest': return 'Concours'
-    case 'lottery': return 'Tirage au sort'
-    case 'redistribution': return 'Redistribution'
-    case 'withdrawal': return 'Retrait IBAN'
-    case 'manual_admin': return 'Crédit admin'
-    case 'mission': return 'Mission'
-    default: return s
-  }
-}
-
-function labelForStatus(s: string): string {
-  switch (s) {
-    case 'pending': return 'En attente'
-    case 'pending_admin': return 'À valider'
-    case 'processing': return 'En cours'
-    case 'completed': return 'Terminé'
-    case 'failed': return 'Échec'
-    default: return s
-  }
-}
