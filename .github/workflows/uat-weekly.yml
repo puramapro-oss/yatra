@@ -1,37 +1,174 @@
-name: UAT Weekly
+name: UAT Preparation and Explicit Live Check
 
 on:
   schedule:
-    # Sunday 03:00 UTC
+    # Weekly prerequisite validation only; no production request or email.
     - cron: '0 3 * * 0'
   workflow_dispatch:
+    inputs:
+      run_live_uat:
+        description: 'Run the real production UAT on main with application credentials'
+        required: false
+        default: false
+        type: boolean
+      send_alert:
+        description: 'Send an email if the explicitly requested live UAT fails'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
 
 jobs:
   uat:
+    name: Prepare UAT; live production check requires explicit input
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    env:
-      UAT_BASE_URL: https://yatra.purama.dev
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    defaults:
+      run:
+        working-directory: yatra
+        shell: bash
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          path: yatra
+          persist-credentials: false
 
-      - name: Install deps
-        run: npm install --no-audit --no-fund
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: yatra/package-lock.json
+
+      - name: Verify private source admission and cleanup regressions without credentials
+        env:
+          TMPDIR: ${{ runner.temp }}/yatra-regression-tests-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir -m 700 -- "$TMPDIR"
+          trap 'rm -rf -- "$TMPDIR"' EXIT
+          node --test scripts/*.test.mjs
+
+      - name: Read immutable private source revisions
+        id: shared
+        run: |
+          node scripts/bootstrap-shared-packages.mjs --github-output
+          node scripts/verify-smarana-source.mjs --github-output
+
+      - name: Check required private read credentials
+        env:
+          PACKAGE_SOURCE_KEY_PRESENT: ${{ secrets.PURAMA_PACKAGES_READ_SSH_KEY != '' }}
+          SMARANA_KEY_PRESENT: ${{ secrets.SMARANA_READ_SSH_KEY != '' }}
+        run: |
+          if [ "$PACKAGE_SOURCE_KEY_PRESENT" != true ]; then
+            echo '::error::A dedicated read-only PURAMA_PACKAGES_READ_SSH_KEY is required for purama-master.'
+            exit 1
+          fi
+          if [ "$SMARANA_KEY_PRESENT" != true ]; then
+            echo '::error::A separate read-only SMARANA_READ_SSH_KEY is required for purama-smarana.'
+            exit 1
+          fi
+
+      - name: Retrieve only the two manifest-listed ESLint source files
+        env:
+          PURAMA_PACKAGES_READ_SSH_KEY: ${{ secrets.PURAMA_PACKAGES_READ_SSH_KEY }}
+          TMPDIR: ${{ runner.temp }}/yatra-shared-source-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir -m 700 -- "$TMPDIR"
+          node scripts/install-private-dependencies.mjs --shared-source "$GITHUB_WORKSPACE/shared-source"
+
+      - name: Remove temporary source authentication
+        if: always()
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const root = fs.realpathSync(process.env.RUNNER_TEMP);
+          if (!/^\d+$/.test(process.env.GITHUB_RUN_ID) || !/^\d+$/.test(process.env.GITHUB_RUN_ATTEMPT)) throw new Error('Invalid cleanup identity.');
+          const owned = path.join(root, `yatra-shared-source-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`);
+          fs.rmSync(owned, { recursive: true, force: true });
+          try { fs.lstatSync(owned); throw new Error('Temporary source authentication remains.'); }
+          catch (error) { if (error.code !== 'ENOENT') throw error; }
+          console.log(JSON.stringify({ sharedSourceTemporaryDirectoryAbsent: true }));
+          NODE
+
+      - name: Verify ESLint source digests and create its sibling layout
+        run: node scripts/bootstrap-shared-packages.mjs "$GITHUB_WORKSPACE/shared-source" "$GITHUB_WORKSPACE/packages"
+
+      - name: Retrieve only the manifest-listed SMARANA source blobs
+        env:
+          SMARANA_READ_SSH_KEY: ${{ secrets.SMARANA_READ_SSH_KEY }}
+          TMPDIR: ${{ runner.temp }}/yatra-smarana-source-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir -m 700 -- "$TMPDIR"
+          node scripts/install-private-dependencies.mjs --smarana-source "$GITHUB_WORKSPACE/smarana-source"
+
+      - name: Remove SMARANA temporary authentication and verify absence before npm
+        if: always()
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const root = fs.realpathSync(process.env.RUNNER_TEMP);
+          if (!/^\d+$/.test(process.env.GITHUB_RUN_ID) || !/^\d+$/.test(process.env.GITHUB_RUN_ATTEMPT)) throw new Error('Invalid cleanup identity.');
+          for (const prefix of ['yatra-shared-source', 'yatra-smarana-source']) {
+            const owned = path.join(root, `${prefix}-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`);
+            fs.rmSync(owned, { recursive: true, force: true });
+            try { fs.lstatSync(owned); throw new Error('Temporary private source authentication remains.'); }
+            catch (error) { if (error.code !== 'ENOENT') throw error; }
+          }
+          console.log(JSON.stringify({ privateSourceTemporaryDirectoriesAbsent: true }));
+          NODE
+
+      - name: Verify no checkout authentication remains before dependency scripts
+        if: always()
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const { spawnSync } = require('node:child_process');
+          const env = { ...process.env };
+          for (const key of Object.keys(env)) if (key.startsWith('GIT_')) delete env[key];
+          Object.assign(env, { GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null' });
+          for (const name of ['yatra']) {
+            const directory = path.join(process.env.GITHUB_WORKSPACE, name);
+            if (!fs.existsSync(path.join(directory, '.git'))) continue;
+            const checked = spawnSync('git', ['-C', directory, 'config', '--local', '--no-includes', '--name-only', '--get-regexp',
+              '^(core\\.sshcommand|http\\..*\\.extraheader|credential\\..*|url\\..*\\.insteadof|include\\.path|includeif\\..*\\.path)$'],
+              { env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 5000, maxBuffer: 65536 });
+            if (checked.error || checked.status !== 1 || checked.stdout.trim()) throw new Error('Persistent checkout authentication remains or cannot be verified.');
+          }
+          console.log(JSON.stringify({ checkoutAuthenticationConfigAbsent: true }));
+          NODE
+
+      - name: Verify every SMARANA source blob before installation
+        run: node scripts/verify-smarana-source.mjs "$GITHUB_WORKSPACE/smarana-source"
+
+      - name: Package the verified SMARANA source offline with locked integrity
+        run: node scripts/package-verified-smarana.mjs "$GITHUB_WORKSPACE/smarana-source"
+
+      - name: Install
+        run: |
+          npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund
+          git diff --exit-code -- package.json package-lock.json tooling/shared-packages.lock.json tooling/smarana-source.lock.json
+
+      - name: Run dependency lifecycle scripts without private credentials
+        run: |
+          npm rebuild --no-audit --no-fund
 
       - name: Install Playwright browsers
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.run_live_uat }}
         run: npx playwright install --with-deps chromium
 
       - name: Run UAT suite
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.run_live_uat }}
         id: uat
+        env:
+          UAT_BASE_URL: https://yatra.purama.dev
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: npx playwright test --config=playwright.uat.config.ts --reporter=list
         continue-on-error: true
 
@@ -41,12 +178,12 @@ jobs:
         with:
           name: uat-report-${{ github.run_id }}
           path: |
-            tests/uat/report
-            tests/uat/output
+            yatra/tests/uat/report
+            yatra/tests/uat/output
           retention-days: 14
 
       - name: Send Resend alert if red
-        if: steps.uat.outcome == 'failure'
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.run_live_uat && inputs.send_alert && steps.uat.outcome == 'failure' }}
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
@@ -67,3 +204,9 @@ jobs:
       - name: Fail workflow if UAT red
         if: steps.uat.outcome == 'failure'
         run: exit 1
+
+      - name: Record that production UAT was not executed
+        if: ${{ steps.uat.outcome == 'skipped' }}
+        run: |
+          echo '::notice::UAT réelle NON EXÉCUTÉE / NON TESTÉE. Ce run valide uniquement les prérequis ; aucun accès production ni aucune alerte.'
+          echo 'Production UAT: NOT TESTED (explicit manual main input required).' >> "$GITHUB_STEP_SUMMARY"
