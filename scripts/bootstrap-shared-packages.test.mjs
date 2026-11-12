@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { watch, symlinkSync } from 'node:fs';
+import { syncBuiltinESMExports } from 'node:module';
 import { createHash } from 'node:crypto';
-import { mkdtemp, mkdir, writeFile, readFile, readdir, rm, symlink } from 'node:fs/promises';
+import fsPromises, { mkdtemp, mkdir, writeFile, readFile, readdir, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -143,22 +143,26 @@ test('a symlink destination cannot redirect package writes outside the chosen di
   assert.deepEqual(await readdir(other), []);
 });
 
-test('a destination symlink introduced during staging cannot redirect the package installation', async t => {
+test('a destination symlink introduced immediately before the real rename cannot redirect installation', async t => {
   const input = await fixture(t);
   const outside = path.join(input.root, 'outside');
   await mkdir(outside);
   await mkdir(path.dirname(input.destinationRoot));
   let intercepted = false;
-  const watcher = watch(path.dirname(input.destinationRoot), (_event, name) => {
-    if (!intercepted && String(name).startsWith('.midas-shared-packages-')) {
-      symlinkSync(outside, input.destinationRoot);
-      intercepted = true;
-      watcher.close();
-    }
+  const realRename = fsPromises.rename;
+  t.mock.method(fsPromises, 'rename', async (source, destination) => {
+    assert.equal(destination, input.destinationRoot);
+    await symlink(outside, destination);
+    intercepted = true;
+    return realRename(source, destination);
   });
-  t.after(() => watcher.close());
+  syncBuiltinESMExports();
+  t.after(() => {
+    t.mock.restoreAll();
+    syncBuiltinESMExports();
+  });
   await assert.rejects(bootstrapSharedPackages(input));
-  assert.equal(intercepted, true, 'fixture must interleave after initial checks and before promotion');
+  assert.equal(intercepted, true, 'the real rename must encounter the injected symlink after all admission checks');
   assert.deepEqual(await readdir(outside), []);
 });
 
