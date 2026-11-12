@@ -14,7 +14,7 @@ function fixture(t) {
   mkdirSync(path.join(sourceRoot, 'src'), { recursive: true });
   const script = 'node -e "require(\'node:fs\').writeFileSync(\'lifecycle-witness\',\'ran\')"';
   const files = [
-    ['package.json', JSON.stringify({ name: '@purama/smarana', version: '0.1.0', main: 'src/index.ts', scripts: { postinstall: script, prepare: script } })],
+    ['package.json', JSON.stringify({ name: '@purama/smarana', version: '0.1.0', main: 'src/index.ts' })],
     ['package-lock.json', '{"lockfileVersion":3}'],
     ['src/index.ts', 'export const fixture = true;\n'],
   ].map(([name, content]) => {
@@ -30,7 +30,7 @@ function fixture(t) {
   const bytes = readFileSync(path.join(root, 'purama-smarana-0.1.0.tgz'));
   const integrity = `sha512-${createHash('sha512').update(bytes).digest('base64')}`;
   assert.equal(existsSync(path.join(sourceRoot, 'lifecycle-witness')), false);
-  return { root, sourceRoot, manifest, integrity, env, destination: path.join(root, 'verified.tgz') };
+  return { root, sourceRoot, manifest, integrity, env, script, destination: path.join(root, 'verified.tgz') };
 }
 
 const assertClean = root => assert.equal(readdirSync(root).some(name => name.startsWith('.smarana-pack-')), false);
@@ -49,10 +49,10 @@ test('verified source packs reproducibly, installs offline from its lock, and de
   assert.equal(result.verifiedFiles, 3);
   assert.deepEqual(packageVerifiedSmarana(f), result);
   const dependency = 'file:verified.tgz';
-  writeFileSync(path.join(f.root, 'package.json'), JSON.stringify({ name: 'fixture-app', version: '0.0.0', dependencies: { '@purama/smarana': dependency } }));
+  writeFileSync(path.join(f.root, 'package.json'), JSON.stringify({ name: 'fixture-app', version: '0.0.0', dependencies: { '@purama/smarana': dependency }, scripts: { postinstall: f.script } }));
   const lock = { name: 'fixture-app', version: '0.0.0', lockfileVersion: 3, packages: {
     '': { name: 'fixture-app', version: '0.0.0', dependencies: { '@purama/smarana': dependency } },
-    'node_modules/@purama/smarana': { version: '0.1.0', resolved: dependency, integrity: f.integrity, hasInstallScript: true },
+    'node_modules/@purama/smarana': { version: '0.1.0', resolved: dependency, integrity: f.integrity },
   } };
   const serialized = JSON.stringify(lock);
   writeFileSync(path.join(f.root, 'package-lock.json'), serialized);
@@ -61,10 +61,10 @@ test('verified source packs reproducibly, installs offline from its lock, and de
   assert.equal(readFileSync(path.join(f.root, 'package-lock.json'), 'utf8'), serialized);
   const packageRoot = path.join(f.root, 'node_modules/@purama/smarana');
   assert.equal(readFileSync(path.join(packageRoot, 'src/index.ts'), 'utf8'), 'export const fixture = true;\n');
-  assert.equal(existsSync(path.join(packageRoot, 'lifecycle-witness')), false);
+  assert.equal(existsSync(path.join(f.root, 'lifecycle-witness')), false);
   const rebuilt = spawnSync('npm', ['rebuild', '--offline', '--no-audit', '--no-fund'], { cwd: f.root, env: f.env, encoding: 'utf8', timeout: 30000 });
   assert.equal(rebuilt.status, 0, rebuilt.stderr);
-  assert.equal(readFileSync(path.join(packageRoot, 'lifecycle-witness'), 'utf8'), 'ran');
+  assert.equal(readFileSync(path.join(f.root, 'lifecycle-witness'), 'utf8'), 'ran');
   assertClean(f.root);
 });
 
@@ -100,3 +100,37 @@ test('packaging failure is fail closed and removes its owned temporary directory
   assert.equal(existsSync(f.destination), false);
   assertClean(f.root);
 });
+
+function addVerifiedFile(f, name, content) {
+  const bytes = Buffer.from(content);
+  writeFileSync(path.join(f.sourceRoot, name), bytes);
+  f.manifest.files = f.manifest.files.filter(file => file.path !== name);
+  f.manifest.files.push({ path: name, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex'),
+    gitBlob: createHash('sha1').update(Buffer.concat([Buffer.from(`blob ${bytes.length}\0`), bytes])).digest('hex') });
+}
+
+test('verified lifecycle declarations are rejected before spawning npm or executing prepare', t => {
+  const f = fixture(t);
+  for (const name of ['prepare', 'prepack', 'postpack', 'preinstall', 'install', 'postinstall']) {
+    const pkg = { name: '@purama/smarana', version: '0.1.0', scripts: { [name]: f.script } };
+    addVerifiedFile(f, 'package.json', JSON.stringify(pkg));
+    let calls = 0;
+    assert.throws(() => packageVerifiedSmarana({ ...f, run: () => { calls++; return { status: 0 }; } }), /lifecycle scripts are not admitted/);
+    assert.equal(calls, 0);
+    assert.equal(existsSync(path.join(f.sourceRoot, 'lifecycle-witness')), false);
+    assert.equal(existsSync(f.destination), false);
+  }
+  assertClean(f.root);
+});
+
+for (const name of ['.npmrc', 'binding.gyp']) {
+  test(`verified ${name} is rejected before any npm process`, t => {
+    const f = fixture(t);
+    addVerifiedFile(f, name, 'synthetic configuration');
+    let calls = 0;
+    assert.throws(() => packageVerifiedSmarana({ ...f, run: () => { calls++; return { status: 0 }; } }), /configuration is not admitted/);
+    assert.equal(calls, 0);
+    assert.equal(existsSync(f.destination), false);
+    assertClean(f.root);
+  });
+}

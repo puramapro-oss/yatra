@@ -8,6 +8,15 @@ import { verifySmaranaSource } from './verify-smarana-source.mjs';
 /** Pack only admitted source, offline and without lifecycle or credentials. */
 export function packageVerifiedSmarana({ sourceRoot, destination, manifest, integrity, env = process.env, run = spawnSync }) {
   const verified = verifySmaranaSource(sourceRoot, manifest);
+  const packageJson = JSON.parse(readFileSync(path.join(sourceRoot, 'package.json'), 'utf8'));
+  // npm 10 can execute prepare even with --ignore-scripts. Admit no declared
+  // scripts or npm/native-build configuration before invoking any npm process.
+  if (Object.hasOwn(packageJson, 'scripts') && (packageJson.scripts === null
+      || typeof packageJson.scripts !== 'object' || Array.isArray(packageJson.scripts)
+      || Object.keys(packageJson.scripts).length)) throw new Error('SMARANA lifecycle scripts are not admitted.');
+  if (manifest.files.some(file => ['.npmrc', 'binding.gyp'].includes(path.posix.basename(file.path).toLowerCase()))) {
+    throw new Error('SMARANA npm or native-build configuration is not admitted.');
+  }
   if (!/^sha512-[A-Za-z0-9+/]{86}==$/.test(integrity ?? '')) throw new Error('A locked SHA-512 archive integrity is required.');
   const output = path.resolve(destination);
   const parent = path.dirname(output);
