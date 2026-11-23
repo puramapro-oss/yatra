@@ -413,3 +413,11 @@ Suite nécessaire : exécuter Playwright dans un environnement autorisé, vérif
 Contrôle global complémentaire : `npm run lint` atteint zéro erreur (11 avertissements préexistants hors périmètre). Son unique erreur bloquante était la longueur d'un ancien fichier de tests de dépendances privées : trois helpers ont été déplacés sans changer les scénarios ni les 81 assertions. `node --test scripts/*.test.mjs` : 54/54 PASS ; les scripts de production et les verrous restent inchangés.
 
 Analyse d'impact avant livraison : GitNexus `detect_changes(scope=all)` exécuté sur l'index YATRA actualisé, 38 fichiers, 462 symboles et 58 flux signalés, niveau `critical` conservé. Revue manuelle des imports et appels : le changement métier partagé hors VACANCES est l'ajout optionnel d'AbortSignal dans Tavily (deux appelants : veille aides et vacances) ; les valeurs par défaut et l'appel sans options sont testés. Les raccordements vers `useAlertes` depuis les autres vues via le nom `refresh` sont des confusions avec `router.refresh()` de Next : ces vues n'importent pas ce hook. L'index signale une couverture globale tronquée ; il complète la revue et ne démontre pas une couverture exhaustive. Aucun fichier métier hors VACANCES n'est modifié à l'exception de ces deux lignes dans Tavily.
+
+## Enregistrement et blocage effectif de préversion
+
+Code enregistré : commit `768e63856757a97f6390c4dd96b3558e3e04bc74`, contenu distant identique à l'arbre local testé. Revue : https://github.com/puramapro-oss/yatra/pull/2 (brouillon).
+
+La tentative de création d'une préversion sur le projet YATRA existant a été refusée par Vercel : HTTP `402`, code `resource_creation_blocked`, compte suspendu ; le fournisseur demande un moyen de paiement valide pour réactiver l'abonnement. Aucun nouveau déploiement n'a été créé. Le CLI Vercel n'est pas disponible ici. Aucun paramètre de facturation, abonnement ou compte n'a été modifié.
+
+Action indispensable du propriétaire du compte : résoudre cette suspension dans la facturation Vercel. Reprise technique après déblocage : préparer une préversion du commit revu, exécuter les cinq scénarios navigateur et vérifier le parcours réel avec la base et Tavily avant toute clôture en production. La branche principale reste inchangée.

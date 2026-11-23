@@ -289,3 +289,5 @@ Responsable : Codex, revue indépendante du moteur et du calcul ; interface trai
 - [ ] Vérifier la base et Tavily réels, puis la version déployée ; le dernier déploiement Vercel inspecté est `BLOCKED`.
 
 Critère de clôture en production : parcours connecté création → veille réelle → notification → suppression vérifié, absence de doublons sur répétition et disponibilité observée du déploiement. Les résultats locaux détaillés figurent dans l'entrée du même jour de `progress.md`.
+
+Livraison de code enregistrée : [PR #2](https://github.com/puramapro-oss/yatra/pull/2), en brouillon. Préversion refusée par Vercel avec HTTP 402 `resource_creation_blocked` : compte suspendu, réactivation de la facturation nécessaire par le propriétaire. Aucun nouveau déploiement créé.
