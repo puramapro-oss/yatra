@@ -154,6 +154,12 @@ jobs:
         run: |
           npm rebuild --no-audit --no-fund
 
+      - name: Verify VACANCES regressions without live services
+        run: npm run test:vacances
+
+      - name: Check application types
+        run: npx tsc --noEmit
+
       - name: Install Playwright browsers
         if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.run_live_uat }}
         run: npx playwright install --with-deps chromium

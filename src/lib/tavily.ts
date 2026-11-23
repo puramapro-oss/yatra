@@ -35,6 +35,7 @@ export type SearchOptions = {
   exclude_domains?: string[]
   search_depth?: 'basic' | 'advanced'
   days?: number // pour topic=news
+  signal?: AbortSignal
 }
 
 export async function tavilySearch(query: string, opts: SearchOptions = {}): Promise<TavilySearchResponse> {
@@ -43,6 +44,7 @@ export async function tavilySearch(query: string, opts: SearchOptions = {}): Pro
 
   const r = await fetch(`${TAVILY_BASE}/search`, {
     method: 'POST',
+    signal: opts.signal,
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,

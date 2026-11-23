@@ -2,167 +2,138 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, BellRing, Plus, Trash2, ExternalLink, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, BellRing, Plus, RefreshCw, Trash2 } from 'lucide-react'
 import { NatureBackground } from '@/components/multisensoriel/NatureBackground'
 import { formatPrice } from '@/lib/utils'
+import { safeDealUrl } from '@/lib/vacances/alertes'
+import type { AlertConfig, AlertNotification } from '@/lib/vacances/alertes-types'
+import { AlertDealCard } from './AlertDealCard'
+import { useAlertes } from './useAlertes'
 
-type Config = {
-  id: string
-  aeroport_depart: string
-  destination_souhaitee: string
-  budget_max_eur: number | null
-  actif: boolean
-}
+const inputClass = 'w-full min-h-11 bg-white/5 border border-white/20 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 disabled:opacity-60'
 
-type Deal = { id: string; titre: string; url: string; extrait: string | null; prix_detecte_eur: number | null; destination_matched: string | null }
-type Notification = { id: string; created_at: string; deal: Deal }
-
-export function AlertesView({ initialConfigs, initialNotifications }: { initialConfigs: Config[]; initialNotifications: Notification[] }) {
-  const [configs, setConfigs] = useState<Config[]>(initialConfigs)
-  const [notifications] = useState<Notification[]>(initialNotifications)
+export function AlertesView({ initialConfigs, initialNotifications, initialError = null }: {
+  initialConfigs: AlertConfig[]
+  initialNotifications: AlertNotification[]
+  initialError?: string | null
+}) {
+  const alerts = useAlertes({ configs: initialConfigs, notifications: initialNotifications }, initialError)
   const [depart, setDepart] = useState('')
   const [destination, setDestination] = useState('')
   const [budget, setBudget] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
+  const busy = alerts.pending !== null
+  const pendingLabel = alerts.pending === 'add' ? 'Enregistrement de l’alerte…'
+    : alerts.pending === 'refresh' ? 'Actualisation des alertes…' : 'Suppression de l’alerte…'
+  const seenSources = new Set<string>()
+  const deals = alerts.notifications.flatMap(({ deal }) => {
+    if (!deal) return []
+    const sourceKey = safeDealUrl(deal.url) ?? `deal:${deal.id}`
+    if (seenSources.has(sourceKey)) return []
+    seenSources.add(sourceKey)
+    return [deal]
+  })
 
-  async function handleAdd(e: React.FormEvent) {
-    e.preventDefault()
-    setError(null)
-    if (!depart || !destination) {
-      setError('Renseigne un aéroport de départ et une destination.')
+  async function handleAdd(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (busy) return
+    setFormError(null)
+    if (depart.trim().length < 2 || destination.trim().length < 2) {
+      setFormError('Renseigne un départ et une destination d’au moins deux caractères.')
       return
     }
-    setLoading(true)
-    try {
-      const r = await fetch('/api/vacances/alertes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ aeroport_depart: depart, destination_souhaitee: destination, budget_max_eur: budget ? Number(budget) : null }),
-      })
-      const data = await r.json()
-      if (!r.ok) throw new Error(data.error ?? 'Erreur')
-      setConfigs((prev) => [data.config, ...prev])
-      setDepart(''); setDestination(''); setBudget('')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur inconnue')
-    } finally {
-      setLoading(false)
+    const amount = budget.trim() ? Number(budget) : null
+    if (amount !== null && (!Number.isFinite(amount) || amount < 0.01 || amount > 20000)) {
+      setFormError('Indique un budget entre 0,01 € et 20 000 €, ou laisse ce champ vide.')
+      return
     }
-  }
-
-  async function removeConfig(id: string) {
-    const r = await fetch(`/api/vacances/alertes/${id}`, { method: 'DELETE' })
-    if (r.ok) setConfigs((prev) => prev.filter((c) => c.id !== id))
+    if (await alerts.addConfig(depart, destination, amount)) {
+      setDepart('')
+      setDestination('')
+      setBudget('')
+    }
   }
 
   return (
     <>
       <NatureBackground />
       <main className="relative z-card min-h-dvh">
-        <header className="px-6 py-5 max-w-3xl mx-auto flex items-center gap-3">
-          <Link href="/dashboard/vacances" aria-label="Retour" className="text-white/60 hover:text-white transition flex items-center gap-1.5">
-            <ArrowLeft size={18} />
-            <span className="text-sm">Retour</span>
+        <header className="px-6 py-5 max-w-3xl mx-auto flex flex-wrap items-center gap-3">
+          <Link href="/dashboard/vacances" aria-label="Retour aux vacances" className="min-h-11 text-white/70 hover:text-white transition flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 rounded-lg">
+            <ArrowLeft aria-hidden="true" size={18} /><span className="text-sm">Retour</span>
           </Link>
-          <h1 className="ml-2 text-lg font-semibold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
-            Alertes bons plans
-          </h1>
+          <h1 className="text-lg font-semibold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>Alertes bons plans</h1>
         </header>
 
-        <div className="px-6 pb-16 max-w-3xl mx-auto space-y-6">
-          <section className="glass rounded-3xl p-6 space-y-2">
-            <div className="flex items-center gap-2 text-amber-300">
-              <BellRing size={18} />
-              <span className="text-xs uppercase tracking-wider">Veille quotidienne, jamais un prix inventé</span>
-            </div>
-            <p className="text-sm text-white/60 leading-relaxed">
-              On surveille le web pour toi et on ne t&apos;alerte que sur des bons plans réellement publiés
-              (source + lien à l&apos;appui). Une erreur de tarif peut être annulée par la compagnie à tout
-              moment : ne réserve rien d&apos;autre (hôtel non remboursable) avant confirmation du billet.
+        <div className="px-6 pb-24 max-w-3xl mx-auto space-y-6">
+          <section className="glass rounded-3xl p-6 space-y-3" aria-labelledby="veille-title">
+            <h2 id="veille-title" className="flex items-center gap-2 text-amber-200 text-sm font-semibold">
+              <BellRing aria-hidden="true" size={18} /> Des pistes de voyage selon tes critères
+            </h2>
+            <p className="text-sm text-white/70 leading-relaxed">
+              La veille quotidienne recherche des bons plans publiés sur le web. Chaque piste garde sa source ; un prix mentionné peut avoir changé ou ne plus être disponible.
+              Confirme le tarif complet et les conditions auprès du vendeur avant de réserver.
             </p>
+            <p className="text-xs text-white/60 leading-relaxed">Une erreur de tarif peut être annulée par la compagnie. Attends la confirmation du billet avant de réserver un hôtel non remboursable.</p>
           </section>
 
-          <form onSubmit={handleAdd} className="glass rounded-3xl p-6 space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                type="text"
-                placeholder="Aéroport de départ"
-                value={depart}
-                onChange={(e) => setDepart(e.target.value)}
-                className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-400/40"
-              />
-              <input
-                type="text"
-                placeholder="Destination rêvée"
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                className="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-400/40"
-              />
+          <div className="space-y-3">
+            <button type="button" onClick={() => { setFormError(null); void alerts.refresh() }} disabled={busy} className="min-h-11 px-4 py-2 border border-white/20 rounded-xl inline-flex items-center gap-2 text-sm hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 disabled:opacity-50">
+              <RefreshCw aria-hidden="true" size={16} />{alerts.pending === 'refresh' ? 'Actualisation…' : 'Actualiser les alertes'}
+            </button>
+            {alerts.loadError && <p role="alert" className="text-sm text-rose-200">{alerts.loadError}</p>}
+            {alerts.error && <p role="alert" className="text-sm text-rose-200">{alerts.error}</p>}
+            <p role="status" aria-live="polite" aria-atomic="true" className="text-sm text-emerald-200">{busy ? pendingLabel : alerts.message}</p>
+          </div>
+
+          <form onSubmit={handleAdd} className="glass rounded-3xl p-6 space-y-4" aria-labelledby="create-alert-title" aria-busy={alerts.pending === 'add'}>
+            <h2 id="create-alert-title" className="font-semibold">Créer une alerte</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="vacances-depart" className="block text-sm text-white/80">Aéroport ou ville de départ</label>
+                <input id="vacances-depart" name="depart" type="text" required minLength={2} maxLength={80} value={depart} onChange={(event) => setDepart(event.target.value)} placeholder="Ex. Genève ou GVA" disabled={busy} className={inputClass} />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="vacances-destination" className="block text-sm text-white/80">Destination souhaitée</label>
+                <input id="vacances-destination" name="destination" type="text" required minLength={2} maxLength={80} value={destination} onChange={(event) => setDestination(event.target.value)} placeholder="Ex. Tokyo" disabled={busy} className={inputClass} />
+              </div>
             </div>
-            <input
-              type="number"
-              min={0}
-              placeholder="Budget max (€, optionnel)"
-              value={budget}
-              onChange={(e) => setBudget(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-400/40"
-            />
-            {error && <p className="text-sm text-rose-300">{error}</p>}
-            <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 to-orange-400 text-black font-semibold rounded-xl py-3 text-sm disabled:opacity-50">
-              <Plus size={16} /> {loading ? 'Ajout…' : 'Créer cette alerte'}
+            <div className="space-y-2">
+              <label htmlFor="vacances-budget" className="block text-sm text-white/80">Budget maximal en euros <span className="text-white/60">(facultatif)</span></label>
+              <input id="vacances-budget" name="budget" type="number" min={0.01} max={20000} step={0.01} inputMode="decimal" value={budget} onChange={(event) => setBudget(event.target.value)} aria-describedby="vacances-budget-help" disabled={busy} className={inputClass} />
+              <p id="vacances-budget-help" className="text-xs text-white/60">Ce filtre porte sur le prix mentionné dans la source. Les bagages et autres frais restent à vérifier.</p>
+            </div>
+            {formError && <p role="alert" className="text-sm text-rose-200">{formError}</p>}
+            <button type="submit" disabled={busy} className="w-full min-h-11 flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 to-orange-400 text-black font-semibold rounded-xl py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white disabled:opacity-50">
+              <Plus aria-hidden="true" size={16} />{alerts.pending === 'add' ? 'Enregistrement…' : 'Créer cette alerte'}
             </button>
           </form>
 
-          {configs.length > 0 && (
-            <section className="space-y-2">
-              <h2 className="text-xs uppercase tracking-wider text-white/50">Mes alertes actives</h2>
-              {configs.map((c) => (
-                <div key={c.id} className="glass rounded-xl p-3 flex items-center justify-between gap-3">
-                  <span className="text-sm">
-                    {c.aeroport_depart} → {c.destination_souhaitee}
-                    {c.budget_max_eur != null && <span className="text-white/40"> · max {formatPrice(c.budget_max_eur)}</span>}
-                  </span>
-                  <button type="button" onClick={() => removeConfig(c.id)} className="text-white/40 hover:text-rose-300 transition flex-shrink-0">
-                    <Trash2 size={15} />
-                  </button>
-                </div>
-              ))}
-            </section>
-          )}
-
-          <section className="space-y-3">
-            <h2 className="text-xs uppercase tracking-wider text-white/50">Bons plans détectés</h2>
-            {notifications.length === 0 ? (
-              <div className="glass rounded-2xl p-8 text-center space-y-2">
-                <p className="text-4xl">📡</p>
-                <p className="text-white/65 text-sm">Rien détecté pour l&apos;instant — la veille tourne quotidiennement.</p>
+          <section className="space-y-3" aria-labelledby="configs-title">
+            <h2 id="configs-title" className="text-sm font-semibold text-white/80">Mes alertes ({alerts.configs.length})</h2>
+            {alerts.configs.length === 0 ? (
+              <p className="text-sm text-white/60">{alerts.loadError ? 'Actualise pour retrouver tes alertes enregistrées.' : 'Choisis un départ et une destination pour créer ta première alerte.'}</p>
+            ) : alerts.configs.map((config) => (
+              <div key={config.id} className="glass rounded-xl p-3 flex items-center justify-between gap-3">
+                <p className="text-sm min-w-0 break-words">
+                  {config.aeroport_depart} → {config.destination_souhaitee}
+                  {config.budget_max_eur != null && <span className="block text-white/65">Budget : {formatPrice(config.budget_max_eur)}</span>}
+                  {!config.actif && <span className="block text-white/65">En pause</span>}
+                </p>
+                <button type="button" onClick={() => void alerts.removeConfig(config.id)} disabled={busy} aria-label={`Supprimer l’alerte ${config.aeroport_depart} vers ${config.destination_souhaitee}`} className="min-h-11 min-w-11 px-3 rounded-lg text-white/70 hover:text-rose-200 transition flex-shrink-0 inline-flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 disabled:opacity-50">
+                  <Trash2 aria-hidden="true" size={18} />{alerts.pending === `delete:${config.id}` && <span className="text-xs">Suppression…</span>}
+                </button>
               </div>
-            ) : (
-              notifications.map((n) => (
-                <a
-                  key={n.id}
-                  href={n.deal.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="glass rounded-2xl p-4 flex items-start gap-3 hover:border-amber-400/30 transition"
-                >
-                  <AlertTriangle size={16} className="text-amber-300 flex-shrink-0 mt-0.5" />
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-sm line-clamp-2">{n.deal.titre}</h3>
-                    {n.deal.extrait && <p className="text-xs text-white/55 mt-1 line-clamp-2">{n.deal.extrait}</p>}
-                    <div className="flex items-center gap-2 mt-2">
-                      {n.deal.prix_detecte_eur != null && (
-                        <span className="text-emerald-300 font-semibold text-sm">{formatPrice(n.deal.prix_detecte_eur)}</span>
-                      )}
-                      <span className="text-[11px] text-white/40 flex items-center gap-1">
-                        <ExternalLink size={10} /> Voir la source
-                      </span>
-                    </div>
-                  </div>
-                </a>
-              ))
-            )}
+            ))}
+          </section>
+
+          <section className="space-y-3" aria-labelledby="deals-title">
+            <h2 id="deals-title" className="text-sm font-semibold text-white/80">Pistes détectées ({deals.length})</h2>
+            {deals.length === 0 ? (
+              <div className="glass rounded-2xl p-6 text-center text-sm text-white/65">
+                {alerts.loadError ? 'Les résultats ne peuvent pas encore être chargés.' : 'Aucune piste affichée pour le moment. Les prochaines recherches peuvent faire apparaître de nouvelles offres.'}
+              </div>
+            ) : deals.map((deal) => <AlertDealCard key={deal.id} deal={deal} />)}
           </section>
         </div>
       </main>

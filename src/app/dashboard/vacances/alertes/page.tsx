@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
-import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { readAlerts } from '@/lib/vacances/alertes-data'
+import type { AlertsData } from '@/lib/vacances/alertes-types'
 import { AlertesView } from './AlertesView'
 
 export const dynamic = 'force-dynamic'
@@ -8,26 +9,15 @@ export const dynamic = 'force-dynamic'
 export default async function VacancesAlertesPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  if (!user) redirect('/login?next=/dashboard/vacances/alertes')
 
-  const h = await headers()
-  const proto = h.get('x-forwarded-proto') ?? 'http'
-  const host = h.get('host')
-  const cookieHeader = h.get('cookie') ?? ''
-
-  let configs = []
-  let notifications = []
+  let data: AlertsData = { configs: [], notifications: [] }
+  let initialError: string | null = null
   try {
-    const r = await fetch(`${proto}://${host}/api/vacances/alertes`, { headers: { cookie: cookieHeader }, cache: 'no-store' })
-    if (r.ok) {
-      const data = await r.json()
-      configs = data.configs ?? []
-      notifications = data.notifications ?? []
-    }
+    data = await readAlerts(supabase, user.id)
   } catch {
-    configs = []
-    notifications = []
+    initialError = 'Tes alertes sont momentanément indisponibles. Actualise pour réessayer.'
   }
 
-  return <AlertesView initialConfigs={configs} initialNotifications={notifications} />
+  return <AlertesView initialConfigs={data.configs} initialNotifications={data.notifications} initialError={initialError} />
 }
