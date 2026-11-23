@@ -372,3 +372,52 @@ L'app YATRA est 100% live sur https://yatra.purama.dev avec **toutes les feature
 - onboarding_completed à false par défaut → P2 ajoutera redirect si pas onboardé
 - intro_seen utilisé par CinematicIntro (1 fois max)
 - Aurora background animation respect prefers-reduced-motion
+
+---
+
+# 2026-11-23 — YATRA / VACANCES : correction de la précision et du parcours
+
+## Résultat livré dans le code
+
+Branche `fix/yatra-vacances-alerts-20261123`, depuis `main` à `3cd3a6e616a3f456ac03a3e9166d4fc4e6eb7ef0`. Les décisions et historiques précédents sont conservés. Cette entrée atteste uniquement des contrôles exécutés ce jour.
+
+- Prix : lecture complète des montants français/anglais avec centimes, rejet des montants ambigus, négatifs, remises, acomptes, mensualités et frais isolés. Un prix inconnu ne satisfait pas un budget. L'ambiguïté persiste après relecture du cache.
+- Rapprochement : départ et destination en mots complets, accents normalisés, trajet explicitement inversé rejeté. Filtrage textuel conservateur, sans prétendre comprendre toute annonce ni vérifier un itinéraire réservable.
+- Veille : priorité aux itinéraires actifs, rotation de couverture, maximum de quinze recherches et trois appels simultanés, délai de huit secondes par recherche et budget global de 45 secondes. Annulation transmise au fournisseur et à la DB. Cadence quotidienne inchangée.
+- Persistance : anciennes offres rapprochées des nouvelles configurations, nouvelles observations actualisées, variantes publicitaires neutralisées, notifications idempotentes grâce à la contrainte existante. Lecture paginée des configurations. Compteurs basés sur les lignes réellement retournées, y compris écritures partielles.
+- API : erreurs 400/401/503 distinctes, messages français sans détails SQL, UUID utilisateur/critères stable pour les créations répétées, doublon actif prioritaire sur un ancien inactif, suppression filtrée par propriétaire.
+- Interface : lecture SSR directe, labels associés, états de chargement/erreur, actualisation, suppression fiable, verrou contre les doubles clics, requêtes annulables, cartes dédupliquées par URL canonique, source et dates visibles.
+- Calcul total : sommes en centimes, fourchettes invalides rejetées, frais manquants explicitement indiqués, date de grille et estimation affichées. Le champ historique de vérification est conservé mais reste faux : aucune disponibilité commerciale n'est attestée.
+
+## Vérifications et limites
+
+| Contrôle | Statut | Preuve / portée |
+|---|---|---|
+| Tests VACANCES | PASS | `npm run test:vacances` : 119 tests, zéro échec ; fonctions, orchestrateur, API avec adaptateurs simulés, persistance, rendu React statique et calcul total |
+| TypeScript complet | PASS | `tsc --noEmit --pretty false`, Node 24.22.3 / TypeScript 5.9.3, code de sortie 0 |
+| ESLint du périmètre applicatif | PASS | Aucun avertissement ni erreur sur les fichiers produit modifiés |
+| Build Next en étapes séparées | PASS local | `next build --experimental-build-mode compile`, puis `generate`, codes de sortie 0 ; configuration fictive de compilation, aucun service réel interrogé |
+| Build monolithique standard | BLOQUÉ ici | Compilation réussie puis worker TypeScript arrêté par SIGKILL ; contrôle TypeScript exécuté séparément, sans désactiver les règles |
+| Parcours navigateur | BLOQUÉ / NON TESTÉ | Cinq scénarios Playwright prêts (`npm run test:vacances:ui`), mais Chromium ne démarre pas : sockets interdites, escalade rejetée par la politique automatique |
+| Base et Tavily réels | NON TESTÉ | Les tests utilisent des réponses contrôlées ; les variables requises sont présentes dans les métadonnées de production Vercel, leur validité n'est pas attestée |
+| Production | NON TESTÉ | Dernier déploiement inspecté `dpl_6D4eC6rCLmcE8khqEu4y7PcZRQXs` : `BLOCKED`, commit ancien `0851d8c` ; aucune conclusion de disponibilité actuelle de réservation |
+
+Pour reproduire la construction locale sans secret, les deux commandes Next utilisent uniquement `STRIPE_SECRET_KEY=sk_test_build_fixture`, `NEXT_PUBLIC_SUPABASE_URL=https://supabase.invalid` et `NEXT_PUBLIC_SUPABASE_ANON_KEY=build_fixture_only`. Ces valeurs ne sont ni une configuration de déploiement ni des accès fonctionnels. Les avertissements Next préexistants sur `middleware` et le runtime edge restent visibles.
+
+Revue indépendante : cinq défauts reproduits (ambiguïté réactivée, ancienne variante URL, paiement partiel, trajet inverse, réactivation de doublon) corrigés et recontrôlés. Les contraintes P17 sont réutilisées ; aucun changement de schéma ni nouveau fournisseur.
+
+L'exécution UAT existante inclut désormais les tests VACANCES et le contrôle TypeScript après préparation des dépendances. La garde explicite des tests en production et des emails reste inchangée. Les dépendances et verrous privés n'ont pas changé.
+
+Suite nécessaire : exécuter Playwright dans un environnement autorisé, vérifier la base et Tavily sur un compte de test, contrôler l'absence de doublons après deux passages réels, puis vérifier le déploiement de cette révision. Le caractère viral, la couverture exhaustive et le meilleur prix disponible ne sont pas des résultats établis par ces tests.
+
+Contrôle global complémentaire : `npm run lint` atteint zéro erreur (11 avertissements préexistants hors périmètre). Son unique erreur bloquante était la longueur d'un ancien fichier de tests de dépendances privées : trois helpers ont été déplacés sans changer les scénarios ni les 81 assertions. `node --test scripts/*.test.mjs` : 54/54 PASS ; les scripts de production et les verrous restent inchangés.
+
+Analyse d'impact avant livraison : GitNexus `detect_changes(scope=all)` exécuté sur l'index YATRA actualisé, 38 fichiers, 462 symboles et 58 flux signalés, niveau `critical` conservé. Revue manuelle des imports et appels : le changement métier partagé hors VACANCES est l'ajout optionnel d'AbortSignal dans Tavily (deux appelants : veille aides et vacances) ; les valeurs par défaut et l'appel sans options sont testés. Les raccordements vers `useAlertes` depuis les autres vues via le nom `refresh` sont des confusions avec `router.refresh()` de Next : ces vues n'importent pas ce hook. L'index signale une couverture globale tronquée ; il complète la revue et ne démontre pas une couverture exhaustive. Aucun fichier métier hors VACANCES n'est modifié à l'exception de ces deux lignes dans Tavily.
+
+## Enregistrement et blocage effectif de préversion
+
+Code enregistré : commit `768e63856757a97f6390c4dd96b3558e3e04bc74`, contenu distant identique à l'arbre local testé. Revue : https://github.com/puramapro-oss/yatra/pull/2 (brouillon).
+
+La tentative de création d'une préversion sur le projet YATRA existant a été refusée par Vercel : HTTP `402`, code `resource_creation_blocked`, compte suspendu ; le fournisseur demande un moyen de paiement valide pour réactiver l'abonnement. Aucun nouveau déploiement n'a été créé. Le CLI Vercel n'est pas disponible ici. Aucun paramètre de facturation, abonnement ou compte n'a été modifié.
+
+Action indispensable du propriétaire du compte : résoudre cette suspension dans la facturation Vercel. Reprise technique après déblocage : préparer une préversion du commit revu, exécuter les cinq scénarios navigateur et vérifier le parcours réel avec la base et Tavily avant toute clôture en production. La branche principale reste inchangée.

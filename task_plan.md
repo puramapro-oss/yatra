@@ -270,3 +270,24 @@
 - **Tracking en arrière-plan** (backlog V3.1 ci-dessus) reste impossible en WebView comme en PWA. Le backlog Expo (mentionné plus haut) reste valide si un tracking GPS continu en arrière-plan devient nécessaire. Capacitor offre un compromis : binaire stores avec 95% du code web réutilisé, mais pas de tracking avancé sans plugins natifs additionnels.
 - **Stores** : En attente `APPLE_TEAM_ID` + agreement développeur Apple signés. Android APK release prêt dès que nécessaire (pas de blocage technique).
 
+
+---
+
+# 2026-11-23 — Fiabilisation de YATRA / VACANCES
+
+Branche : `fix/yatra-vacances-alerts-20261123`, base `3cd3a6e616a3f456ac03a3e9166d4fc4e6eb7ef0`.
+Responsable : Codex, revue indépendante du moteur et du calcul ; interface traitée dans le même dépôt.
+
+- [x] Retrouver l'application et préserver le module existant : YATRA / VACANCES, sans nouvelle application.
+- [x] Corriger prix décimaux, faux rapprochements, budget inconnu, acomptes/frais et trajets explicitement inversés.
+- [x] Prioriser les itinéraires utilisateur, répartir la couverture, borner les recherches et rendre les échecs visibles.
+- [x] Réconcilier les offres connues, actualiser les sources, neutraliser les variantes publicitaires et les prix ambigus.
+- [x] Rendre les créations répétées idempotentes et améliorer création, suppression, actualisation et erreurs.
+- [x] Présenter le prix total comme estimation, signaler les frais inconnus et conserver l'exactitude des centimes.
+- [x] Ajouter les régressions reproductibles et leur exécution dans la préparation UAT existante.
+- [ ] Exécuter les cinq scénarios navigateur dans un environnement autorisé : Chromium bloqué ici par les restrictions de sockets.
+- [ ] Vérifier la base et Tavily réels, puis la version déployée ; le dernier déploiement Vercel inspecté est `BLOCKED`.
+
+Critère de clôture en production : parcours connecté création → veille réelle → notification → suppression vérifié, absence de doublons sur répétition et disponibilité observée du déploiement. Les résultats locaux détaillés figurent dans l'entrée du même jour de `progress.md`.
+
+Livraison de code enregistrée : [PR #2](https://github.com/puramapro-oss/yatra/pull/2), en brouillon. Préversion refusée par Vercel avec HTTP 402 `resource_creation_blocked` : compte suspendu, réactivation de la facturation nécessaire par le propriétaire. Aucun nouveau déploiement créé.
